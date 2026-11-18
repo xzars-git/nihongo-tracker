@@ -1,2 +1,5 @@
 scripts/
 app/
+.githooks/
+.github/
+README.md
