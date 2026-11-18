@@ -6,11 +6,13 @@
 <title>日本語 Tracker · Arsenius</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#17181c">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="assets/img/icon-180.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23F2C200'/><text x='16' y='24' font-size='20' text-anchor='middle' font-family='sans-serif' font-weight='900'>日</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@800&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=6">
+<link rel="stylesheet" href="assets/css/styles.css?v=4341d4ec">
 </head>
 <body>
 <header class="top">
@@ -25,11 +27,11 @@
   <div class="fx-head"><h2 data-i="h.flex"></h2><button type="button" class="x" id="flexClose" data-i="fx.close"></button></div>
   <p class="mono muted small" data-i="fx.desc"></p>
   <div class="flex">
-    <div class="fx-stage"><canvas id="flexCanvas" width="1080" height="1920" aria-label="Story image preview"></canvas><div class="fx-cover" id="flexCover"><div class="cbar">CONSOLE<span>×</span></div><div class="cl"><p class="cmd">&gt; press GACHA_</p></div></div><span class="fx-rar mono" id="flexRar"></span></div>
+    <div class="fx-stage"><canvas id="flexCanvas" width="1080" height="1920" aria-label="Story image preview"></canvas><div class="fx-cover" id="flexCover"><div class="cbar">CONSOLE<span>×</span></div><div class="cl"><p class="cmd">&gt; press GACHA_</p></div></div><span class="fx-rar mono" id="flexRar" aria-live="polite"></span></div>
     <div class="fx-ctrl">
       <button type="button" class="gacha" id="flexPull" data-i="fx.pull"></button>
       <p class="mono small muted" id="flexInfo"></p>
-      <div class="fx-q"><label><input type="checkbox" id="flexQ" checked> <span data-i="fx.quote"></span></label><button type="button" id="flexQNew" data-i="fx.quoteNew"></button></div>
+      <div class="fx-q"><label><input type="checkbox" id="flexQ" checked> <span data-i="fx.quote"></span></label><select id="flexQTag" aria-label="Quote"></select><button type="button" id="flexQNew" data-i="fx.quoteNew"></button></div>
       <div class="btns"><button type="button" id="flexShare" disabled data-i="fx.share"></button><button type="button" id="flexSave" disabled data-i="fx.save"></button></div>
     </div>
   </div>
@@ -47,6 +49,11 @@
   </section>
 
   <section>
+    <h2 data-i="h.n3"></h2>
+    <div class="bars" id="n3bars"></div>
+  </section>
+
+  <section>
     <h2 data-i="h.consistency"></h2>
     <div class="streak mono" id="streak"></div>
     <div class="heat" id="heat"></div>
@@ -56,6 +63,7 @@
   <section>
     <h2 data-i="h.mistakes"></h2>
     <p class="mono muted small" id="mistakeSum"></p>
+    <div class="weak" id="weak"></div>
     <div class="mistakes" id="mistakes"></div>
   </section>
 
@@ -63,6 +71,8 @@
     <h2 data-i="h.log"></h2><p class="mono muted small" id="logNote"></p>
     <div class="log" id="log"></div>
   </section>
+
+  <details class="charts" id="badges"></details>
 
   <details class="charts"><summary class="mono" data-i="charts"></summary>
     <section class="two">
@@ -73,14 +83,15 @@
 </main>
 <footer class="mono muted small"><span data-i="footer"></span> <a href="metode.html" data-i="nav.method"></a>.</footer>
 <p class="tip mono small" id="tip" hidden></p>
-<script src="assets/js/i18n.js?v=6"></script>
-<script src="assets/js/flex.js?v=6"></script>
-<script src="assets/js/app.js?v=6"></script>
+<script src="assets/js/i18n.js?v=ad545e37"></script>
+<script src="assets/js/flex.js?v=5a9f3b99"></script>
+<script src="assets/js/app.js?v=4fe51bb7"></script>
 <script>
   const dlg = document.getElementById("flexDlg");
   document.getElementById("flexOpen").onclick = () => dlg.showModal();
   document.getElementById("flexClose").onclick = () => dlg.close();
   dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });  // tap backdrop to close
 </script>
+<script src="assets/js/pwa.js?v=f07ddea9"></script>
 </body>
 </html>

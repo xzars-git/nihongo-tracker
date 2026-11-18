@@ -40,6 +40,7 @@ static class Config {
     public const string Python = @"$python";
     public const string Publish = @"$(Join-Path $root 'scripts\publish.py')";
     public const string Root = @"$root";
+    public const string Progres = @"$(Join-Path (Split-Path $root) 'catatan\progres.md')";
 }
 "@
 

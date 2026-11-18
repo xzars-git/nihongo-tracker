@@ -95,7 +95,10 @@ footer{padding-bottom:40px}
 .gacha{font:400 26px 'Archivo Black',sans-serif;background:var(--y);color:var(--k);border:4px solid var(--k);box-shadow:5px 5px 0 var(--line);padding:12px 24px;cursor:pointer}
 .gacha:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--line)}
 .fx-q{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:14px;font:700 13px 'JetBrains Mono',monospace}
-.fx-q[hidden]{display:none}.fx-q label{display:flex;gap:6px;align-items:center;cursor:pointer}
+.fx-q[hidden]{display:none}.fx-q select{font:inherit;background:var(--card);color:var(--ink);border:3px solid var(--line);padding:5px 6px;max-width:100%}
+.weak{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0}.weak .wc{font:700 12px 'JetBrains Mono',monospace;border:2px solid var(--line);background:var(--card);padding:3px 9px}.weak .wc b{color:var(--hi)}
+.bgs{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px}.bg{font:700 12px 'JetBrains Mono',monospace;border:2px solid var(--dot);color:var(--muted);padding:4px 10px}
+.bg.on{background:var(--y);color:var(--k);border-color:var(--k)}.fx-q label{display:flex;gap:6px;align-items:center;cursor:pointer}
 .fx-q button{font:inherit;background:var(--card);color:var(--ink);border:3px solid var(--line);padding:6px 10px;cursor:pointer}.fx-q button:disabled{opacity:.45;cursor:default}
 .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .btns button{font:700 13px 'JetBrains Mono',monospace;background:var(--card);color:var(--ink);border:3px solid var(--line);padding:8px 12px;cursor:pointer}

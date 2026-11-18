@@ -58,7 +58,7 @@ def main(a):
     if cmd == "sesi" and len(a) >= 3:
         skor = f"{a[2]} · {menit} mnt" if menit else a[2]
         md = add_row(md, "Riwayat sesi", [TODAY, a[1], skor, a[3] if len(a) > 3 else ""])
-        msg = f"sesi dicatat: {a[1]} · {skor}"
+        msg = f"sesi dicatat: {a[1]} · {skor}" + ("" if menit else "\n! tanpa --menit: jam belajar di web cuma perkiraan. Tambahkan --menit N.")
     elif cmd == "salah" and len(a) == 4:
         due = TODAY + dt.timedelta(days=1)
         existing = [r for r in rows(md, "Bank kesalahan") if r[2][0] == a[1]]

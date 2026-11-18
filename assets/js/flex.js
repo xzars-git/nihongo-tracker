@@ -239,8 +239,34 @@
       txt(c, t(s.done === 4 ? "fx.perfect" : "fx.keep"), W / 2, 1460, lab(52), p.a, "center", 860);
       txt(c, "LEGENDARY", W / 2, 1560, F.mono(40, 700), p.mut, "center");
     } },
+    { name: "Weekly recap", draw(c, p, s) {
+      const r = s.recap, sub = n => LANG === "ja" ? F.jp(n, 400) : F.mono(n);
+      plate(c, "今週のまとめ", 80, 390, F.jp(76), p.a, p.af, -2);
+      txt(c, t("fx.rc.sub"), 80, 560, sub(30), p.mut, "left", 920);
+      txt(c, s.recapHm, 80, 790, LANG === "ja" ? F.jp(150) : F.num(260), p.ink, "left", 920);
+      txt(c, t("fx.rc.hours") + (r.est ? " · " + t("fx.estNote") : ""), 80, 860, sub(32), p.mut, "left", 920);
+      [[t("fx.rc.days"), `${r.days}/${r.of}`], [t("fx.rc.kaishi"), r.kaishi], [t("fx.rc.reviews"), r.reviews], [t("fx.rc.rounds"), r.rounds + (r.avg != null ? " · " + r.avg + "%" : "")]].forEach(([l, v], i) => {
+        const y = 960 + i * 125; c.strokeStyle = p.ink; c.lineWidth = 5; c.strokeRect(80, y, 920, 100);
+        txt(c, l, 110, y + 64, lab(38), p.ink, "left", 500); txt(c, String(v), 970, y + 70, F.num(64), p.ink, "right", 380);
+      });
+    } },
+    { name: "Badges", draw(c, p, s) {
+      const b = s.badges;
+      plate(c, "実績", 80, 390, F.jp(76), p.a, p.af, -2);
+      txt(c, `${b.got.length}/${b.total}`, 80, 730, F.num(230), p.ink, "left", 920);
+      txt(c, t("fx.bd.total"), 80, 800, LANG === "ja" ? F.jp(34, 400) : F.mono(34), p.mut, "left", 920);
+      if (!b.got.length) txt(c, t("fx.bd.none"), 80, 930, lab(46), p.ink, "left", 920);
+      b.got.slice(-6).forEach((l, i) => {
+        const x = 80 + (i % 2) * 470, y = 880 + Math.floor(i / 2) * 130;
+        c.fillStyle = i % 2 ? p.b : p.a; c.fillRect(x, y, 450, 104); txt(c, l, x + 24, y + 66, F.jp(34, 700), i % 2 ? p.bf : p.af, "left", 400);
+      });
+      if (b.next) {
+        const y = 1330; txt(c, t("fx.bd.next", { l: b.next.label, a: b.next.have, b: b.next.need }), 80, y, LANG === "ja" ? F.jp(32, 400) : F.mono(32), p.ink, "left", 920);
+        c.strokeStyle = p.ink; c.lineWidth = 6; c.strokeRect(80, y + 30, 920, 60); c.fillStyle = p.a; c.fillRect(86, y + 36, 908 * Math.min(1, b.next.have / b.next.need), 48);
+      }
+    } },
   ];
-  const RAR = { common: [2, 6, 8, 9, 10], rare: [1, 5, 4, 3], epic: [7, 0], legendary: [11] };
+  const RAR = { common: [2, 6, 8, 9, 10], rare: [1, 5, 4, 3, 12], epic: [7, 0, 13], legendary: [11] };
   const COMEBACK = { common: [9], rare: [3, 5], epic: [0], legendary: [] };  // cumulative numbers only, never 0/4
   const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
 
@@ -249,10 +275,10 @@
     const $ = id => document.getElementById(id), cover = $("flexCover"), rar = $("flexRar"), info = $("flexInfo"), share = $("flexShare"), save = $("flexSave");
     const sample = "0123456789ABCabc█░" + JP.join("") + s.kanjiList + "今日のノルマ済未毎日の記録今週の目標ログ成績表完了継続連続達成学習漢字クイズ復習単語累計まであとありがとうございました日本語" + ["fx.r.kaishiNew", "fx.r.reviews", "fx.r.rounds", "fx.r.score", "fx.r.minna", "fx.r.kaiwa", "fx.r.bank", "fx.r.streak", "fx.must", "fx.daysLeft", "fx.progress",
         "fx.heatSub", "fx.heatLine", "fx.wMinna", "fx.wKaishi", "fx.wKanji", "fx.hanko", "fx.t1", "fx.t2", "fx.t3", "fx.t4", "fx.t5", "fx.t6", "fx.perfect", "fx.keep",
-        "fx.kanjiSeen", "fx.time", "fx.studyToday", "fx.learned", "fx.week7", "fx.estNote", "fx.kaishi", "fx.reviews", "fx.roundsToday", "fx.daysN3", "streak.full", "streak.active", "streak.rounds", "w.anki", "w.kanji", "w.minna", "w.kaiwa", "fx.none", "fx.bab"].map(k => t(k)).join("") + s.n3Month + s.dateLabel + s.learned.join("") + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
+        "fx.kanjiSeen", "fx.time", "fx.studyToday", "fx.learned", "fx.week7", "fx.estNote", "fx.kaishi", "fx.reviews", "fx.roundsToday", "fx.daysN3", "streak.full", "streak.active", "streak.rounds", "w.anki", "w.kanji", "w.minna", "w.kaiwa", "fx.none", "fx.bab"].map(k => t(k)).join("") + s.n3Month + s.dateLabel + s.learned.join("") + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("") + s.badges.got.join("") + ["fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub", "fx.bd.next", "fx.bd.none", "fx.bd.total"].map(k => t(k)).join("");
     await Promise.all([F.num(80), F.head(40), F.mono(30), F.mono(30, 700), F.jp(40), F.jp(40, 400)].map(f => document.fonts.load(f, sample))).catch(() => {});
     const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
-    s.hm = (s.minEst && s.min ? "±" : "") + hm(s.min); s.totalHm = hm(s.totalMin);
+    s.hm = (s.minEst && s.min ? "±" : "") + hm(s.min); s.totalHm = hm(s.totalMin); s.recapHm = (s.recap.est ? "±" : "") + hm(s.recap.min);
     const fontOk = document.fonts.check(F.jp(40), "漢字");
     const comeback = s.done <= 1;
     let file = null, url = null, busy = false;
@@ -275,8 +301,13 @@
     };
     // quotes: optional band at the bottom; the template shrinks more to make room
     const usable = s.quotes.filter(x => x.q.length <= 125);
+    let qTag = store("fxQTag") || "all";
+    const tagSel = $("flexQTag"), tags = ["all", ...new Set(usable.map(x => x.tag))];
+    tagSel.innerHTML = tags.map(k => `<option value="${k}">${t("qt." + k)}</option>`).join("");
+    tagSel.value = tags.includes(qTag) ? qTag : (qTag = "all");
     const pickQuote = prev => {
-      const x = pick(usable.filter(y => y !== prev));
+      const pool = usable.filter(y => y !== prev && (qTag === "all" || y.tag === qTag));
+      const x = pick(pool.length ? pool : usable);
       return { ...x, sub: LANG !== "ja" ? x.tr?.[LANG] : null };
     };
     let showQuote = store("fxQuote") !== false, st = null;  // st = { i: template, seed, q: quote }
@@ -298,7 +329,8 @@
     };
     // CS-style console unboxing: the result is printed in the console first, the image is revealed after
     const RCOL = { common: "#cfcfcf", rare: "#4b9dff", epic: "#c77dff", legendary: "#FFD54A" };
-    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;  // no flicker for people who asked for less motion
+    const sleep = ms => new Promise(r => setTimeout(r, calm ? 0 : ms));
     const out = cover.querySelector(".cl");
     const line = (text, cls) => { const p = document.createElement("p"); p.className = cls; p.textContent = text; out.append(p); out.scrollTop = out.scrollHeight; return p; };
     $("flexPull").onclick = async () => {
@@ -320,6 +352,7 @@
       share.disabled = save.disabled = !file; qNew.disabled = false; showInfo();
     };
     qBox.onchange = () => { showQuote = qBox.checked; store("fxQuote", showQuote); if (st && !busy) draw(); };
+    tagSel.onchange = () => { qTag = tagSel.value; store("fxQTag", qTag); if (st && !busy) { st.q = pickQuote(st.q); showQuote = qBox.checked = true; store("fxQuote", true); draw(); } };
     qNew.onclick = () => { if (!st || busy) return; st.q = pickQuote(st.q); showQuote = qBox.checked = true; store("fxQuote", true); draw(); };
     const download = () => {
       if (!file) return;

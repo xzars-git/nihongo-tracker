@@ -71,6 +71,14 @@
     bar(t("bar.minna"), D.bab ?? 0, wk.bab, t("bar.minna.left", { n: babLeft, d: fmt(cek) })) +
     bar(t("bar.kaishi"), A.kaishiOpened ?? 0, wk.kaishi, pace(A.kaishiOpened ?? 0, end.kaishi, rate("kaishiNew"), "unit.word"));
 
+  // ---------- toward N3: what the exam needs vs what is learned, and when the current pace gets there ----------
+  const NEED = { vocab: 3700, kanji: 650 };
+  const fmtY = s => new Date(s + "T00:00:00Z").toLocaleDateString(loc, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+  const words = A.kaishiOpened ?? 0, perDay = rate("kaishiNew");
+  const done = perDay > 0 ? addDays(today, Math.ceil(Math.max(0, NEED.vocab - words) / perDay)) : null;
+  const vocabSub = [t("n3.vocab.need", { n: NEED.vocab }), done ? t("n3.fc", { d: fmtY(done) }) + (done > n3.date ? t("n3.fc.late", { n: daysBetween(n3.date, done) }) : "") : t("n3.fc.none")].join(" · ");
+  $("#n3bars").innerHTML = bar(t("n3.vocab"), words, NEED.vocab, vocabSub) + bar(t("n3.kanji"), A.kanjiSeen ?? 0, NEED.kanji, t("n3.kanji.sub", { t: wk.kanji }));
+
   // ---------- consistency ----------
   const first = D.sessions.map(s => s.date).sort()[0] || today;
   let start = addDays(today, -7 * 17);
@@ -111,6 +119,9 @@
   const ms = [...D.mistakes].sort((x, y) => (x.due || "9").localeCompare(y.due || "9"));
   const cls = m => m.due && m.due <= today ? "due" : "later";
   $("#mistakeSum").textContent = t("m.sum", { n: ms.length, d: ms.filter(m => cls(m) === "due").length });
+  const byCat = {};
+  for (const m of D.mistakes) byCat[m.cat || "lain"] = (byCat[m.cat || "lain"] || 0) + 1;
+  $("#weak").innerHTML = Object.keys(byCat).length ? `<span class="mono muted small">${t("h.weak")}:</span>` + Object.entries(byCat).sort((x, y) => y[1] - x[1]).map(([k, n]) => `<span class="wc">${t("cat." + k)} <b>${n}</b></span>`).join("") : "";
   // compact chips; tapping one shows its right/wrong answer in a single panel below
   const chip = m => `<button type="button" class="mc ${cls(m)}" data-i="${D.mistakes.indexOf(m)}">${esc(m.item)}</button>`;
   const due = ms.filter(m => cls(m) === "due"), later = ms.filter(m => cls(m) !== "due");
@@ -150,14 +161,35 @@
   const learned = [...new Set(ss.map(s => short(s.mode)))];
   if (a.new) learned.unshift(t("fx.ankiNew", { n: a.new }));
 
+  // ---------- badges ----------
+  const allDays = []; for (let x = first; x <= today; x = addDays(x, 1)) allDays.push(x);
+  const allMin = allDays.reduce((n, x) => n + mins(x), 0);
+  let longest = 0, runLen = 0;
+  for (const x of allDays) { runLen = count(x) > 0 ? runLen + 1 : 0; longest = Math.max(longest, runLen); }
+  const stat = { words: A.kaishiOpened ?? 0, kanji: A.kanjiSeen ?? 0, streak: longest, bab: D.bab ?? 0, kaiwa: D.sessions.filter(s => s.kind === "kaiwa").length, hours: Math.floor(allMin / 60), rounds: totalRounds };
+  const LADDER = { words: [100, 500, 1000, 1500], kanji: [100, 300, 500, 650], streak: [3, 7, 14, 30], bab: [20, 25, 35, 50], kaiwa: [5, 10, 25, 50], hours: [10, 25, 50, 100], rounds: [10, 25, 50, 100] };
+  const badges = Object.entries(LADDER).flatMap(([k, ns]) => ns.map(n => ({ k, n, label: t("badge." + k, { n }), on: stat[k] >= n, have: stat[k] })));
+  const got = badges.filter(b => b.on), nextB = badges.filter(b => !b.on).sort((x, y) => y.have / y.n - x.have / x.n)[0];
+  $("#badges").innerHTML = `<summary class="mono">🏅 ${t("h.badges")} · ${t("badge.sum", { a: got.length, b: badges.length })}</summary>
+    <div class="bgs">${badges.map(b => `<span class="bg ${b.on ? "on" : ""}" title="${b.have} / ${b.n}">${esc(b.label)}</span>`).join("")}</div>`;
+
+  // ---------- weekly recap (for Flex) ----------
+  const wkDays = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6)).filter(x => x >= first);
+  const wkRounds = wkDays.flatMap(fullRounds);
+  const recap = {
+    min: wkDays.reduce((n, x) => n + mins(x), 0), est: wkDays.some(est), days: wkDays.filter(x => count(x) > 0).length, of: wkDays.length,
+    kaishi: wkDays.reduce((n, x) => n + ((A.days[x] || {}).kaishiNew || 0), 0), reviews: wkDays.reduce((n, x) => n + ((A.days[x] || {}).reviews || 0), 0),
+    rounds: wkRounds.length, avg: avg(wkRounds),
+  };
+
   let quotes = [];
   try { quotes = await (await fetch("data/quotes.json")).json(); } catch { /* Flex works without quotes */ }
 
   window.initFlex?.({
-    quotes,
+    quotes, recap, badges: { got: got.map(b => b.label), total: badges.length, next: nextB ? { label: nextB.label, have: nextB.have, need: nextB.n } : null },
     min: mins(today), minEst: est(today), learned,
     week7: Array.from({ length: 7 }, (_, i) => { const x = addDays(today, i - 6); return [x, x < first ? 0 : mins(x)]; }),
-    totalMin: Object.keys(byDay).concat(Object.keys(A.days)).filter((x, i, l) => l.indexOf(x) === i && x >= first).reduce((n, x) => n + mins(x), 0),
+    totalMin: allMin,
     date: today, st, done: count(today), rounds: rounds.length, avg: avg(rounds), reviews: a.reviews || 0, kaishiNew: a.kaishiNew || 0,
     dateLabel: new Date(today + "T00:00:00Z").toLocaleDateString(loc, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }),
     kaishiOpened: A.kaishiOpened || 0, kanjiSeen: A.kanjiSeen || 0, kanjiList: A.kanjiList || "", bab: D.bab ?? "–",

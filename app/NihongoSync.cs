@@ -30,6 +30,8 @@ static class Program
 class SyncApp
 {
     static readonly TimeSpan[] Slots = { new TimeSpan(12, 0, 0), new TimeSpan(18, 0, 0), new TimeSpan(21, 0, 0) };
+    static readonly TimeSpan Reminder = new TimeSpan(20, 0, 0);  // "have you studied today?" balloon, if fewer than 4 sessions are logged
+    const int MaxRetries = 2, RetryMinutes = 5;
     const string Site = "https://arsenius-nihongo.vercel.app";
     static readonly string Dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NihongoSync");
     static readonly string Log = Path.Combine(Dir, "sync.log");
@@ -41,9 +43,11 @@ class SyncApp
     readonly Button syncBtn;
     readonly NotifyIcon tray = new NotifyIcon();
     readonly System.Windows.Forms.Timer slotTimer = new System.Windows.Forms.Timer();
+    readonly System.Windows.Forms.Timer reminderTimer = new System.Windows.Forms.Timer(), retryTimer = new System.Windows.Forms.Timer();
     Process proc;
     string result = "-";
     bool quitting;
+    int retries;
 
     public SyncApp(EventWaitHandle show)
     {
@@ -66,6 +70,7 @@ class SyncApp
         menu.Items.Add("Buka", null, delegate { ShowWindow(); });
         menu.Items.Add("Sync sekarang", null, delegate { StartSync(); });
         menu.Items.Add("Buka web", null, delegate { Open(Site); });
+        menu.Items.Add("Tes pengingat", null, delegate { Remind(); });
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Quit", null, delegate { quitting = true; tray.Visible = false; form.Close(); Application.Exit(); });
         tray.Icon = icon; tray.ContextMenuStrip = menu; tray.Visible = true;
@@ -74,8 +79,14 @@ class SyncApp
         // a second launch (Start menu) signals this; the wait costs nothing until then
         ThreadPool.RegisterWaitForSingleObject(show, delegate { form.BeginInvoke((Action)ShowWindow); }, null, -1, false);
 
-        slotTimer.Tick += delegate { slotTimer.Stop(); StartSync(); ArmTimer(); };
+        slotTimer.Tick += delegate { slotTimer.Stop(); retries = 0; StartSync(); ArmTimer(); };
         ArmTimer();
+
+        reminderTimer.Tick += delegate { reminderTimer.Stop(); Remind(); ArmReminder(); };
+        ArmReminder();
+
+        retryTimer.Interval = RetryMinutes * 60000;
+        retryTimer.Tick += delegate { retryTimer.Stop(); StartSync(); };
 
         // PC was off at a slot: catch up once, a minute after start (the network needs time after boot)
         var catchUp = new System.Windows.Forms.Timer { Interval = 60000 };
@@ -137,13 +148,44 @@ class SyncApp
         Refresh();
     }
 
+    void ArmReminder()
+    {
+        var next = DateTime.Today + Reminder;
+        if (next <= DateTime.Now) next = next.AddDays(1);
+        reminderTimer.Interval = (int)Math.Max(1000, (next - DateTime.Now).TotalMilliseconds);
+        reminderTimer.Start();
+    }
+
+    // counts today's rows in progres.md (day starts at 4am, like Anki) so it also sees sessions logged after the last sync
+    void Remind()
+    {
+        int n = 0;
+        try
+        {
+            var prefix = "| " + DateTime.Now.AddHours(-4).ToString("yyyy-MM-dd") + " ";
+            n = File.ReadLines(Config.Progres, Encoding.UTF8).Count(l => l.StartsWith(prefix));
+        }
+        catch { return; }  // notes not readable: stay quiet rather than nag with wrong numbers
+        if (n >= 4) return;
+        tray.ShowBalloonTip(10000, "Nihongo Sync", n == 0 ? "Belum ada sesi belajar tercatat hari ini." : "Baru " + n + " sesi tercatat hari ini. Lanjut yuk!", ToolTipIcon.Info);
+    }
+
+    // publish.py exits 0 even when the push or backup failed, so look for the word in its output too
+    static bool Failed(int exitCode, string output) { return exitCode != 0 || output.IndexOf("gagal", StringComparison.OrdinalIgnoreCase) >= 0; }
+
+    static string Reason(string output)
+    {
+        var line = output.Split('\n').Select(l => l.Trim()).LastOrDefault(l => l.Length > 0) ?? "tidak ada keterangan";
+        return line.Length > 70 ? line.Substring(0, 70) + "…" : line;
+    }
+
     void Refresh()
     {
         var last = LastSync();
-        info.Text = string.Format("Jadwal: {0}\n\nSync terakhir: {1}\nHasil: {2}\nBerikutnya: {3:ddd HH:mm}",
+        info.Text = string.Format("Jadwal: {0} · pengingat {4:hh\\:mm}\n\nSync terakhir: {1}\nHasil: {2}\nBerikutnya: {3:ddd HH:mm}",
             string.Join(" · ", Slots.Select(s => s.ToString(@"hh\:mm"))),
             last == DateTime.MinValue ? "belum pernah" : last.ToString("ddd dd MMM, HH:mm"),
-            proc != null ? "sedang sync..." : result, NextSlot());
+            proc != null ? "sedang sync..." : result, NextSlot(), Reminder);
         // hover text (max 63 chars): status, last update, next run
         var status = proc != null ? "sedang sync" : failed ? "GAGAL" : "aktif";
         var lastShort = last == DateTime.MinValue ? "-" : last.Date == DateTime.Today ? last.ToString("HH:mm") : last.ToString("dd MMM HH:mm");
@@ -169,7 +211,7 @@ class SyncApp
             var err = p.StandardError.ReadToEndAsync();
             var output = (p.StandardOutput.ReadToEnd() + err.Result).Trim();
             p.WaitForExit();
-            form.BeginInvoke((Action)(() => Finish(p.ExitCode == 0, output)));
+            form.BeginInvoke((Action)(() => Finish(!Failed(p.ExitCode, output), output)));
         });
     }
 
@@ -177,8 +219,14 @@ class SyncApp
     {
         File.AppendAllText(Log, "--- " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + "\r\n" + output + "\r\n", Encoding.UTF8);
         failed = !ok;
-        if (ok) { File.WriteAllText(State, DateTime.Now.ToString("o")); result = output.Split('\n').Last().Trim(); }
-        else { result = "GAGAL (lihat log)"; tray.ShowBalloonTip(5000, "Nihongo Sync", "Sync gagal, buka log untuk detail.", ToolTipIcon.Warning); }
+        if (ok) { File.WriteAllText(State, DateTime.Now.ToString("o")); result = Reason(output); retries = 0; }
+        else
+        {
+            var retry = retries < MaxRetries;
+            result = "GAGAL: " + Reason(output) + (retry ? " (coba lagi " + RetryMinutes + " mnt)" : "");
+            tray.ShowBalloonTip(5000, "Nihongo Sync", "Sync gagal: " + Reason(output), ToolTipIcon.Warning);
+            if (retry) { retries++; retryTimer.Start(); }
+        }
         proc = null; syncBtn.Enabled = true; Refresh();
     }
 }
