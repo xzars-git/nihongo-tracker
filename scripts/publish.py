@@ -10,9 +10,9 @@ if sys.stdout is None:  # pythonw (Task Scheduler) has no console
     sys.stdout = sys.stderr = open(os.path.join(tempfile.gettempdir(), "nihongo-publish.log"), "a", encoding="utf-8")
     print(f"--- {dt.datetime.now():%Y-%m-%d %H:%M}")
 sys.stdout.reconfigure(encoding="utf-8")
-HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "data.json")
-PROGRES = os.path.join(HERE, "..", "catatan", "progres.md")
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # tracker/
+OUT = os.path.join(ROOT, "data", "data.json")
+PROGRES = os.path.join(ROOT, "..", "catatan", "progres.md")
 ANKI = os.path.join(os.environ.get("APPDATA", ""), "Anki2", "User 1", "collection.anki2")
 KANJI = re.compile(r"[一-鿿]")
 FRAC = re.compile(r"(\d+)\s*/\s*(\d+)")
@@ -111,7 +111,7 @@ def build():
         "sessions": sessions(md),
         "mistakes": mistakes(md),
         "anki": anki(old.get("anki")),
-        "plan": json.load(open(os.path.join(HERE, "plan.json"), encoding="utf-8")),
+        "plan": json.load(open(os.path.join(ROOT, "data", "plan.json"), encoding="utf-8")),
     }
     # Unchanged data is not rewritten, except once a day as a heartbeat (the page warns when data is >30h old).
     if {**old, "generated": data["generated"]} == data and old.get("generated", "")[:10] == data["generated"][:10]:
@@ -123,8 +123,8 @@ def build():
 
 
 def push():
-    git = lambda *a: subprocess.run(["git", "-C", HERE, *a], capture_output=True, text=True)
-    git("add", "data.json")  # only data: code changes are committed by hand
+    git = lambda *a: subprocess.run(["git", "-C", ROOT, *a], capture_output=True, text=True)
+    git("add", "data/data.json")  # only data: code changes are committed by hand
     if git("diff", "--cached", "--quiet").returncode:
         git("commit", "-m", f"progres {dt.date.today().isoformat()}")
     if "ahead" not in git("status", "-sb").stdout.splitlines()[0]:  # also retries an earlier failed push

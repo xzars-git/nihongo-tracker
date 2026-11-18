@@ -12,7 +12,7 @@ import datetime as dt, os, re, subprocess, sys
 
 sys.stdout.reconfigure(encoding="utf-8")
 HERE = os.path.dirname(os.path.abspath(__file__))
-PROGRES = os.path.join(HERE, "..", "catatan", "progres.md")
+PROGRES = os.path.join(HERE, "..", "..", "catatan", "progres.md")
 STEPS = [1, 3, 7, 14]
 TODAY = (dt.datetime.now() - dt.timedelta(hours=4)).date()  # same 4am day boundary as Anki
 

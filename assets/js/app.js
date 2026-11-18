@@ -9,7 +9,7 @@
   const banner = (msg, cls = "") => $("#banner").insertAdjacentHTML("beforeend", `<p class="banner ${cls}">${esc(msg)}</p>`);
 
   let D;
-  try { D = await (await fetch("data.json", { cache: "no-cache" })).json(); }
+  try { D = await (await fetch("data/data.json", { cache: "no-cache" })).json(); }
   catch { banner(t("banner.fail"), "bad"); return; }
   const P = D.plan, A = D.anki || { days: {} };
   // Anki's day starts at 4am, so a 1am session still counts as yesterday

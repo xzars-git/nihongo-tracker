@@ -1,7 +1,7 @@
 // "Tentang aku" (about.html) and "Metode" (metode.html). Page picked by <body data-page>. Content in id/en/ja.
 (async () => {
   const L = o => o[LANG] ?? o.id;
-  const D = await fetch("data.json", { cache: "no-cache" }).then(r => r.json()).catch(() => null);
+  const D = await fetch("data/data.json", { cache: "no-cache" }).then(r => r.json()).catch(() => null);
   const A = D?.anki || {}, today = new Date().toISOString().slice(0, 10);
   const days = d => Math.max(0, Math.round((new Date(d) - new Date(today)) / 864e5));
   const loc = t("locale"), fmt = d => new Date(d + "T00:00:00Z").toLocaleDateString(loc, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
