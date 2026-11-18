@@ -1,7 +1,7 @@
 """Build data.json from catatan/progres.md + the local Anki collection, then commit and push.
 
-Run at the end of every study session:  python -I tracker/publish.py
-Also runs hourly via Windows Task Scheduler ("Nihongo tracker sync").
+Run at the end of every study session:  python -I tracker/scripts/publish.py
+Also runs at 12:00, 18:00 and 21:00 from the Nihongo Sync tray app (scripts/nihongo-sync.ps1).
 Options: --no-push (build only)
 """
 import datetime as dt, json, os, re, shutil, sqlite3, subprocess, sys, tempfile
