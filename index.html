@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>日本語 Tracker · Arsenius</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#17181c">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23F2C200'/><text x='16' y='24' font-size='20' text-anchor='middle' font-family='sans-serif' font-weight='900'>日</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@800&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="top">
+  <span class="tag mono">日本語 TRACKER · ARSENIUS</span>
+  <h1><span class="plate">JLPT N3</span><span class="plate plate-y">JULI 2027</span></h1>
+  <p class="mono muted" id="updated"></p>
+  <div class="goals" id="goals"></div>
+</header>
+
+<main>
+  <section>
+    <h2>Hari ini <span class="mono muted" id="todayLabel"></span></h2>
+    <div class="wajib" id="wajib"></div>
+  </section>
+
+  <section>
+    <h2>Konsistensi</h2>
+    <div class="streak mono" id="streak"></div>
+    <div class="heat" id="heat"></div>
+    <p class="mono muted small">Kotak = 1 hari · warna = berapa item WAJIB beres (0–4)</p>
+  </section>
+
+  <section>
+    <h2>Minggu ini <span class="mono muted" id="weekLabel"></span></h2>
+    <div class="bars" id="week"></div>
+    <details class="mono small"><summary>Semua target mingguan</summary><div id="weeks"></div></details>
+  </section>
+
+  <section class="two">
+    <div><h2>Tebak kanji</h2><p class="mono muted small">rata-rata skor per hari (ronde 10 kata)</p><div class="chart" id="kanjiChart"></div></div>
+    <div><h2>Anki</h2><p class="mono muted small">review per hari · <i class="sw again"></i>Again <i class="sw hard"></i>Hard <i class="sw good"></i>lainnya</p><div class="chart" id="ankiChart"></div></div>
+  </section>
+
+  <section>
+    <h2>Bank kesalahan</h2>
+    <p class="mono muted small" id="mistakeSum"></p>
+    <div class="mistakes" id="mistakes"></div>
+  </section>
+
+  <section>
+    <h2>Riwayat sesi</h2>
+    <div class="log" id="log"></div>
+  </section>
+
+  <section>
+    <h2>Setelah Februari</h2>
+    <div class="months" id="months"></div>
+  </section>
+</main>
+<footer class="mono muted small">Data dari catatan/progres.md + Anki, diperbarui tiap akhir sesi belajar.</footer>
+<script src="app.js"></script>
+</body>
+</html>
