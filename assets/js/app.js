@@ -183,6 +183,9 @@
     rounds: wkRounds.length, avg: avg(wkRounds),
   };
 
+  const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
+  $("#studyLine").textContent = t("study.line", { a: (est(today) && mins(today) ? "±" : "") + hm(mins(today)), b: (recap.est ? "±" : "") + hm(recap.min) });
+
   let quotes = [];
   try { quotes = await (await fetch("data/quotes.json")).json(); } catch { /* Flex works without quotes */ }
 

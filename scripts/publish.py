@@ -229,7 +229,7 @@ def selftest():
     s = sessions(md)
     assert len(s) == 1 and s[0]["turns"] == 6 and s[0]["min"] == 20 and s[0]["kind"] == "kaiwa", s
     # two sessions that repeat the same messages (a fork) must not double the time; an 18-minute gap counts only the cap
-    msgs = ["2026-01-01T03:00:00Z", "2026-01-01T03:00:40Z", "2026-01-01T03:18:40Z", "2026-01-01T03:19:25Z"]
+    msgs = ["2026-01-01T12:00:00Z", "2026-01-01T12:00:40Z", "2026-01-01T12:18:40Z", "2026-01-01T12:19:25Z"]
     assert study_minutes([msgs, msgs[:2]], 180) == {"2026-01-01": 4}, study_minutes([msgs, msgs[:2]], 180)  # 40 + 180 + 45 s = 265 s = 4.4 min
     print("selftest ok")
 
