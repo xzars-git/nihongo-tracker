@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T13:47",
+ "generated": "2026-11-18T14:37",
  "bab": 15,
  "sessions": [
   {
@@ -357,245 +357,280 @@
    "right": "書かない / 待たない / 話さない / 行かない / 買わない",
    "wrong": "tetap bunyi i: kakinai, machinai, hanashinai (6×)",
    "interval": "1",
-   "due": "2026-11-13"
+   "due": "2026-11-13",
+   "cat": "bentuk"
   },
   {
    "item": "見ます",
    "right": "gol 2, 見て / 見た (mite/mita)",
    "wrong": "mitte / mitta (pakai っ), lagi 11-16; lalu tertukar dgn 見せます (misete = memperlihatkan) 2×",
    "interval": "1",
-   "due": "2026-11-17"
+   "due": "2026-11-17",
+   "cat": "bentuk"
   },
   {
    "item": "聞きます (arti)",
    "right": "音楽を聞いています = dengar musik",
    "wrong": "pakai 見ます untuk musik",
    "interval": "1",
-   "due": "2026-11-13"
+   "due": "2026-11-13",
+   "cat": "lain"
   },
   {
    "item": "言います",
    "right": "gol 1, 言って / 言った / 言わない (iwanai)",
    "wrong": "ianai (lupa i saja → wa); bingung dgn います (gol 2: ite/ita/inai)",
    "interval": "1",
-   "due": "2026-11-13"
+   "due": "2026-11-13",
+   "cat": "bentuk"
   },
   {
    "item": "貸します vs 消します vs 借ります",
    "right": "貸す pinjamkan / 消す matikan / 借りる pinjam",
    "wrong": "ペンをけして; 傘を借りましょうか (harus 貸しましょうか)",
    "interval": "1",
-   "due": "2026-11-13"
+   "due": "2026-11-13",
+   "cat": "mirip"
   },
   {
    "item": "～ましょうか",
    "right": "bentuk ます: つけましょうか / 閉めましょうか / 手伝いましょうか",
    "wrong": "pakai bentuk て (4×: shimete mashouka); benar 2× 11-16",
    "interval": "3",
-   "due": "2026-11-19"
+   "due": "2026-11-19",
+   "cat": "bentuk"
   },
   {
    "item": "急いでください",
    "right": "isoide kudasai = tolong cepat",
    "wrong": "– (benar ronde 2)",
    "interval": "3",
-   "due": "2026-11-15"
+   "due": "2026-11-15",
+   "cat": "lain"
   },
   {
    "item": "浴びます",
    "right": "gol 2, 浴びて",
    "wrong": "– (benar lagi 11-16)",
    "interval": "7",
-   "due": "2026-11-23"
+   "due": "2026-11-23",
+   "cat": "bentuk"
   },
   {
    "item": "降ります",
    "right": "gol 2, 降りて / 降りた",
    "wrong": "– (benar 2× di review set)",
    "interval": "3",
-   "due": "2026-11-15"
+   "due": "2026-11-15",
+   "cat": "bentuk"
   },
   {
    "item": "起きます",
    "right": "gol 2, 起きて / 起きた / 起きない",
    "wrong": "– (benar paket lengkap)",
    "interval": "7",
-   "due": "2026-11-19"
+   "due": "2026-11-19",
+   "cat": "bentuk"
   },
   {
    "item": "話します / 貸します",
    "right": "gol 1 (1 kanji + します)",
    "wrong": "golongan pilih 2/3 (貸 → gol 3, 2×); 貸して benar 11-16",
    "interval": "3",
-   "due": "2026-11-19"
+   "due": "2026-11-19",
+   "cat": "bentuk"
   },
   {
    "item": "消します",
    "right": "gol 1, 消して",
    "wrong": "golongan (pilih 3, 2×); benar 11-16",
    "interval": "3",
-   "due": "2026-11-19"
+   "due": "2026-11-19",
+   "cat": "bentuk"
   },
   {
    "item": "聞きます",
    "right": "gol 1, 聞いて (kiite)",
    "wrong": "– (benar ronde 2)",
    "interval": "3",
-   "due": "2026-11-15"
+   "due": "2026-11-15",
+   "cat": "bentuk"
   },
   {
    "item": "急ぎます / 泳ぎます",
    "right": "gol 1, 泳いで / 泳いだ / 泳がない",
    "wrong": "oyonde, oyonginai (3×)",
    "interval": "1",
-   "due": "2026-11-13"
+   "due": "2026-11-13",
+   "cat": "bentuk"
   },
   {
    "item": "借ります",
    "right": "gol 2, 借りて / 借りた / 借りない",
    "wrong": "– (benar paket lengkap)",
    "interval": "3",
-   "due": "2026-11-15"
+   "due": "2026-11-15",
+   "cat": "bentuk"
   },
   {
    "item": "来ます",
    "right": "gol 3, 来て（きて） / 来た（きた） / 来ない（こない）",
    "wrong": "kitte / kitta / kinai; kitte lagi 11-16 (lalu kite benar di ronde 2)",
    "interval": "1",
-   "due": "2026-11-17"
+   "due": "2026-11-17",
+   "cat": "bentuk"
   },
   {
    "item": "書きます",
    "right": "gol 1, 書いて / 書いた / 書かない",
    "wrong": "kaida, kakinai",
    "interval": "1",
-   "due": "2026-11-13"
+   "due": "2026-11-13",
+   "cat": "bentuk"
   },
   {
    "item": "遊びます",
    "right": "gol 1, 遊んで",
    "wrong": "–",
    "interval": "3",
-   "due": "2026-11-14"
+   "due": "2026-11-14",
+   "cat": "bentuk"
   },
   {
    "item": "勉強します",
    "right": "gol 3, 勉強して",
    "wrong": "–",
    "interval": "7",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "bentuk"
   },
   {
    "item": "入ります",
    "right": "gol 1, 入って",
    "wrong": "–",
    "interval": "7",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "bentuk"
   },
   {
    "item": "行きます",
    "right": "gol 1 pengecualian, 行って / 行った / 行かない",
    "wrong": "ikita; dianggap gol 3, ikinai (itte benar 11-16)",
    "interval": "3",
-   "due": "2026-11-19"
+   "due": "2026-11-19",
+   "cat": "bentuk"
   },
   {
    "item": "Kosakata: 窓 / ドア, 銀行 / 銀行員",
    "right": "窓（まど） mado = jendela, ドア = pintu; 銀行（ぎんこう） ginkou = bank, 銀行員（ぎんこういん） = pegawai bank",
    "wrong": "tertukar 11-16; doa untuk jendela lagi (2×); 銀行 benar 11-16",
    "interval": "1",
-   "due": "2026-11-17"
+   "due": "2026-11-17",
+   "cat": "mirip"
   },
   {
    "item": "住んでいます vs 働いています (partikel)",
    "right": "～に住んでいます / ～で働いています",
    "wrong": "スラバヤで住んで (pakai で)",
    "interval": "1",
-   "due": "2026-11-17"
+   "due": "2026-11-17",
+   "cat": "partikel"
   },
   {
    "item": "知ります",
    "right": "知っています / 知りません (shirimasen); objek pakai を (田中さんを知っていますか)",
    "wrong": "wakarimasen untuk 'tidak tahu'; 田中さんは知っていますか",
    "interval": "1",
-   "due": "2026-11-17"
+   "due": "2026-11-17",
+   "cat": "partikel"
   },
   {
    "item": "Kata kecil Kaishi (よく/もう/もう一度)",
    "right": "よく行きます = sering pergi; もう = sudah / lagi; もう一度（いちど）言ってください",
    "wrong": "よく dikira 'sudah'; もう一度ください (tanpa kata kerja), ichi dou",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "bentuk"
   },
   {
    "item": "Partikel: 好き / います / 話す",
    "right": "～が好きです; ～にいます/あります (posisi); ～と話します (dengan)",
    "wrong": "kazoku ni suki; kaisha de imasu, ie de imasu (2×); ani ni hanashimasu",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "partikel"
   },
   {
    "item": "Tense dgn もう / よく",
    "right": "もう + ～ました (sudah); よく + ～ます (kebiasaan)",
    "wrong": "mou tabemasu ka; yoku hanashimashita, yoku tabemashita (2×)",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "lain"
   },
   {
    "item": "Kanji Kaishi kurang hafal",
    "right": "声（こえ） koe = suara; 町（まち） machi = kota; 窓（まど） mado = jendela; 銀行（ぎんこう） ginkou = bank",
    "wrong": "声, 窓, 銀行 butuh clue; 町 kalimat salah (この町はきれい, bukan で) (11-17). 住む/考える/面白い benar tanpa BUKA di ronde 11-17 (naik ke interval 3, jatuh tempo 11-20)",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "kanji"
   },
   {
    "item": "Kanji bab 15 baru (belum pernah dipelajari)",
    "right": "会社 kaisha; 電話 denwa; 写真 shashin; 美術館 bijutsukan; 部屋 heya; 使う tsukau; 知る shiru; 座る suwaru; 作る tsukuru; 売る uru",
    "wrong": "semua dibuka di ronde 3 (11-17); 使う vs 作る mudah tertukar (tsuku-)",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "kanji"
   },
   {
    "item": "Kanji Kaishi kurang hafal (ronde 5)",
    "right": "教（おし）える oshieru = mengajar; 君（きみ） kimi = kamu; 言（い）う iu = berkata; 会（あ）う au = bertemu; 帰（かえ）る kaeru = pulang; 思（おも）う omou = berpikir; 立（た）つ tatsu = berdiri",
    "wrong": "dibuka/salah baca/kalimat kosong (11-17); 教える tertukar 帰る",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "kanji"
   },
   {
    "item": "Kanji Kaishi kurang hafal (ronde 6)",
    "right": "出来（でき）る dekiru = bisa (tertukar あげる); 来（く）る kuru = datang; 無（な）い nai = tidak ada; 全然（ぜんぜん）+ negatif",
    "wrong": "kalimat kosong/salah (11-17)",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "kanji"
   },
   {
    "item": "Bentuk 教えて vs 押して",
    "right": "教（おし）えてください oshiete kudasai = tolong beri tahu; 押（お）して oshite = dorong/tekan",
    "wrong": "'oshite kudasai' dipakai untuk 'tolong beri tahu' (11-17)",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "bentuk"
   },
   {
    "item": "Kanji Kaishi kurang hafal (ronde 8)",
    "right": "見（み）る miru = melihat (dibaca suru); 中（なか）naka = dalam + ある pakai が",
    "wrong": "11-17",
    "interval": "1",
-   "due": "2026-11-18"
+   "due": "2026-11-18",
+   "cat": "kanji"
   },
   {
    "item": "～てはいけません",
    "right": "て + **は** + いけません (totte wa ikemasen)",
    "wrong": "は hilang: totte ikemasen (1×)",
    "interval": "1",
-   "due": "2026-11-17"
+   "due": "2026-11-17",
+   "cat": "partikel"
   },
   {
    "item": "見せます",
    "right": "gol 2, 見せて / 見せた / 見せない (misenai)",
    "wrong": "misanai (pakai i→a padahal gol 2)",
    "interval": "1",
-   "due": "2026-11-13"
+   "due": "2026-11-13",
+   "cat": "bentuk"
   }
  ],
  "anki": {
