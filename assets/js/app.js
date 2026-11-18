@@ -93,7 +93,6 @@
   const run = ok => { let n = 0, d = ok(today) ? today : addDays(today, -1); while (d >= first && ok(d)) { n++; d = addDays(d, -1); } return n; };
   const streak = run(complete), active = run(d => count(d) > 0);
   const totalRounds = D.sessions.filter(s => s.kind === "kanji" && s.total >= P.daily.kanjiPerRound).length;
-  $("#streak").innerHTML = `<span>🔥 <b>${active}</b> ${t("streak.days")}</span>`;
 
   // ---------- charts (last 14 days, from the first session) ----------
   const last = Array.from({ length: 14 }, (_, i) => addDays(today, i - 13)).filter(d => d >= first);
@@ -125,8 +124,9 @@
   // compact chips; tapping one shows its right/wrong answer in a single panel below
   const chip = m => `<button type="button" class="mc ${cls(m)}" data-i="${D.mistakes.indexOf(m)}">${esc(m.item)}</button>`;
   const due = ms.filter(m => cls(m) === "due"), later = ms.filter(m => cls(m) !== "due");
-  $("#mistakes").innerHTML = `<div class="mcs">${due.map(chip).join("")}</div>
-    ${later.length ? `<details class="mono small"><summary>${t("m.later", { n: later.length })}</summary><div class="mcs">${later.map(chip).join("")}</div></details>` : ""}
+  const shown = due.slice(0, 12), rest = [...due.slice(12), ...later];  // a wall of chips is noise: the rest is one click away
+  $("#mistakes").innerHTML = `<div class="mcs">${shown.map(chip).join("")}</div>
+    ${rest.length ? `<details class="mono small"><summary>${t("m.more", { n: rest.length })}</summary><div class="mcs">${rest.map(chip).join("")}</div></details>` : ""}
     <div class="mdet" id="mdet" hidden></div>`;
   $("#mistakes").addEventListener("click", e => {
     const b = e.target.closest(".mc"); if (!b) return;
@@ -184,7 +184,16 @@
   };
 
   const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
-  $("#studyLine").textContent = t("study.line", { a: (est(today) && mins(today) ? "±" : "") + hm(mins(today)), b: (recap.est ? "±" : "") + hm(recap.min) });
+
+  // ---------- summary strip: the answer to "how am I doing" before any detail ----------
+  const todayMin = mins(today), todo = (isRest(today) ? ["anki"] : ["anki", "kanji", "minna", "kaiwa"]).filter(k => !st[k]), allN = isRest(today) ? 1 : 4;
+  $("#sumHours").textContent = (est(today) && todayMin ? "±" : "") + hm(todayMin);
+  $("#sumHoursSub").textContent = chat(today) !== undefined ? t("sum.hours.sub", { a: a.ankiMin || 0, c: chat(today) }) : t("sum.hours.est", { a: a.ankiMin || 0 });
+  $("#sumMissions").textContent = `${allN - todo.length} / ${allN}`;
+  $("#sumMissionsSub").textContent = todo.length ? t("sum.left", { l: todo.map(k => t("w." + k)).join(", ") }) : t("sum.alldone");
+  $("#sumStreak").textContent = active;
+  $("#sumWeek").textContent = (recap.est ? "±" : "") + hm(recap.min);
+  $("#sumWeekSub").textContent = t("sum.week.sub", { d: recap.days, n: recap.of });
 
   let quotes = [];
   try { quotes = await (await fetch("data/quotes.json")).json(); } catch { /* Flex works without quotes */ }

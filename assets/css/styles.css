@@ -22,17 +22,14 @@ section{margin:40px 0}
 .goals{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;font-size:13px}
 .goals span{background:var(--card);border:2px solid var(--line);padding:3px 9px}.goals b{color:var(--hi)}
 .banner{margin:14px 0 0;padding:10px 14px;background:var(--y);color:var(--k);font-weight:700;border:3px solid var(--k)}.banner.bad{background:var(--r);color:#fff}
-.wajib{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
-.w{background:var(--card);border:3px solid var(--line);padding:14px 16px;position:relative}
+.wajib{display:grid;gap:8px}
+.w{background:var(--card);border:3px solid var(--line);padding:10px 14px;display:grid;grid-template-columns:62px minmax(0,1fr) auto;grid-template-areas:"st h n" "st p p";align-items:center;gap:0 12px}
 .w.done{background:var(--lime);color:var(--k);border-color:var(--lime)}
-.w h3{margin:0 0 4px;font:400 20px 'Archivo Black',sans-serif}
-.w .n{font:800 34px/1.1 'Barlow Condensed',sans-serif}
-.w .st{position:absolute;top:10px;right:12px;font:700 12px 'JetBrains Mono',monospace;border:2px solid currentColor;padding:1px 6px;transform:rotate(-4deg)}
-.w p{margin:4px 0 0;font-size:13px}
-.streak{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px}
-.streak span{background:var(--card);border:3px solid var(--line);padding:6px 12px;font-weight:700}
-.streak span b{color:var(--hi);font-size:20px}
-.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,18px);grid-auto-columns:18px;gap:4px;overflow-x:auto;padding:3px 3px 6px}
+.w h3{grid-area:h;margin:0;font:400 17px 'Archivo Black',sans-serif}
+.w .n{grid-area:n;font:800 26px/1.1 'Barlow Condensed',sans-serif}
+.w .st{grid-area:st;justify-self:start;font:700 12px 'JetBrains Mono',monospace;border:2px solid currentColor;padding:1px 6px;transform:rotate(-4deg)}
+.w p{grid-area:p;margin:0;font-size:13px;color:var(--muted)}.w.done p{color:#2a3a00}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,22px);grid-auto-columns:22px;gap:5px;overflow-x:auto;padding:3px 3px 6px}
 .heat i{border-radius:3px;background:var(--dot)}
 .heat i[data-n="1"]{background:var(--h1)}.heat i[data-n="2"]{background:var(--h2)}.heat i[data-n="3"]{background:var(--h3)}.heat i[data-n="4"]{background:var(--h4)}
 .heat i.today{outline:2px solid var(--hi);outline-offset:1px}
@@ -125,7 +122,6 @@ footer{padding-bottom:40px}
 .fx-head .x{font:700 13px 'JetBrains Mono',monospace;background:var(--card);color:var(--ink);border:3px solid var(--line);padding:6px 12px;cursor:pointer}
 .fx-dlg .fx-stage{width:min(260px,100%)}
 .charts{margin:10px 0 40px}.charts>summary{font-weight:700;padding:10px 0}
-.streak span{font-size:15px}
 .lead{font-size:18px}
 .steps{display:grid;gap:12px;margin:18px 0}
 .step{display:grid;grid-template-columns:52px 1fr;gap:14px;background:var(--card);border:3px solid var(--line);padding:12px 14px}
@@ -134,3 +130,15 @@ footer{padding-bottom:40px}
 #weekLabel{display:block;font-size:14px;margin-top:6px}
 .fx-cover[hidden]{display:none}
 .fx-dlg .fx-ctrl{min-width:min(240px,100%)}
+/* summary strip + dashboard grid */
+.sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:26px 0 6px}
+.tile{background:var(--card);border:3px solid var(--line);padding:12px 16px;min-width:0}
+.tile .lb{display:block;font:700 12px 'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.tile b{display:block;font:800 40px/1.1 'Barlow Condensed',sans-serif;margin:2px 0}
+.tile small{display:block;color:var(--muted);font-size:13px}
+.tile.hi{background:var(--y);border-color:var(--k);color:var(--k)}.tile.hi .lb,.tile.hi small{color:#3b3200}
+.dash{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 44px}
+.dash section{margin:30px 0 14px;min-width:0}
+.dash h2{font-size:22px;margin-bottom:12px}
+.sub3{font:700 13px 'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin:18px 0 10px}.sub3:first-of-type{margin-top:0}
+@media (max-width:860px){.dash{grid-template-columns:minmax(0,1fr)}}
