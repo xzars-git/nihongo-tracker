@@ -92,7 +92,7 @@ Build and install with the C# compiler that ships with Windows (no SDK needed):
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build-app.ps1
 ```
 
-It installs to `%LOCALAPPDATA%\Programs\NihongoSync`. Log: `%LOCALAPPDATA%\NihongoSync\sync.log`.
+It installs to `%LOCALAPPDATA%\Programs\NihongoSync`. Log: `%LOCALAPPDATA%\NihongoSync\sync.log` (the **Lihat log** button shows it inside the app; the file is trimmed to ~100 KB once it passes 200 KB).
 
 ## Backup of the notes
 

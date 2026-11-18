@@ -123,10 +123,39 @@ class SyncApp
 
     static void Open(string target) { Process.Start(new ProcessStartInfo(target) { UseShellExecute = true }); }
 
+    // shown inside the app: relying on an external editor (the Store Notepad restores its own session and can fail on launch) was fragile
     void OpenLog()
     {
-        if (!File.Exists(Log)) File.WriteAllText(Log, "");
-        Process.Start("notepad.exe", "\"" + Log + "\"");
+        string text;
+        try { text = File.Exists(Log) ? ReadTail(Log, 40000) : "(belum ada log: sync pertama belum jalan)"; }
+        catch (Exception e) { text = "Log tidak bisa dibaca: " + e.Message; }
+        var box = new TextBox
+        {
+            Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, BorderStyle = BorderStyle.None,
+            BackColor = Color.FromArgb(14, 14, 16), ForeColor = Ink, Font = new Font("Consolas", 10), Text = text.Replace("\r\n", "\n").Replace("\n", "\r\n"),
+        };
+        var f = new Form { Text = "Nihongo Sync · log", Icon = form.Icon, ClientSize = new Size(640, 420), StartPosition = FormStartPosition.CenterScreen, BackColor = Bg, KeyPreview = true };
+        f.KeyDown += (s, e) => { if (e.KeyCode == Keys.Escape) f.Close(); };
+        f.Controls.Add(box);
+        f.Shown += delegate { box.SelectionStart = box.TextLength; box.ScrollToCaret(); };  // newest entries are at the end
+        f.Show();
+    }
+
+    static string ReadTail(string path, int maxBytes)
+    {
+        using (var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+        {
+            var cut = fs.Length > maxBytes;
+            fs.Seek(Math.Max(0, fs.Length - maxBytes), SeekOrigin.Begin);
+            var s = new StreamReader(fs, Encoding.UTF8).ReadToEnd();
+            return cut ? s.Substring(s.IndexOf('\n') + 1) : s;  // drop the half line at the cut
+        }
+    }
+
+    // keep the log from growing forever
+    static void TrimLog()
+    {
+        try { if (File.Exists(Log) && new FileInfo(Log).Length > 200000) File.WriteAllText(Log, ReadTail(Log, 100000), Encoding.UTF8); } catch { }
     }
 
     static DateTime[] AllSlots()
@@ -217,6 +246,7 @@ class SyncApp
 
     void Finish(bool ok, string output)
     {
+        TrimLog();
         File.AppendAllText(Log, "--- " + DateTime.Now.ToString("yyyy-MM-dd HH:mm") + "\r\n" + output + "\r\n", Encoding.UTF8);
         failed = !ok;
         if (ok) { File.WriteAllText(State, DateTime.Now.ToString("o")); result = Reason(output); retries = 0; }
