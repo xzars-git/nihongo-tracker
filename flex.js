@@ -241,17 +241,27 @@
       file = null; share.disabled = save.disabled = true; share.textContent = t("fx.preparing");
       cv.toBlob(b => { file = new File([b], `nihongo-${s.date}.png`, { type: "image/png" }); share.textContent = t("fx.share"); share.disabled = save.disabled = busy; });
     };
-    $("flexPull").onclick = () => {
+    // CS-style console unboxing: the result is printed in the console first, the image is revealed after
+    const RCOL = { common: "#cfcfcf", rare: "#4b9dff", epic: "#c77dff", legendary: "#FFD54A" };
+    const sleep = ms => new Promise(r => setTimeout(r, ms));
+    const out = cover.querySelector(".cl");
+    const line = (text, cls) => { const p = document.createElement("p"); p.className = cls; p.textContent = text; out.append(p); out.scrollTop = out.scrollHeight; return p; };
+    $("flexPull").onclick = async () => {
       if (busy) return;
-      busy = true; rar.textContent = ""; cover.hidden = false;
-      cover.style.animation = "none"; cover.offsetWidth; cover.style.animation = "";
+      busy = true; rar.textContent = ""; cover.hidden = false; out.innerHTML = "";
+      share.disabled = save.disabled = true;
       const [i, r] = roll();
       draw(i); col.add(i); store("fxCol", [...col]);
-      setTimeout(() => {
-        busy = false; cover.hidden = true;
-        rar.dataset.r = r; rar.textContent = `${r.toUpperCase()} · ${T[i].name}`;
-        share.disabled = save.disabled = !file; showInfo();
-      }, 900);
+      line(`> gacha_pull ${s.date}`, "cmd"); await sleep(250);
+      line(`must ${s.done}/4 · streak ${s.active}${comeback ? " · comeback_pool 1" : ""}`, "dim"); await sleep(250);
+      const spin = line("", "spin"), names = T.map(x => x.name);
+      for (let d = 35; d < 230; d *= 1.17) { spin.textContent = `unboxing… ${pick(names)}`; await sleep(d); }
+      spin.textContent = "unboxing… done";
+      const res = line(`[${r.toUpperCase()}] ${T[i].name}`, "res"); res.style.color = RCOL[r];
+      await sleep(r === "legendary" ? 1100 : r === "epic" ? 750 : 500);
+      busy = false; cover.hidden = true;
+      rar.dataset.r = r; rar.textContent = `${r.toUpperCase()} · ${T[i].name}`;
+      share.disabled = save.disabled = !file; showInfo();
     };
     const download = () => {
       if (!file) return;

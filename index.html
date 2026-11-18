@@ -10,11 +10,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@800&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=3">
 </head>
 <body>
 <header class="top">
-  <nav class="nav mono"><span class="tag">日本語 TRACKER · ARSENIUS</span><a href="wiki.html#metode" data-i="nav.method"></a><a href="wiki.html" data-i="nav.wiki"></a><a href="https://arsenius-portfolio.vercel.app" target="_blank" rel="noopener" data-i="nav.portfolio"></a><span class="lang" id="lang"></span></nav>
+  <nav class="nav mono"><span class="tag">日本語 TRACKER · ARSENIUS</span><a href="about.html" data-i="nav.about"></a><a href="metode.html" data-i="nav.method"></a><a href="https://arsenius-portfolio.vercel.app" target="_blank" rel="noopener" data-i="nav.portfolio"></a><span class="lang" id="lang"></span></nav>
   <h1><span class="plate" id="n3a">JLPT N3</span><span class="plate plate-y" id="n3b"></span></h1>
   <div class="hero-row"><p class="n3left" id="n3left"></p><button type="button" class="gacha" id="flexOpen" data-i="fx.open"></button></div>
   <p class="mono muted small" id="updated"></p>
@@ -25,7 +25,7 @@
   <div class="fx-head"><h2 data-i="h.flex"></h2><button type="button" class="x" id="flexClose" data-i="fx.close"></button></div>
   <p class="mono muted small" data-i="fx.desc"></p>
   <div class="flex">
-    <div class="fx-stage"><canvas id="flexCanvas" width="1080" height="1920" aria-label="Story image preview"></canvas><div class="fx-cover" id="flexCover" hidden>?</div><span class="fx-rar mono" id="flexRar"></span></div>
+    <div class="fx-stage"><canvas id="flexCanvas" width="1080" height="1920" aria-label="Story image preview"></canvas><div class="fx-cover" id="flexCover"><div class="cbar">CONSOLE<span>×</span></div><div class="cl"><p class="cmd">&gt; press GACHA_</p></div></div><span class="fx-rar mono" id="flexRar"></span></div>
     <div class="fx-ctrl">
       <button type="button" class="gacha" id="flexPull" data-i="fx.pull"></button>
       <p class="mono small muted" id="flexInfo"></p>
@@ -70,11 +70,11 @@
     </section>
   </details>
 </main>
-<footer class="mono muted small"><span data-i="footer"></span> <a href="wiki.html#metode">Wiki</a>.</footer>
+<footer class="mono muted small"><span data-i="footer"></span> <a href="metode.html" data-i="nav.method"></a>.</footer>
 <p class="tip mono small" id="tip" hidden></p>
-<script src="i18n.js"></script>
-<script src="flex.js"></script>
-<script src="app.js"></script>
+<script src="i18n.js?v=3"></script>
+<script src="flex.js?v=3"></script>
+<script src="app.js?v=3"></script>
 <script>
   const dlg = document.getElementById("flexDlg");
   document.getElementById("flexOpen").onclick = () => dlg.showModal();
