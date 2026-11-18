@@ -98,5 +98,17 @@
   $("#log").innerHTML = log.map(([s]) => `<div class="s"><span class="mono small muted">${fmt(s.date)}</span><span class="k ${s.kind}">${s.kind}</span>
     <div><b>${esc(s.mode)}</b> <span class="sc">${esc(s.score)}</span><p>${esc(s.note)}</p></div></div>`).join("");
 
+  const n3 = P.goals.find(g => g.id === "n3").date;
+  window.initFlex?.({
+    date: today, st, done: count(today), rounds: rounds.length, avg: avg(rounds), reviews: a.reviews || 0, kaishiNew: a.kaishiNew || 0,
+    dateLabel: new Date(today + "T00:00:00Z").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }),
+    kaishiOpened: A.kaishiOpened || 0, kanjiSeen: A.kanjiSeen || 0, kanjiList: A.kanjiList || "", bab: D.bab ?? "–",
+    streak, active, totalRounds, mistakes: D.mistakes.length,
+    minna: ss.filter(s => s.kind === "minna").map(s => s.mode), kaiwa: ss.filter(s => s.kind === "kaiwa").length,
+    daysN3: daysBetween(today, n3), n3Total: daysBetween(P.weeks[0].start, n3), startLabel: fmt(P.weeks[0].start),
+    heat: Array.from({ length: 56 }, (_, i) => { const x = addDays(today, i - 55); return x < first ? -1 : count(x); }),
+    week: [["Minna bab", D.bab ?? 0, wk.bab], ["Kata Kaishi", A.kaishiOpened ?? 0, wk.kaishi], ["Kanji RTK", A.kanjiKnown ?? 0, wk.kanji]],
+  });
+
   $("#months").innerHTML = P.months.map(m => `<div class="mo"><span class="mono small muted">${new Date(m.month + "-01T00:00:00Z").toLocaleDateString("id-ID", { month: "long", year: "numeric", timeZone: "UTC" })}</span><b>${m.kanji} kanji</b><span class="small">${esc(m.text)}</span></div>`).join("");
 })();

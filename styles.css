@@ -62,4 +62,10 @@ td,th{padding:5px 8px;border-bottom:1px solid var(--dot);text-align:left}tr.cur 
 .months{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
 .mo{background:var(--card);border:3px solid var(--line);padding:12px}.mo b{font:800 28px/1 'Barlow Condensed',sans-serif;display:block}
 footer{padding-bottom:40px}
+.flex{display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start}
+#flexCanvas{width:min(300px,100%);height:auto;border:3px solid var(--line)}
+.fx-ctrl{flex:1;min-width:240px}
+.chips,.btns{display:flex;flex-wrap:wrap;gap:8px}.btns{margin-top:16px}
+.chips button,.btns button{font:700 13px 'JetBrains Mono',monospace;background:var(--card);color:var(--ink);border:3px solid var(--line);padding:8px 12px;cursor:pointer}
+.chips button[aria-pressed=true],.btns button:first-child{background:var(--y);color:var(--k);border-color:var(--y)}
 @media (max-width:700px){.two{grid-template-columns:1fr}.s{grid-template-columns:1fr auto}.s .k{grid-row:1}.s>div:last-child{grid-column:1/-1}}

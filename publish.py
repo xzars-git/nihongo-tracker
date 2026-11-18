@@ -5,6 +5,9 @@ Options: --no-push (build only)
 """
 import datetime as dt, json, os, re, shutil, sqlite3, subprocess, sys, tempfile
 
+if sys.stdout is None:  # pythonw (Task Scheduler) has no console
+    sys.stdout = sys.stderr = open(os.path.join(tempfile.gettempdir(), "nihongo-publish.log"), "a", encoding="utf-8")
+    print(f"--- {dt.datetime.now():%Y-%m-%d %H:%M}")
 sys.stdout.reconfigure(encoding="utf-8")
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROGRES = os.path.join(HERE, "..", "catatan", "progres.md")
@@ -71,7 +74,7 @@ def anki():
         due_day = (today - dt.date.fromtimestamp(crt)).days  # review cards store due as day number
         due_now = c.execute("select count(*) from cards where queue=2 and due<=?", (due_day,)).fetchone()[0]
         due_now += c.execute("select count(*) from cards where queue in (1,3) and due<=?", (int(dt.datetime.now().timestamp()) + 1200,)).fetchone()[0]
-        return {"days": days, "kaishiOpened": kaishi_open, "kanjiKnown": rtk_known, "kanjiSeen": len(kanji), "dueNow": due_now, "today": today.isoformat()}
+        return {"days": days, "kaishiOpened": kaishi_open, "kanjiKnown": rtk_known, "kanjiSeen": len(kanji), "kanjiList": "".join(sorted(kanji)), "dueNow": due_now, "today": today.isoformat()}
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -87,7 +90,13 @@ def build():
         "anki": anki(),
         "plan": json.load(open(os.path.join(HERE, "plan.json"), encoding="utf-8")),
     }
-    open(os.path.join(HERE, "data.json"), "w", encoding="utf-8").write(json.dumps(data, ensure_ascii=False, indent=1))
+    out = os.path.join(HERE, "data.json")
+    try: old = json.load(open(out, encoding="utf-8"))
+    except (OSError, ValueError): old = {}
+    old["generated"] = data["generated"]
+    if old == data:  # only the timestamp would change: keep the file so the hourly run makes no commit
+        print("data tidak berubah"); return
+    open(out, "w", encoding="utf-8").write(json.dumps(data, ensure_ascii=False, indent=1))
     a = data["anki"] or {}
     print(f"data.json: {len(data['sessions'])} sesi, {len(data['mistakes'])} item bank kesalahan, "
           f"bab {data['bab']}, Kaishi {a.get('kaishiOpened')}, kanji {a.get('kanjiKnown')}, due {a.get('dueNow')}")

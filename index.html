@@ -27,6 +27,18 @@
   </section>
 
   <section>
+    <h2>Flex</h2>
+    <p class="mono muted small">Gambar story dari progres hari ini. 10 template, warna + angka utama diacak tiap generate.</p>
+    <div class="flex">
+      <canvas id="flexCanvas" width="1080" height="1920" aria-label="Pratinjau gambar story"></canvas>
+      <div class="fx-ctrl">
+        <div class="chips" id="flexChips"></div>
+        <div class="btns"><button type="button" id="flexShuffle">🎲 Acak</button><button type="button" id="flexShare">Share</button><button type="button" id="flexSave">Download PNG</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
     <h2>Konsistensi</h2>
     <div class="streak mono" id="streak"></div>
     <div class="heat" id="heat"></div>
@@ -61,6 +73,7 @@
   </section>
 </main>
 <footer class="mono muted small">Data dari catatan/progres.md + Anki, diperbarui tiap akhir sesi belajar.</footer>
+<script src="flex.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
