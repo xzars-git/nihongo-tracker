@@ -143,7 +143,17 @@
   $("#log").addEventListener("click", e => e.target.closest(".s")?.classList.toggle("full"));  // notes: 1 line until tapped
 
 
+  // study time: Anki is measured; sessions use their logged minutes, else the method's typical length (shown with ±)
+  const EST = { kanji: 12, minna: 20, kaiwa: 15, kosakata: 10, bonus: 15 };  // per logged row (rows are often parts of one sitting)
+  const mins = d => (byDay[d] || []).reduce((x, s) => x + (s.min ?? EST[s.kind] ?? 15), (A.days[d] || {}).ankiMin || 0);
+  const est = d => (byDay[d] || []).some(s => s.min == null);
+  const learned = [...new Set(ss.map(s => short(s.mode)))];
+  if (a.new) learned.unshift(t("fx.ankiNew", { n: a.new }));
+
   window.initFlex?.({
+    min: mins(today), minEst: est(today), learned,
+    week7: Array.from({ length: 7 }, (_, i) => { const x = addDays(today, i - 6); return [x, x < first ? 0 : mins(x)]; }),
+    totalMin: Object.keys(byDay).concat(Object.keys(A.days)).filter((x, i, l) => l.indexOf(x) === i && x >= first).reduce((n, x) => n + mins(x), 0),
     date: today, st, done: count(today), rounds: rounds.length, avg: avg(rounds), reviews: a.reviews || 0, kaishiNew: a.kaishiNew || 0,
     dateLabel: new Date(today + "T00:00:00Z").toLocaleDateString(loc, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }),
     kaishiOpened: A.kaishiOpened || 0, kanjiSeen: A.kanjiSeen || 0, kanjiList: A.kanjiList || "", bab: D.bab ?? "–",

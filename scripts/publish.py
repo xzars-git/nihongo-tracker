@@ -17,6 +17,7 @@ ANKI = os.path.join(os.environ.get("APPDATA", ""), "Anki2", "User 1", "collectio
 KANJI = re.compile(r"[一-鿿]")
 FRAC = re.compile(r"(\d+)\s*/\s*(\d+)")
 TURNS = re.compile(r"(\d+)\s*giliran")
+MINS = re.compile(r"(\d+)\s*mnt")  # session length, logged with catat.py --menit
 NOTE_MAX = 160  # notes are published in a public repo: keep them short
 
 
@@ -48,7 +49,7 @@ def sessions(md):
         f, t = FRAC.search(score), TURNS.search(score)
         out.append({"date": date, "kind": kind(mode), "mode": mode, "score": score,
                     "ok": int(f[1]) if f else None, "total": int(f[2]) if f else None,
-                    "turns": int(t[1]) if t else None, "shadowing": "shadowing" in mode.lower(),
+                    "turns": int(t[1]) if t else None, "min": int(MINS.search(score)[1]) if MINS.search(score) else None, "shadowing": "shadowing" in mode.lower(),
                     "note": note if len(note) <= NOTE_MAX else note[:NOTE_MAX - 1] + "…"})
     return out
 
@@ -71,10 +72,11 @@ def anki(old):
         crt = c.execute("select crt from col").fetchone()[0]
         today = (dt.datetime.now() - dt.timedelta(hours=4)).date()  # Anki's day starts at 4am
         days, seen, seen_rtk = {}, set(), set()
-        for rid, ease, typ, cid, nid, did in c.execute(
-                "select r.id, r.ease, r.type, r.cid, k.nid, k.did from revlog r join cards k on k.id=r.cid order by r.id"):
+        for rid, ease, typ, cid, nid, did, ms in c.execute(
+                "select r.id, r.ease, r.type, r.cid, k.nid, k.did, r.time from revlog r join cards k on k.id=r.cid order by r.id"):
             d = (dt.datetime.fromtimestamp(rid / 1000) - dt.timedelta(hours=4)).date().isoformat()
             x = days.setdefault(d, {"reviews": 0, "again": 0, "hard": 0, "kaishiNew": 0, "rtkNew": 0, "new": 0})
+            x["ankiMs"] = x.get("ankiMs", 0) + ms  # Anki caps each answer at 60s
             x["reviews"] += 1; x["again"] += ease == 1; x["hard"] += ease == 2  # sched v2/v3: ease 2 = Hard
             if cid not in seen:
                 seen.add(cid); x["new"] += 1; x["kaishiNew"] += did == kaishi
@@ -89,6 +91,7 @@ def anki(old):
         for d, x in (old or {}).get("days", {}).items():
             if "dueLeft" in x and d in days: days[d]["dueLeft"] = x["dueLeft"]
         days.setdefault(today.isoformat(), {"reviews": 0, "again": 0, "hard": 0, "kaishiNew": 0, "rtkNew": 0, "new": 0})["dueLeft"] = due_now
+        for x in days.values(): x["ankiMin"] = round(x.pop("ankiMs", 0) / 6e4)
         return {"days": days, "today": today.isoformat(), "dueNow": due_now,
                 "kaishiOpened": len({n for n, _, d, _ in studied if d == kaishi}),
                 "kaishiMature": len({n for n, _, d, ivl in studied if d == kaishi and ivl >= 21}),
@@ -136,9 +139,9 @@ def push():
 def selftest():
     assert [kind(m) for m in ("tebak kanji ronde 1", "kaiwa kantor", "skrip shadowing", "jikoshoukai", "materi kata kecil Kaishi", "bab 15: ～ています")] == \
         ["kanji", "kaiwa", "kaiwa", "bonus", "kosakata", "minna"]
-    md = "## Riwayat sesi\n| T | M | S | C |\n|---|---|---|---|\n| 2026-11-17 | kaiwa | 6 giliran | ok |\n| rusak | a | b | c | d | e |\n\n## Lain\n"
+    md = "## Riwayat sesi\n| T | M | S | C |\n|---|---|---|---|\n| 2026-11-17 | kaiwa | 6 giliran · 20 mnt | ok |\n| rusak | a | b | c | d | e |\n\n## Lain\n"
     s = sessions(md)
-    assert len(s) == 1 and s[0]["turns"] == 6 and s[0]["kind"] == "kaiwa", s
+    assert len(s) == 1 and s[0]["turns"] == 6 and s[0]["min"] == 20 and s[0]["kind"] == "kaiwa", s
     print("selftest ok")
 
 

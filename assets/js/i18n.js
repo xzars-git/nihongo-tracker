@@ -42,7 +42,7 @@
       "fx.heatSub": "8 minggu terakhir · 1 kotak = 1 hari · makin pekat = makin lengkap", "fx.heatLine": "{a} hari beruntun · {s} hari lengkap",
       "fx.wMinna": "Minna bab", "fx.wKaishi": "Kata Kaishi", "fx.wKanji": "Kanji RTK",
       "fx.hanko": "WAJIB {d}/4 · {r} ronde kanji · {v} review",
-      "fx.t1": "review Anki", "fx.t2": "ronde kanji", "fx.t3": "skor kanji", "fx.t4": "kata Kaishi", "fx.t5": "kanji ketemu", "fx.t6": "hari beruntun",
+      "fx.t1": "review Anki", "fx.t2": "ronde kanji", "fx.t3": "skor kanji", "fx.t4": "kata Kaishi", "fx.t5": "kanji ketemu", "fx.hm": "{h}j {m}m", "fx.time": "waktu belajar", "fx.studyToday": "belajar hari ini", "fx.learned": "Yang aku pelajari", "fx.week7": "7 hari terakhir", "fx.total": "total {t} sejak mulai", "fx.ankiNew": "Anki: {n} kata baru", "fx.estNote": "± = sebagian perkiraan", "fx.hoursToday": "jam belajar hari ini", "fx.t6": "hari beruntun",
       "fx.perfect": "Hari sempurna", "fx.keep": "Lanjut terus",
     },
     en: {
@@ -86,7 +86,7 @@
       "fx.heatSub": "last 8 weeks · 1 box = 1 day · bolder = more complete", "fx.heatLine": "{a}-day run · {s} full days",
       "fx.wMinna": "Minna chapter", "fx.wKaishi": "Kaishi words", "fx.wKanji": "RTK kanji",
       "fx.hanko": "MUST {d}/4 · {r} kanji rounds · {v} reviews",
-      "fx.t1": "Anki reviews", "fx.t2": "kanji rounds", "fx.t3": "kanji score", "fx.t4": "Kaishi words", "fx.t5": "kanji seen", "fx.t6": "day run",
+      "fx.t1": "Anki reviews", "fx.t2": "kanji rounds", "fx.t3": "kanji score", "fx.t4": "Kaishi words", "fx.t5": "kanji seen", "fx.hm": "{h}h {m}m", "fx.time": "study time", "fx.studyToday": "studied today", "fx.learned": "What I studied", "fx.week7": "last 7 days", "fx.total": "{t} total since day one", "fx.ankiNew": "Anki: {n} new words", "fx.estNote": "± = partly estimated", "fx.hoursToday": "hours studied today", "fx.t6": "day run",
       "fx.perfect": "Perfect day", "fx.keep": "Keep going",
     },
     ja: {
@@ -130,7 +130,7 @@
       "fx.heatSub": "直近8週間 · 1マス = 1日 · 濃いほど達成", "fx.heatLine": "{a}日連続 · 全達成 {s}日",
       "fx.wMinna": "みんな 課", "fx.wKaishi": "Kaishi 単語", "fx.wKanji": "RTK 漢字",
       "fx.hanko": "必須 {d}/4 · 漢字 {r}ラウンド · 復習 {v}",
-      "fx.t1": "Anki 復習", "fx.t2": "漢字ラウンド", "fx.t3": "漢字スコア", "fx.t4": "Kaishi 単語", "fx.t5": "出会った漢字", "fx.t6": "日連続",
+      "fx.t1": "Anki 復習", "fx.t2": "漢字ラウンド", "fx.t3": "漢字スコア", "fx.t4": "Kaishi 単語", "fx.t5": "出会った漢字", "fx.hm": "{h}時間{m}分", "fx.time": "勉強時間", "fx.studyToday": "今日の勉強時間", "fx.learned": "今日学んだこと", "fx.week7": "直近7日", "fx.total": "開始から合計 {t}", "fx.ankiNew": "Anki：新しい単語 {n}個", "fx.estNote": "± = 一部推定", "fx.hoursToday": "今日の勉強時間（時間）", "fx.t6": "日連続",
       "fx.perfect": "パーフェクトデー", "fx.keep": "この調子",
     },
   };

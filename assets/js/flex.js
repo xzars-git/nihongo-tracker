@@ -48,10 +48,12 @@
   function frame(c, p, s) {
     plate(c, "日本語 · ARSENIUS", 80, 280, F.mono(34, 700), p.b, p.bf, -2, 20);
     txt(c, s.dateLabel, 1000, 330, F.mono(34, 700), p.ink, "right");
+    txt(c, `⏱ ${s.hm} · 🔥 ${s.active}`, 1000, 380, F.mono(30, 700), p.mut, "right");
     txt(c, "arsenius-nihongo.vercel.app", 80, 1630, F.mono(28), p.mut);
     txt(c, `N3 まで あと ${s.daysN3} 日`, 1000, 1630, F.jp(34), p.ink, "right");
   }
   const pool = s => [
+    s.min >= 30 && [Math.round(s.min / 6) / 10, t("fx.hoursToday"), "勉強時間"],
     s.streak > 1 && [s.streak, t("streak.full"), "連続達成"],
     s.active > 1 && [s.active, t("streak.active"), "連続学習"],
     s.rounds && [s.rounds, t("fx.roundsToday") + (s.avg != null ? t("fx.avg", { v: s.avg }) : ""), "漢字クイズ"],
@@ -98,7 +100,7 @@
       txt(c, `${s.dateLabel} · ${t("fx.bab", { b: s.bab })}`, 540, y, lf(30), m, "center"); y += 50;
       line();
       for (const [l, v] of [["fx.r.kaishiNew", s.kaishiNew], ["fx.r.reviews", s.reviews], ["fx.r.rounds", s.rounds], ["fx.r.score", s.avg != null ? s.avg + "%" : "–"],
-        ["fx.r.minna", s.minna.length], ["fx.r.kaiwa", s.kaiwa], ["fx.r.bank", s.mistakes]]) {
+        ["fx.time", s.hm], ["fx.r.minna", s.minna.length], ["fx.r.kaiwa", s.kaiwa], ["fx.r.bank", s.mistakes]]) {
         txt(c, t(l), x0 + 40, y, lf(36), k); txt(c, String(v), x1 - 40, y, F.mono(36, 700), k, "right"); y += 62;
       }
       line();
@@ -152,8 +154,8 @@
         [`$ nihongo status --today`, g], [`date    ${s.date}`, w],
         [`anki    ${s.kaishiNew} new · ${s.reviews} reviews`, w], [`kanji   ${s.rounds} rounds${s.avg != null ? " · avg " + s.avg + "%" : ""}`, w],
         [`minna   ${s.minna.length} sessions`, w], [`kaiwa   ${s.kaiwa} sessions`, w],
-        [`must    ${"█".repeat(s.done)}${"░".repeat(4 - s.done)} ${s.done}/4`, g], [`streak  ${s.active} days`, w],
-        [`mistake ${s.mistakes} in bank`, m], ["", w], [`$ echo`, g],
+        [`time    ${s.hm}`, w], [`must    ${"█".repeat(s.done)}${"░".repeat(4 - s.done)} ${s.done}/4`, g], [`streak  ${s.active} days`, w],
+        [`learned ${s.learned.slice(0, 2).join(" · ") || "-"}`, m], [`$ echo`, g],
       ];
       rows.forEach(([tt, col], i) => txt(c, tt, x, 670 + i * 66, F.mono(36, i ? 400 : 700), col, "left", max));
       txt(c, pick(JP), x, 670 + rows.length * 66, F.jp(56), w, "left", max);
@@ -162,14 +164,14 @@
     { name: "Hanko", draw(c, p, s) {
       stamp(c, W / 2, 820, 330, s.done === 4 ? "完了" : "継続", p.r, -10, 34);
       txt(c, `${s.active}日連続`, W / 2, 1360, F.jp(120), p.ink, "center");
-      txt(c, t("fx.hanko", { d: s.done, r: s.rounds, v: s.reviews }), W / 2, 1460, LANG === "ja" ? F.jp(34, 400) : F.mono(34), p.mut, "center", 920);
+      txt(c, t("fx.hanko", { d: s.done, r: s.rounds, v: s.reviews }) + " · ⏱ " + s.hm, W / 2, 1460, LANG === "ja" ? F.jp(34, 400) : F.mono(34), p.mut, "center", 920);
       txt(c, pick(JP), W / 2, 1590, F.jp(64), p.ink, "center", 920);
     } },
     { name: "Scoreboard", draw(c, p, s) {
       plate(c, "成績表", 80, 390, F.jp(76), p.a, p.af, -2);
       const tiles = [
         [s.reviews, "fx.t1"], [`${s.rounds}/8`, "fx.t2"], [s.avg != null ? s.avg + "%" : "–", "fx.t3"],
-        [s.kaishiOpened, "fx.t4"], [s.kanjiSeen, "fx.t5"], [s.active, "fx.t6"],
+        [s.kaishiOpened, "fx.t4"], [s.hm, "fx.time"], [s.active, "fx.t6"],
       ], hi = Math.floor(Math.random() * tiles.length);
       tiles.forEach(([v, l], i) => {
         const x = 80 + (i % 2) * 480, y = 560 + Math.floor(i / 2) * 340, on = i === hi;
@@ -189,6 +191,22 @@
         txt(c, k, x + 70, y + 108, F.jp(96), on ? p.bf : p.ink, "center");
       });
     } },
+    { name: "Study log", draw(c, p, s) {
+      plate(c, "今日の勉強", 80, 390, F.jp(76), p.a, p.af, -2);
+      txt(c, s.hm, 80, 720, LANG === "ja" ? F.jp(150) : F.num(230), p.ink, "left", 920);
+      txt(c, t("fx.studyToday") + (s.minEst ? " · " + t("fx.estNote") : ""), 80, 790, LANG === "ja" ? F.jp(32, 400) : F.mono(32), p.mut, "left", 920);
+      txt(c, t("fx.learned"), 80, 900, lab(44), p.ink);
+      const items = s.learned.length ? s.learned.slice(0, 5) : [t("fx.none")];
+      items.forEach((l, i) => { c.fillStyle = p.b; c.fillRect(80, 945 + i * 68, 18, 18); txt(c, l, 120, 965 + i * 68, LANG === "ja" ? F.jp(36, 400) : F.mono(34), p.ink, "left", 880); });
+      const y0 = 1330, hMax = 190, mx = Math.max(60, ...s.week7.map(x => x[1]));
+      txt(c, `${t("fx.week7")} · ${t("fx.total", { t: s.totalHm })}`, 80, y0 - 70, LANG === "ja" ? F.jp(30, 400) : F.mono(30), p.mut, "left", 920);
+      s.week7.forEach(([d, m], i) => {
+        const x = 80 + i * 134, h = Math.max(6, hMax * m / mx);
+        c.fillStyle = i === 6 ? p.a : p.b; c.globalAlpha = m ? 1 : 0.25; c.fillRect(x, y0 + hMax - h, 110, h); c.globalAlpha = 1;
+        txt(c, m ? String(Math.round(m / 6) / 10) : "0", x + 55, y0 + hMax - h - 14, F.mono(28, 700), p.ink, "center");
+        txt(c, String(+d.slice(8)), x + 55, y0 + hMax + 44, F.mono(28), p.mut, "center");
+      });
+    } },
     { name: "Gold", gold: true, draw(c, p, s) {
       c.save(); c.translate(W / 2, 900); c.strokeStyle = p.a; c.globalAlpha = 0.18; c.lineWidth = 14;
       for (let i = 0; i < 36; i++) { c.rotate(Math.PI / 18); c.beginPath(); c.moveTo(0, 380); c.lineTo(0, 900); c.stroke(); }
@@ -200,7 +218,7 @@
       txt(c, "LEGENDARY", W / 2, 1560, F.mono(40, 700), p.mut, "center");
     } },
   ];
-  const RAR = { common: [2, 6, 8, 9], rare: [1, 5, 4, 3], epic: [7, 0], legendary: [10] };
+  const RAR = { common: [2, 6, 8, 9, 10], rare: [1, 5, 4, 3], epic: [7, 0], legendary: [11] };
   const COMEBACK = { common: [9], rare: [3, 5], epic: [0], legendary: [] };  // cumulative numbers only, never 0/4
   const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
 
@@ -209,8 +227,10 @@
     const $ = id => document.getElementById(id), cover = $("flexCover"), rar = $("flexRar"), info = $("flexInfo"), share = $("flexShare"), save = $("flexSave");
     const sample = "0123456789ABCabc█░" + JP.join("") + s.kanjiList + "今日のノルマ済未毎日の記録今週の目標ログ成績表完了継続連続達成学習漢字クイズ復習単語累計まであとありがとうございました日本語" + ["fx.r.kaishiNew", "fx.r.reviews", "fx.r.rounds", "fx.r.score", "fx.r.minna", "fx.r.kaiwa", "fx.r.bank", "fx.r.streak", "fx.must", "fx.daysLeft", "fx.progress",
         "fx.heatSub", "fx.heatLine", "fx.wMinna", "fx.wKaishi", "fx.wKanji", "fx.hanko", "fx.t1", "fx.t2", "fx.t3", "fx.t4", "fx.t5", "fx.t6", "fx.perfect", "fx.keep",
-        "fx.kanjiSeen", "fx.kaishi", "fx.reviews", "fx.roundsToday", "fx.daysN3", "streak.full", "streak.active", "streak.rounds", "w.anki", "w.kanji", "w.minna", "w.kaiwa", "fx.none", "fx.bab"].map(k => t(k)).join("") + s.n3Month + s.dateLabel;
+        "fx.kanjiSeen", "fx.time", "fx.studyToday", "fx.learned", "fx.week7", "fx.estNote", "fx.kaishi", "fx.reviews", "fx.roundsToday", "fx.daysN3", "streak.full", "streak.active", "streak.rounds", "w.anki", "w.kanji", "w.minna", "w.kaiwa", "fx.none", "fx.bab"].map(k => t(k)).join("") + s.n3Month + s.dateLabel + s.learned.join("");
     await Promise.all([F.num(80), F.head(40), F.mono(30), F.mono(30, 700), F.jp(40), F.jp(40, 400)].map(f => document.fonts.load(f, sample))).catch(() => {});
+    const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
+    s.hm = (s.minEst && s.min ? "±" : "") + hm(s.min); s.totalHm = hm(s.totalMin);
     const fontOk = document.fonts.check(F.jp(40), "漢字");
     const comeback = s.done <= 1;
     let file = null, url = null, busy = false;

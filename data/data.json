@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T12:27",
+ "generated": "2026-11-18T13:47",
  "bab": 15,
  "sessions": [
   {
@@ -10,6 +10,7 @@
    "ok": 6,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "Rumus て gol 1 kuat. Lemah: mengenali gol 2/3, 行って"
   },
@@ -21,6 +22,7 @@
    "ok": 3,
    "total": 8,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "～します dianggap bukan gol 3; 借ります/入ります tertukar; 来て salah"
   },
@@ -32,6 +34,7 @@
    "ok": null,
    "total": null,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "Aturan gol 3 dipertajam: [kata benda]+します; 消します tetap gol 1"
   },
@@ -43,6 +46,7 @@
    "ok": 35,
    "total": 50,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "g2i:5, shite(golongan):3, ki/gi/bi:5, kimasu:2. Mulai sekarang kuis tanpa petunjuk"
   },
@@ -54,6 +58,7 @@
    "ok": null,
    "total": null,
    "turns": 1,
+   "min": null,
    "shadowing": true,
    "note": "'bandon ni sunde imasu' benar (に + 住んでいます). Skrip 52 baris (±10 menit) pola bab 15 di catatan/kaiwa-kantor-bab15.md; shadowing mandiri"
   },
@@ -65,6 +70,7 @@
    "ok": 8,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "MINIMUM 8 RONDE HARI INI TERPENUHI. dibuka: 話す, 時間. 見る dibaca suru (tertukar する; kalimat benkyou suru). 中: ringo wo naka ni arimasu (harus りんごが箱の中にあります: ある = が)"
   },
@@ -76,6 +82,7 @@
    "ok": 9,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "bacaan 10/10; dibuka: 家, 置く, 彼女. 名前: 'oshite kudasai' = 押して (dorong), harus 教えてください oshiete. Typo 'suka' → suki. Kalimat pendek dan lengkap, jauh lebih baik da…"
   },
@@ -87,6 +94,7 @@
    "ok": 5,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "出来る dibaca ageru (tertukar あげる). 全然: kalimat terpotong 'wasabi wa zenzen suk' (harus 好きじゃありません). 次の夢は日本で働きます (harus 次は日本で働きます). 来る & 無い: kalimat kosong (user b…"
   },
@@ -98,6 +106,7 @@
    "ok": 5,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "dibuka: 君, 言う, 会う, 帰る, 思う. 教える dibaca kaeru (tertukar 帰る). 君: 'kimi wa IT no kaisha desu ka' = kamu adalah perusahaan (harus ...会社で働いていますか). 立つ & 言う: kalimat k…"
   },
@@ -109,6 +118,7 @@
    "ok": 8,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "8 dibuka (kanji belum di Anki, bukan kegagalan). 料理: sushi wo suki (harus 寿司が好き; 好き = が). 旅行: kalimat 'wakarimasen' tidak memakai kata target. densa → densha. …"
   },
@@ -120,6 +130,7 @@
    "ok": 9,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "kanji bab 15 memang belum pernah dipelajari, semua dibuka (bukan kegagalan). Bacaan + arti 10/10. 作る: pan wo tsukatte imasu (itu 使う; harus パンを作っています)"
   },
@@ -131,6 +142,7 @@
    "ok": 8,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "bacaan 10/10, tanpa BUKA tapi 3 clue (声, 窓, 銀行). 町: Kon Machi de kirei (harus この町はきれい). 大きい: kalimat tidak memakai kata target, benar di ulang. 銀行 sudah tidak …"
   },
@@ -142,6 +154,7 @@
    "ok": 8,
    "total": 10,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "bacaan 10/10, tanpa BUKA. 前: この傘は前にドアです (harus ドアの前に傘があります). 持つ: お金が持つ います (harus お金を持っています: を + て形 + います). 考える & 面白い kali ini benar. Arti sering lupa ditulis"
   },
@@ -153,6 +166,7 @@
    "ok": 0,
    "total": 3,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "住む dibuka (kalimat バンドンに住んでいます benar). 考える dibaca kaeru (帰る), 面白い dibaca takai (高い): kanji tertukar dgn kata lain"
   },
@@ -164,6 +178,7 @@
    "ok": 2,
    "total": 3,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "兄と日本へ, 家族にお金をあげました benar. 町 dibuka; 花火大会をいます (harus 町で花火大会があります: acara = で + あります)"
   },
@@ -175,6 +190,7 @@
    "ok": 2,
    "total": 3,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "友達 & 昨日 bacaan + kalimat sempurna (よく+ます, と). 声 dibuka; ooki (harus ookii), ですが untuk alasan (harus から)"
   },
@@ -186,6 +202,7 @@
    "ok": 3,
    "total": 9,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "会う (町で友達に) sempurna, よく考えて benar. Lemah partikel: 好き pakai に (harus が), 会社で/家でいます (harus に), 兄に話す (harus と). Tense: よく+ました, もう+ます (terbalik)"
   },
@@ -197,6 +214,7 @@
    "ok": 1,
    "total": 3,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "全然 benar. よく → dikira 'sudah'; もう一度ください tanpa 言って"
   },
@@ -208,6 +226,7 @@
    "ok": 6,
    "total": 9,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "働いています/持って/結婚して/知っていますか benar, 銀行 sudah benar. Salah: wakarimasen untuk 'tidak tahu' (harus 知りません), 田中さんは知って (harus を), 妹をスラバヤで住んで (harus 妹は…に住んで)"
   },
@@ -219,6 +238,7 @@
    "ok": 8,
    "total": 9,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "Pola langsung masuk; bentuk て benar semua (mite, nete, haitte). Salah: は hilang di totte ikemasen (1×), ドア lagi untuk jendela. Sisa bab 15: ～ています keadaan (住んで/…"
   },
@@ -230,6 +250,7 @@
    "ok": 7,
    "total": 9,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "っ di gol 2/3 sudah hilang (okite/tabete/kite benar). Salah: 見ます diganti 見せます (misete) 2×, これは→これを. 消/貸/書/待 benar"
   },
@@ -241,6 +262,7 @@
    "ok": 6,
    "total": 9,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "～ましょうか 2× benar (pakai ます). て gol 2/3 masih pakai っ: mitte, kitte. Kosakata tertukar: ドア (pintu) untuk jendela, 銀行員 (pegawai bank) untuk bank. Anki deck kata k…"
   },
@@ -252,6 +274,7 @@
    "ok": 16,
    "total": 24,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "て/た benar semua kecuali 来ます (kitte). ない masih: nominai, isoginai, ianai (i→wa), misanai (aturan gol 1 dipakai di gol 2). 帰ります sempurna. Tanya います vs 言います"
   },
@@ -263,6 +286,7 @@
    "ok": 25,
    "total": 40,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "Golongan 9/10, た ikut て. Lemah: ない gol 1 tetap bunyi i (kakinai/machinai/hanashinai, 6×), gol 2/3 pakai っ (mitte/kitte), ぎ→nde, 行 dianggap gol 3, kaida"
   },
@@ -274,6 +298,7 @@
    "ok": 12,
    "total": 15,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "Kalimat + buat kalimat hampir sempurna. Salah: 貸します gol 3, 借ります katte, ～ましょうか pakai て (4×). Bentuk た bagian A tidak diisi"
   },
@@ -285,6 +310,7 @@
    "ok": 8,
    "total": 12,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "Rumus て→た 100% benar; 4 salah semua karena bentuk て-nya salah (降/起 gol 2, 言, 行 pengecualian)"
   },
@@ -296,6 +322,7 @@
    "ok": 6,
    "total": 12,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "Golongan sudah benar semua; masalah tinggal て gol 2 (mitte/otte), ～ましょうか pakai て, 貸/借. Minta furigana di SETIAP kanji"
   },
@@ -307,6 +334,7 @@
    "ok": 5,
    "total": 12,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "～てください/～ています oke kalau bentuk て benar. Lemah: 見→mitte, 聞 vs 見, ～ましょうか pakai て, kata kerja hilang. Sudah mengetik kana"
   },
@@ -318,6 +346,7 @@
    "ok": 8,
    "total": 17,
    "turns": null,
+   "min": null,
    "shadowing": false,
    "note": "Gol 2 baris い (見/起/浴/降) semua dipilih gol 1; -gi → -nde (harus -ide); 聞 → kitte. 借/来 sudah benar"
   }
@@ -577,7 +606,8 @@
     "hard": 0,
     "kaishiNew": 1,
     "rtkNew": 0,
-    "new": 1
+    "new": 1,
+    "ankiMin": 0
    },
    "2026-07-14": {
     "reviews": 87,
@@ -585,7 +615,8 @@
     "hard": 16,
     "kaishiNew": 0,
     "rtkNew": 15,
-    "new": 30
+    "new": 30,
+    "ankiMin": 14
    },
    "2026-07-15": {
     "reviews": 4,
@@ -593,7 +624,8 @@
     "hard": 0,
     "kaishiNew": 0,
     "rtkNew": 1,
-    "new": 1
+    "new": 1,
+    "ankiMin": 1
    },
    "2026-11-14": {
     "reviews": 50,
@@ -601,7 +633,8 @@
     "hard": 6,
     "kaishiNew": 32,
     "rtkNew": 0,
-    "new": 32
+    "new": 32,
+    "ankiMin": 10
    },
    "2026-11-15": {
     "reviews": 138,
@@ -609,7 +642,8 @@
     "hard": 98,
     "kaishiNew": 42,
     "rtkNew": 0,
-    "new": 42
+    "new": 42,
+    "ankiMin": 40
    },
    "2026-11-16": {
     "reviews": 239,
@@ -617,7 +651,8 @@
     "hard": 115,
     "kaishiNew": 25,
     "rtkNew": 0,
-    "new": 75
+    "new": 75,
+    "ankiMin": 66
    },
    "2026-11-17": {
     "reviews": 405,
@@ -625,7 +660,8 @@
     "hard": 101,
     "kaishiNew": 17,
     "rtkNew": 0,
-    "new": 117
+    "new": 117,
+    "ankiMin": 83
    },
    "2026-11-18": {
     "reviews": 353,
@@ -634,7 +670,8 @@
     "kaishiNew": 17,
     "rtkNew": 0,
     "new": 99,
-    "dueLeft": 38
+    "dueLeft": 38,
+    "ankiMin": 68
    }
   },
   "today": "2026-11-18",

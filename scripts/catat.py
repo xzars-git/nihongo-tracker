@@ -1,6 +1,7 @@
 """Catat progres ke catatan/progres.md dengan satu perintah (dipakai sesi belajar / tutor).
 
-  python -I tracker/catat.py sesi "<mode>" "<skor>" ["catatan"]
+  python -I tracker/scripts/catat.py sesi "<mode>" "<skor>" ["catatan"] [--menit N]
+      --menit N: lama sesi dalam menit (dipakai untuk jam belajar di Flex)
       mode berisi "tebak kanji" → kanji · "kaiwa"/"shadowing" → kaiwa · "kaishi" → kosakata · lainnya → Minna
       skor: "8/10", "6 giliran", atau "–"
   python -I tracker/catat.py salah "<item>" "<jawaban benar>" "<kesalahan>"   (masuk bank, ulang besok)
@@ -48,11 +49,16 @@ def find(md, item):
 
 
 def main(a):
+    menit = None
+    if "--menit" in a:  # optional session length, stored in the score cell as "· N mnt"
+        i = a.index("--menit"); menit = a[i + 1]; a = a[:i] + a[i + 2:]
+        if not menit.isdigit(): sys.exit("--menit harus angka, misalnya --menit 20")
     md = open(PROGRES, encoding="utf-8").read()
     cmd = a[0] if a else ""
     if cmd == "sesi" and len(a) >= 3:
-        md = add_row(md, "Riwayat sesi", [TODAY, a[1], a[2], a[3] if len(a) > 3 else ""])
-        msg = f"sesi dicatat: {a[1]} · {a[2]}"
+        skor = f"{a[2]} · {menit} mnt" if menit else a[2]
+        md = add_row(md, "Riwayat sesi", [TODAY, a[1], skor, a[3] if len(a) > 3 else ""])
+        msg = f"sesi dicatat: {a[1]} · {skor}"
     elif cmd == "salah" and len(a) == 4:
         due = TODAY + dt.timedelta(days=1)
         existing = [r for r in rows(md, "Bank kesalahan") if r[2][0] == a[1]]
