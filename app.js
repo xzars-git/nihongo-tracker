@@ -3,112 +3,140 @@
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const iso = d => d.toISOString().slice(0, 10);
   const addDays = (s, n) => { const d = new Date(s + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
-  const fmt = s => new Date(s + "T00:00:00Z").toLocaleDateString("id-ID", { day: "numeric", month: "short", timeZone: "UTC" });
+  const loc = t("locale");
+  const fmt = s => new Date(s + "T00:00:00Z").toLocaleDateString(loc, { day: "numeric", month: "short", timeZone: "UTC" });
   const daysBetween = (a, b) => Math.round((new Date(b + "T00:00:00Z") - new Date(a + "T00:00:00Z")) / 864e5);
+  const banner = (msg, cls = "") => $("#banner").insertAdjacentHTML("beforeend", `<p class="banner ${cls}">${esc(msg)}</p>`);
 
-  const D = await (await fetch("data.json", { cache: "no-cache" })).json();
+  let D;
+  try { D = await (await fetch("data.json", { cache: "no-cache" })).json(); }
+  catch { banner(t("banner.fail"), "bad"); return; }
   const P = D.plan, A = D.anki || { days: {} };
   // Anki's day starts at 4am, so a 1am session still counts as yesterday
   const today = iso(new Date(Date.now() - 4 * 36e5 - new Date().getTimezoneOffset() * 6e4));
+  const ageH = (Date.now() - new Date(D.generated)) / 36e5;
+  if (ageH > 30) banner(t("banner.stale", { n: Math.floor(ageH / 24) }));
 
   const byDay = {};
   for (const s of D.sessions) (byDay[s.date] ||= []).push(s);
   const fullRounds = d => (byDay[d] || []).filter(s => s.kind === "kanji" && s.total >= P.daily.kanjiPerRound);
-  // Past days: "Anki beres" ≈ the day's Kaishi quota was opened (remaining reviews aren't recorded per day)
+  const isRest = d => (P.restDays || []).includes(new Date(d + "T00:00:00Z").getUTCDay());
   const status = d => {
     const a = A.days[d] || {}, ss = byDay[d] || [];
     return {
-      anki: (a.kaishiNew || 0) >= P.daily.kaishiNew && (d !== A.today || A.dueNow === 0),
+      // dueLeft = reviews left at that day's last sync; old days without it fall back to the Kaishi quota
+      anki: (a.kaishiNew || 0) >= P.daily.kaishiNew && (a.dueLeft === undefined ? d !== A.today : a.dueLeft === 0),
       kanji: fullRounds(d).length >= P.daily.kanjiRounds,
       minna: ss.some(s => s.kind === "minna"),
-      kaiwa: ss.some(s => s.kind === "kaiwa"),
+      kaiwa: ss.some(s => s.kind === "kaiwa" && (s.shadowing || (s.turns ?? 0) >= P.daily.kaiwaTurns)),
     };
   };
   const count = d => Object.values(status(d)).filter(Boolean).length;
+  const complete = d => isRest(d) ? status(d).anki : count(d) === 4;
 
-  $("#updated").textContent = `update terakhir ${new Date(D.generated).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" })} · bab ${D.bab ?? "–"}`;
-
+  const n3 = P.goals.find(g => g.id === "n3");
+  const monthYear = s => new Date(s + "T00:00:00Z").toLocaleDateString(loc, { month: "long", year: "numeric", timeZone: "UTC" }).toUpperCase();
+  $("#n3a").textContent = t("goal.n3"); $("#n3b").textContent = monthYear(n3.date);
+  $("#updated").textContent = t("updated", { t: new Date(D.generated).toLocaleString(loc, { dateStyle: "medium", timeStyle: "short" }), b: D.bab ?? "–" });
   $("#goals").innerHTML = P.goals.map(g => {
     const n = daysBetween(today, g.date);
-    return `<div class="goal"><span class="mono">${esc(g.label)}${g.approx ? " ±" : ""}</span><b>${n >= 0 ? n + " hari" : "lewat"}</b><span class="muted">${esc(g.note)}</span></div>`;
+    return `<span title="${esc(t("goalnote." + g.id))}">${g.approx ? "±" : ""}${esc(t("goal." + g.id))} <b>${n >= 0 ? n + " " + t("d") : t("passed")}</b></span>`;
   }).join("");
 
   // ---------- today ----------
-  $("#todayLabel").textContent = fmt(today);
   const st = status(today), a = A.days[today] || {}, rounds = fullRounds(today), ss = byDay[today] || [];
+  $("#todayLabel").textContent = fmt(today) + (isRest(today) ? t("restday") : "");
   const avg = r => r.length ? Math.round(r.reduce((x, s) => x + s.ok / s.total, 0) / r.length * 100) : null;
-  const card = (key, title, n, p) => `<div class="w ${st[key] ? "done" : ""}"><span class="st">${st[key] ? "BERES" : "BELUM"}</span><h3>${title}</h3><div class="n">${n}</div><p>${p}</p></div>`;
+  const card = (key, n, p) => `<div class="w ${st[key] ? "done" : ""}"><span class="st">${t(st[key] ? "st.done" : isRest(today) && key !== "anki" ? "st.rest" : "st.todo")}</span><h3>${t("w." + key)}</h3><div class="n">${n}</div><p>${p}</p></div>`;
+  const minnaS = ss.filter(s => s.kind === "minna"), kaiwaS = ss.filter(s => s.kind === "kaiwa");
   $("#wajib").innerHTML = [
-    card("anki", "Anki", `${a.kaishiNew || 0}/${P.daily.kaishiNew} baru`, `${a.reviews || 0} review · Again ${a.again || 0} · Hard ${a.hard || 0}${A.today === today ? ` · sisa due ${A.dueNow}` : ""}`),
-    card("kanji", "Tebak kanji", `${rounds.length}/${P.daily.kanjiRounds} ronde`, rounds.length ? `rata-rata ${avg(rounds)}%` : "belum ada ronde"),
-    card("minna", "Minna", `${ss.filter(s => s.kind === "minna").length} sesi`, esc(ss.filter(s => s.kind === "minna").map(s => s.mode).join(" · ") || "belum ada sesi")),
-    card("kaiwa", "Kaiwa", `${ss.filter(s => s.kind === "kaiwa").length} sesi`, esc(ss.filter(s => s.kind === "kaiwa").map(s => s.score).join(" · ") || `target ${P.daily.kaiwaTurns}–8 giliran`)),
+    card("anki", t("anki.n", { a: a.kaishiNew || 0, b: P.daily.kaishiNew }), t("anki.p", { r: a.reviews || 0, ag: a.again || 0, h: a.hard || 0 }) + (A.today === today ? t("anki.due", { d: A.dueNow }) : "")),
+    card("kanji", t("kanji.n", { a: rounds.length, b: P.daily.kanjiRounds }), rounds.length ? t("kanji.avg", { v: avg(rounds) }) : t("kanji.none")),
+    card("minna", t("minna.n", { n: minnaS.length }), esc(minnaS.map(s => s.mode).join(" · ") || t("minna.none"))),
+    card("kaiwa", t("kaiwa.n", { n: kaiwaS.reduce((x, s) => x + (s.turns || 0), 0) }), esc(kaiwaS.map(s => s.score).join(" · ") || t("kaiwa.target", { a: P.daily.kaiwaTurns }))),
   ].join("");
 
+  // ---------- this week + pace ----------
+  const wk = P.weeks.findLast(w => w.start <= today) || P.weeks[0];
+  const cek = P.goals.find(g => g.id === "cek").date, toCek = Math.max(1, daysBetween(today, cek));
+  const last7 = Array.from({ length: 7 }, (_, i) => A.days[addDays(today, -i)] || {});
+  const rate = k => last7.reduce((x, d) => x + (d[k] || 0), 0) / 7;
+  $("#weekLabel").textContent = `${fmt(wk.start)} – ${fmt(addDays(wk.start, 6))} · ${tx(wk, "minna")}`;
+  const bar = (label, have, want, sub) => {
+    const pct = Math.min(100, Math.round(have / want * 100));
+    return `<div class="bar ${have >= want ? "ok" : ""}"><div class="lbl"><span>${label}</span><b>${have} / ${want}</b></div><div class="track"><div class="fill" style="width:${pct}%"></div></div><p class="mono small muted">${sub}</p></div>`;
+  };
+  const pace = (have, goal, perDay, unit) => {
+    const proj = Math.round(have + perDay * toCek), v = { r: perDay.toFixed(1), u: t(unit), d: fmt(cek), g: goal, p: proj, n: (Math.max(0, goal - have) / toCek).toFixed(1) };
+    return proj >= goal ? `<span class="on">${t("pace.on")}</span> · ${t("pace.onText", v)}` : `<span class="late">${t("pace.late")}</span> · ${t("pace.lateText", v)}`;
+  };
+  const end = P.weeks[P.weeks.length - 1], babLeft = Math.max(0, end.bab - (D.bab ?? 0));
+  $("#week").innerHTML =
+    bar(t("bar.minna"), D.bab ?? 0, wk.bab, t("bar.minna.sub", { n: babLeft, d: fmt(cek), r: (babLeft / Math.max(1, toCek / 7)).toFixed(1) })) +
+    bar(t("bar.kaishi"), A.kaishiOpened ?? 0, wk.kaishi, t("bar.kaishi.sub", { pace: pace(A.kaishiOpened ?? 0, end.kaishi, rate("kaishiNew"), "unit.word"), m: A.kaishiMature ?? 0 })) +
+    bar(t("bar.kanji"), A.kanjiKnown ?? 0, wk.kanji, t("bar.kanji.sub", { pace: pace(A.kanjiKnown ?? 0, end.kanji, rate("rtkNew"), "unit.kanji"), s: A.kanjiSeen ?? 0 }));
+  $("#weeks").innerHTML = `<table><tr><th>${t("th.week")}</th><th>Minna</th><th>Kaishi</th><th>Kanji</th></tr>${P.weeks.map(w =>
+    `<tr class="${w === wk ? "cur" : ""}"><td>${fmt(w.start)}</td><td>${esc(tx(w, "minna"))}</td><td>${w.kaishi}</td><td>${w.kanji}</td></tr>`).join("")}</table>`;
+
   // ---------- consistency ----------
-  const first = [D.sessions.map(s => s.date), Object.keys(A.days)].flat().sort()[0] || today;
+  const first = D.sessions.map(s => s.date).sort()[0] || today;
   let start = addDays(today, -7 * 17);
   if (start < first) start = first;
   start = addDays(start, -((new Date(start + "T00:00:00Z").getUTCDay() + 6) % 7)); // back to Monday
   const cells = [];
   for (let d = start; d <= addDays(today, (7 - (new Date(today + "T00:00:00Z").getUTCDay() || 7)) % 7); d = addDays(d, 1))
-    cells.push(d > today ? `<i style="opacity:.25"></i>` : `<i data-n="${count(d)}" class="${d === today ? "today" : ""}" title="${fmt(d)}: ${count(d)}/4"></i>`);
+    cells.push(d > today || d < first ? `<i style="opacity:.25"></i>`
+      : `<i data-n="${count(d)}" class="${d === today ? "today" : ""}" title="${t("heat.title", { d: fmt(d), n: count(d) })}${isRest(d) ? t("heat.rest") : ""}"></i>`);
   $("#heat").innerHTML = cells.join("");
-  let streak = 0, d = count(today) === 4 ? today : addDays(today, -1);
-  while (count(d) === 4) { streak++; d = addDays(d, -1); }
-  let active = 0; d = (byDay[today] || A.days[today]) ? today : addDays(today, -1);
-  while (byDay[d] || A.days[d]) { active++; d = addDays(d, -1); }
-  const totalRounds = D.sessions.filter(s => s.kind === "kanji" && s.total >= 10).length;
-  $("#streak").innerHTML = `<span><b>${streak}</b> hari WAJIB 4/4 beruntun</span><span><b>${active}</b> hari belajar beruntun</span><span><b>${totalRounds}</b> ronde tebak kanji total</span>`;
+  $("#heat").scrollLeft = $("#heat").scrollWidth;
+  const run = ok => { let n = 0, d = ok(today) ? today : addDays(today, -1); while (d >= first && ok(d)) { n++; d = addDays(d, -1); } return n; };
+  const streak = run(complete), active = run(d => count(d) > 0);
+  const totalRounds = D.sessions.filter(s => s.kind === "kanji" && s.total >= P.daily.kanjiPerRound).length;
+  $("#streak").innerHTML = `<span><b>${streak}</b> ${t("streak.full")}</span><span><b>${active}</b> ${t("streak.active")}</span><span><b>${totalRounds}</b> ${t("streak.rounds")}</span>`;
 
-  // ---------- this week ----------
-  const wk = P.weeks.findLast(w => w.start <= today) || P.weeks[0];
-  $("#weekLabel").textContent = `${fmt(wk.start)} – ${fmt(addDays(wk.start, 6))} · ${wk.minna}`;
-  const bar = (label, have, want) => {
-    const pct = Math.min(100, Math.round(have / want * 100));
-    return `<div class="bar ${have >= want ? "ok" : ""}"><div class="lbl"><span>${label}</span><b>${have} / ${want}</b></div><div class="track"><div class="fill" style="width:${pct}%"></div></div></div>`;
-  };
-  $("#week").innerHTML = bar("Minna: bab sekarang", D.bab ?? 0, wk.bab) + bar("Kaishi: kata dibuka", A.kaishiOpened ?? 0, wk.kaishi) + bar(`Kanji dipelajari (deck RTK · ${A.kanjiSeen ?? 0} kanji unik sudah ketemu di semua deck)`, A.kanjiKnown ?? 0, wk.kanji);
-  $("#weeks").innerHTML = `<table><tr><th>Minggu</th><th>Minna</th><th>Kaishi</th><th>Kanji</th></tr>${P.weeks.map(w =>
-    `<tr class="${w === wk ? "cur" : ""}"><td>${fmt(w.start)}</td><td>${esc(w.minna)}</td><td>${w.kaishi}</td><td>${w.kanji}</td></tr>`).join("")}</table>`;
-
-  // ---------- charts (last 14 days) ----------
-  const last = Array.from({ length: 14 }, (_, i) => addDays(today, i - 13));
-  const label = d => fmt(d).split(" ")[0];
+  // ---------- charts (last 14 days, from the first session) ----------
+  const last = Array.from({ length: 14 }, (_, i) => addDays(today, i - 13)).filter(d => d >= first);
+  const label = d => new Date(d + "T00:00:00Z").getUTCDate();
   $("#kanjiChart").innerHTML = last.map(d => {
     const r = fullRounds(d), v = avg(r);
-    return `<div class="col" title="${fmt(d)}: ${r.length} ronde${v != null ? ", " + v + "%" : ""}">${v != null ? `<b>${v}</b><span class="kj" style="height:${v}%"></span>` : ""}<em>${label(d)}</em></div>`;
+    return `<div class="col" title="${t("chart.kanji", { d: fmt(d), n: r.length })}${v != null ? ", " + v + "%" : ""}">${v != null ? `<b>${v}</b><span class="kj" style="height:${v}%"></span>` : ""}<em>${label(d)}</em></div>`;
   }).join("");
   const maxRev = Math.max(1, ...last.map(d => (A.days[d] || {}).reviews || 0));
   $("#ankiChart").innerHTML = last.map(d => {
     const x = A.days[d] || { reviews: 0, again: 0, hard: 0 }, h = v => (v / maxRev * 100) + "%";
-    return `<div class="col" title="${fmt(d)}: ${x.reviews} review, Again ${x.again}, Hard ${x.hard}">${x.reviews ? `<b>${x.reviews}</b>` : ""}<span class="good" style="height:${h(x.reviews - x.again - x.hard)}"></span><span class="hard" style="height:${h(x.hard)}"></span><span class="again" style="height:${h(x.again)}"></span><em>${label(d)}</em></div>`;
+    return `<div class="col" title="${t("chart.anki", { d: fmt(d), r: x.reviews, a: x.again, h: x.hard })}">${x.reviews ? `<b>${x.reviews}</b>` : ""}<span class="good" style="height:${h(x.reviews - x.again - x.hard)}"></span><span class="hard" style="height:${h(x.hard)}"></span><span class="again" style="height:${h(x.again)}"></span><em>${label(d)}</em></div>`;
   }).join("");
+  // title tooltips don't work on touch: show the same text in a toast on tap
+  document.addEventListener("click", e => {
+    const el = e.target.closest("#heat [title], .chart [title]");
+    if (!el) return;
+    const tip = $("#tip"); tip.textContent = el.title; tip.hidden = false;
+    clearTimeout(tip.timer); tip.timer = setTimeout(() => tip.hidden = true, 2500);
+  });
 
   // ---------- mistakes ----------
   const ms = [...D.mistakes].sort((x, y) => (x.due || "9").localeCompare(y.due || "9"));
-  const cls = m => !m.due ? "later" : m.due < today ? "over" : m.due === today ? "due" : "later";
-  const over = ms.filter(m => cls(m) === "over").length, due = ms.filter(m => cls(m) === "due").length;
-  $("#mistakeSum").textContent = `${ms.length} item · ${over} lewat jatuh tempo · ${due} jatuh tempo hari ini · interval 1 → 3 → 7 → 14 hari`;
-  $("#mistakes").innerHTML = ms.map(m => `<details class="m ${cls(m)}"><summary><span>${esc(m.item)}</span><small>${m.due ? fmt(m.due) : "–"} · ${esc(m.interval)} hr</small></summary>
-    <p><b>BENAR</b> ${esc(m.right)}</p><p><b>SALAH</b> ${esc(m.wrong)}</p></details>`).join("");
+  const cls = m => m.due && m.due <= today ? "due" : "later";
+  $("#mistakeSum").textContent = t("m.sum", { n: ms.length, d: ms.filter(m => cls(m) === "due").length });
+  $("#mistakes").innerHTML = ms.map(m => `<details class="m ${cls(m)}"><summary><span>${esc(m.item)}</span><small>${m.due ? fmt(m.due) : "–"} · ${esc(m.interval)} ${t("d")}</small></summary>
+    <p><b>${t("m.right")}</b> ${esc(m.right)}</p><p><b>${t("m.wrong")}</b> ${esc(m.wrong)}</p></details>`).join("");
 
   // ---------- log ----------
   const log = D.sessions.map((s, i) => [s, i]).sort((x, y) => y[0].date.localeCompare(x[0].date) || x[1] - y[1]).slice(0, 25);
-  $("#log").innerHTML = log.map(([s]) => `<div class="s"><span class="mono small muted">${fmt(s.date)}</span><span class="k ${s.kind}">${s.kind}</span>
+  $("#logNote").textContent = t("log.note");
+  $("#log").innerHTML = log.map(([s]) => `<div class="s"><span class="mono small muted">${fmt(s.date)}</span><span class="k ${s.kind}">${t("kind." + s.kind)}</span>
     <div><b>${esc(s.mode)}</b> <span class="sc">${esc(s.score)}</span><p>${esc(s.note)}</p></div></div>`).join("");
 
-  const n3 = P.goals.find(g => g.id === "n3").date;
+  $("#months").innerHTML = P.months.map(m => `<div class="mo"><span class="mono small muted">${new Date(m.month + "-01T00:00:00Z").toLocaleDateString(loc, { month: "long", year: "numeric", timeZone: "UTC" })}</span><b>${t("months.kanji", { n: m.kanji })}</b><span class="small">${esc(tx(m, "text"))}</span></div>`).join("");
+
   window.initFlex?.({
     date: today, st, done: count(today), rounds: rounds.length, avg: avg(rounds), reviews: a.reviews || 0, kaishiNew: a.kaishiNew || 0,
-    dateLabel: new Date(today + "T00:00:00Z").toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }),
+    dateLabel: new Date(today + "T00:00:00Z").toLocaleDateString(loc, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }),
     kaishiOpened: A.kaishiOpened || 0, kanjiSeen: A.kanjiSeen || 0, kanjiList: A.kanjiList || "", bab: D.bab ?? "–",
     streak, active, totalRounds, mistakes: D.mistakes.length,
-    minna: ss.filter(s => s.kind === "minna").map(s => s.mode), kaiwa: ss.filter(s => s.kind === "kaiwa").length,
-    daysN3: daysBetween(today, n3), n3Total: daysBetween(P.weeks[0].start, n3), startLabel: fmt(P.weeks[0].start),
+    minna: minnaS.map(s => s.mode), kaiwa: kaiwaS.length, n3Month: monthYear(n3.date),
+    daysN3: daysBetween(today, n3.date), n3Total: daysBetween(P.weeks[0].start, n3.date), startLabel: fmt(P.weeks[0].start),
     heat: Array.from({ length: 56 }, (_, i) => { const x = addDays(today, i - 55); return x < first ? -1 : count(x); }),
-    week: [["Minna bab", D.bab ?? 0, wk.bab], ["Kata Kaishi", A.kaishiOpened ?? 0, wk.kaishi], ["Kanji RTK", A.kanjiKnown ?? 0, wk.kanji]],
+    week: [[t("fx.wMinna"), D.bab ?? 0, wk.bab], [t("fx.wKaishi"), A.kaishiOpened ?? 0, wk.kaishi], [t("fx.wKanji"), A.kanjiKnown ?? 0, wk.kanji]],
   });
-
-  $("#months").innerHTML = P.months.map(m => `<div class="mo"><span class="mono small muted">${new Date(m.month + "-01T00:00:00Z").toLocaleDateString("id-ID", { month: "long", year: "numeric", timeZone: "UTC" })}</span><b>${m.kanji} kanji</b><span class="small">${esc(m.text)}</span></div>`).join("");
 })();

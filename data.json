@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-18T12:04",
+ "generated": "2026-11-18T12:27",
  "bab": 15,
  "sessions": [
   {
@@ -9,6 +9,8 @@
    "score": "6/10",
    "ok": 6,
    "total": 10,
+   "turns": null,
+   "shadowing": false,
    "note": "Rumus て gol 1 kuat. Lemah: mengenali gol 2/3, 行って"
   },
   {
@@ -18,6 +20,8 @@
    "score": "3/8",
    "ok": 3,
    "total": 8,
+   "turns": null,
+   "shadowing": false,
    "note": "～します dianggap bukan gol 3; 借ります/入ります tertukar; 来て salah"
   },
   {
@@ -27,6 +31,8 @@
    "score": "–",
    "ok": null,
    "total": null,
+   "turns": null,
+   "shadowing": false,
    "note": "Aturan gol 3 dipertajam: [kata benda]+します; 消します tetap gol 1"
   },
   {
@@ -36,6 +42,8 @@
    "score": "35/50",
    "ok": 35,
    "total": 50,
+   "turns": null,
+   "shadowing": false,
    "note": "g2i:5, shite(golongan):3, ki/gi/bi:5, kimasu:2. Mulai sekarang kuis tanpa petunjuk"
   },
   {
@@ -45,6 +53,8 @@
    "score": "1 giliran ✅",
    "ok": null,
    "total": null,
+   "turns": 1,
+   "shadowing": true,
    "note": "'bandon ni sunde imasu' benar (に + 住んでいます). Skrip 52 baris (±10 menit) pola bab 15 di catatan/kaiwa-kantor-bab15.md; shadowing mandiri"
   },
   {
@@ -54,6 +64,8 @@
    "score": "8/10",
    "ok": 8,
    "total": 10,
+   "turns": null,
+   "shadowing": false,
    "note": "MINIMUM 8 RONDE HARI INI TERPENUHI. dibuka: 話す, 時間. 見る dibaca suru (tertukar する; kalimat benkyou suru). 中: ringo wo naka ni arimasu (harus りんごが箱の中にあります: ある = が)"
   },
   {
@@ -63,7 +75,9 @@
    "score": "9/10",
    "ok": 9,
    "total": 10,
-   "note": "bacaan 10/10; dibuka: 家, 置く, 彼女. 名前: 'oshite kudasai' = 押して (dorong), harus 教えてください oshiete. Typo 'suka' → suki. Kalimat pendek dan lengkap, jauh lebih baik dari ronde 5–6"
+   "turns": null,
+   "shadowing": false,
+   "note": "bacaan 10/10; dibuka: 家, 置く, 彼女. 名前: 'oshite kudasai' = 押して (dorong), harus 教えてください oshiete. Typo 'suka' → suki. Kalimat pendek dan lengkap, jauh lebih baik da…"
   },
   {
    "date": "2026-11-17",
@@ -72,7 +86,9 @@
    "score": "5/10",
    "ok": 5,
    "total": 10,
-   "note": "出来る dibaca ageru (tertukar あげる). 全然: kalimat terpotong 'wasabi wa zenzen suk' (harus 好きじゃありません). 次の夢は日本で働きます (harus 次は日本で働きます). 来る & 無い: kalimat kosong (user belum paham pakai kata kamus di kalimat: pakai ます/ない). 聞く: 日本の料理は聞きました janggal arti"
+   "turns": null,
+   "shadowing": false,
+   "note": "出来る dibaca ageru (tertukar あげる). 全然: kalimat terpotong 'wasabi wa zenzen suk' (harus 好きじゃありません). 次の夢は日本で働きます (harus 次は日本で働きます). 来る & 無い: kalimat kosong (user b…"
   },
   {
    "date": "2026-11-17",
@@ -81,7 +97,9 @@
    "score": "5/10",
    "ok": 5,
    "total": 10,
-   "note": "dibuka: 君, 言う, 会う, 帰る, 思う. 教える dibaca kaeru (tertukar 帰る). 君: 'kimi wa IT no kaisha desu ka' = kamu adalah perusahaan (harus ...会社で働いていますか). 立つ & 言う: kalimat kosong. 思う: kirei na kuni, omoimasu (kurang だ + と, pola bab 21)"
+   "turns": null,
+   "shadowing": false,
+   "note": "dibuka: 君, 言う, 会う, 帰る, 思う. 教える dibaca kaeru (tertukar 帰る). 君: 'kimi wa IT no kaisha desu ka' = kamu adalah perusahaan (harus ...会社で働いていますか). 立つ & 言う: kalimat k…"
   },
   {
    "date": "2026-11-17",
@@ -90,7 +108,9 @@
    "score": "8/10",
    "ok": 8,
    "total": 10,
-   "note": "8 dibuka (kanji belum di Anki, bukan kegagalan). 料理: sushi wo suki (harus 寿司が好き; 好き = が). 旅行: kalimat 'wakarimasen' tidak memakai kata target. densa → densha. Mulai ronde 5 sumber kata HANYA dari Anki (anki_kanji.py)"
+   "turns": null,
+   "shadowing": false,
+   "note": "8 dibuka (kanji belum di Anki, bukan kegagalan). 料理: sushi wo suki (harus 寿司が好き; 好き = が). 旅行: kalimat 'wakarimasen' tidak memakai kata target. densa → densha. …"
   },
   {
    "date": "2026-11-17",
@@ -99,6 +119,8 @@
    "score": "9/10",
    "ok": 9,
    "total": 10,
+   "turns": null,
+   "shadowing": false,
    "note": "kanji bab 15 memang belum pernah dipelajari, semua dibuka (bukan kegagalan). Bacaan + arti 10/10. 作る: pan wo tsukatte imasu (itu 使う; harus パンを作っています)"
   },
   {
@@ -108,7 +130,9 @@
    "score": "8/10",
    "ok": 8,
    "total": 10,
-   "note": "bacaan 10/10, tanpa BUKA tapi 3 clue (声, 窓, 銀行). 町: Kon Machi de kirei (harus この町はきれい). 大きい: kalimat tidak memakai kata target, benar di ulang. 銀行 sudah tidak tertukar dgn 銀行員; お金を取る → natural お金をおろす"
+   "turns": null,
+   "shadowing": false,
+   "note": "bacaan 10/10, tanpa BUKA tapi 3 clue (声, 窓, 銀行). 町: Kon Machi de kirei (harus この町はきれい). 大きい: kalimat tidak memakai kata target, benar di ulang. 銀行 sudah tidak …"
   },
   {
    "date": "2026-11-17",
@@ -117,6 +141,8 @@
    "score": "8/10",
    "ok": 8,
    "total": 10,
+   "turns": null,
+   "shadowing": false,
    "note": "bacaan 10/10, tanpa BUKA. 前: この傘は前にドアです (harus ドアの前に傘があります). 持つ: お金が持つ います (harus お金を持っています: を + て形 + います). 考える & 面白い kali ini benar. Arti sering lupa ditulis"
   },
   {
@@ -126,6 +152,8 @@
    "score": "0/3",
    "ok": 0,
    "total": 3,
+   "turns": null,
+   "shadowing": false,
    "note": "住む dibuka (kalimat バンドンに住んでいます benar). 考える dibaca kaeru (帰る), 面白い dibaca takai (高い): kanji tertukar dgn kata lain"
   },
   {
@@ -135,6 +163,8 @@
    "score": "2/3",
    "ok": 2,
    "total": 3,
+   "turns": null,
+   "shadowing": false,
    "note": "兄と日本へ, 家族にお金をあげました benar. 町 dibuka; 花火大会をいます (harus 町で花火大会があります: acara = で + あります)"
   },
   {
@@ -144,24 +174,30 @@
    "score": "2/3",
    "ok": 2,
    "total": 3,
+   "turns": null,
+   "shadowing": false,
    "note": "友達 & 昨日 bacaan + kalimat sempurna (よく+ます, と). 声 dibuka; ooki (harus ookii), ですが untuk alasan (harus から)"
   },
   {
    "date": "2026-11-17",
-   "kind": "minna",
+   "kind": "kosakata",
    "mode": "kalimat kosakata Kaishi (jatuh tempo)",
    "score": "3/9",
    "ok": 3,
    "total": 9,
+   "turns": null,
+   "shadowing": false,
    "note": "会う (町で友達に) sempurna, よく考えて benar. Lemah partikel: 好き pakai に (harus が), 会社で/家でいます (harus に), 兄に話す (harus と). Tense: よく+ました, もう+ます (terbalik)"
   },
   {
    "date": "2026-11-17",
-   "kind": "minna",
+   "kind": "kosakata",
    "mode": "materi kata kecil Kaishi (こう/もう/よく/全然/もっと/なる/方)",
    "score": "1/3",
    "ok": 1,
    "total": 3,
+   "turns": null,
+   "shadowing": false,
    "note": "全然 benar. よく → dikira 'sudah'; もう一度ください tanpa 言って"
   },
   {
@@ -171,6 +207,8 @@
    "score": "6/9",
    "ok": 6,
    "total": 9,
+   "turns": null,
+   "shadowing": false,
    "note": "働いています/持って/結婚して/知っていますか benar, 銀行 sudah benar. Salah: wakarimasen untuk 'tidak tahu' (harus 知りません), 田中さんは知って (harus を), 妹をスラバヤで住んで (harus 妹は…に住んで)"
   },
   {
@@ -180,7 +218,9 @@
    "score": "8/9",
    "ok": 8,
    "total": 9,
-   "note": "Pola langsung masuk; bentuk て benar semua (mite, nete, haitte). Salah: は hilang di totte ikemasen (1×), ドア lagi untuk jendela. Sisa bab 15: ～ています keadaan (住んで/知って/持って/働いて/結婚して)"
+   "turns": null,
+   "shadowing": false,
+   "note": "Pola langsung masuk; bentuk て benar semua (mite, nete, haitte). Salah: は hilang di totte ikemasen (1×), ドア lagi untuk jendela. Sisa bab 15: ～ています keadaan (住んで/…"
   },
   {
    "date": "2026-11-16",
@@ -189,6 +229,8 @@
    "score": "7/9",
    "ok": 7,
    "total": 9,
+   "turns": null,
+   "shadowing": false,
    "note": "っ di gol 2/3 sudah hilang (okite/tabete/kite benar). Salah: 見ます diganti 見せます (misete) 2×, これは→これを. 消/貸/書/待 benar"
   },
   {
@@ -198,7 +240,9 @@
    "score": "6/9",
    "ok": 6,
    "total": 9,
-   "note": "～ましょうか 2× benar (pakai ます). て gol 2/3 masih pakai っ: mitte, kitte. Kosakata tertukar: ドア (pintu) untuk jendela, 銀行員 (pegawai bank) untuk bank. Anki deck kata kerja: 50/251 dibuka, 17 Hard (行/来/ない)"
+   "turns": null,
+   "shadowing": false,
+   "note": "～ましょうか 2× benar (pakai ます). て gol 2/3 masih pakai っ: mitte, kitte. Kosakata tertukar: ドア (pintu) untuk jendela, 銀行員 (pegawai bank) untuk bank. Anki deck kata k…"
   },
   {
    "date": "2026-11-12",
@@ -207,6 +251,8 @@
    "score": "16/24",
    "ok": 16,
    "total": 24,
+   "turns": null,
+   "shadowing": false,
    "note": "て/た benar semua kecuali 来ます (kitte). ない masih: nominai, isoginai, ianai (i→wa), misanai (aturan gol 1 dipakai di gol 2). 帰ります sempurna. Tanya います vs 言います"
   },
   {
@@ -216,6 +262,8 @@
    "score": "25/40",
    "ok": 25,
    "total": 40,
+   "turns": null,
+   "shadowing": false,
    "note": "Golongan 9/10, た ikut て. Lemah: ない gol 1 tetap bunyi i (kakinai/machinai/hanashinai, 6×), gol 2/3 pakai っ (mitte/kitte), ぎ→nde, 行 dianggap gol 3, kaida"
   },
   {
@@ -225,6 +273,8 @@
    "score": "12/15",
    "ok": 12,
    "total": 15,
+   "turns": null,
+   "shadowing": false,
    "note": "Kalimat + buat kalimat hampir sempurna. Salah: 貸します gol 3, 借ります katte, ～ましょうか pakai て (4×). Bentuk た bagian A tidak diisi"
   },
   {
@@ -234,6 +284,8 @@
    "score": "8/12",
    "ok": 8,
    "total": 12,
+   "turns": null,
+   "shadowing": false,
    "note": "Rumus て→た 100% benar; 4 salah semua karena bentuk て-nya salah (降/起 gol 2, 言, 行 pengecualian)"
   },
   {
@@ -243,6 +295,8 @@
    "score": "6/12",
    "ok": 6,
    "total": 12,
+   "turns": null,
+   "shadowing": false,
    "note": "Golongan sudah benar semua; masalah tinggal て gol 2 (mitte/otte), ～ましょうか pakai て, 貸/借. Minta furigana di SETIAP kanji"
   },
   {
@@ -252,6 +306,8 @@
    "score": "5/12",
    "ok": 5,
    "total": 12,
+   "turns": null,
+   "shadowing": false,
    "note": "～てください/～ています oke kalau bentuk て benar. Lemah: 見→mitte, 聞 vs 見, ～ましょうか pakai て, kata kerja hilang. Sudah mengetik kana"
   },
   {
@@ -261,6 +317,8 @@
    "score": "8/17",
    "ok": 8,
    "total": 17,
+   "turns": null,
+   "shadowing": false,
    "note": "Gol 2 baris い (見/起/浴/降) semua dipilih gol 1; -gi → -nde (harus -ide); 聞 → kitte. 借/来 sudah benar"
   }
  ],
@@ -518,6 +576,7 @@
     "again": 0,
     "hard": 0,
     "kaishiNew": 1,
+    "rtkNew": 0,
     "new": 1
    },
    "2026-07-14": {
@@ -525,6 +584,7 @@
     "again": 11,
     "hard": 16,
     "kaishiNew": 0,
+    "rtkNew": 15,
     "new": 30
    },
    "2026-07-15": {
@@ -532,6 +592,7 @@
     "again": 1,
     "hard": 0,
     "kaishiNew": 0,
+    "rtkNew": 1,
     "new": 1
    },
    "2026-11-14": {
@@ -539,6 +600,7 @@
     "again": 14,
     "hard": 6,
     "kaishiNew": 32,
+    "rtkNew": 0,
     "new": 32
    },
    "2026-11-15": {
@@ -546,6 +608,7 @@
     "again": 0,
     "hard": 98,
     "kaishiNew": 42,
+    "rtkNew": 0,
     "new": 42
    },
    "2026-11-16": {
@@ -553,6 +616,7 @@
     "again": 0,
     "hard": 115,
     "kaishiNew": 25,
+    "rtkNew": 0,
     "new": 75
    },
    "2026-11-17": {
@@ -560,22 +624,26 @@
     "again": 33,
     "hard": 101,
     "kaishiNew": 17,
+    "rtkNew": 0,
     "new": 117
    },
    "2026-11-18": {
-    "reviews": 265,
-    "again": 79,
-    "hard": 28,
+    "reviews": 353,
+    "again": 83,
+    "hard": 35,
     "kaishiNew": 17,
-    "new": 52
+    "rtkNew": 0,
+    "new": 99,
+    "dueLeft": 38
    }
   },
+  "today": "2026-11-18",
+  "dueNow": 38,
   "kaishiOpened": 134,
-  "kanjiKnown": 31,
-  "kanjiSeen": 124,
-  "kanjiList": "一七丈三上中乗九二五人今会伝住何作使借元兄先入全八六出分前勉動十友口古名君味呼四場声大夫女好始嫌子学家寝屋山帰強当彼待思急悪意所手持教方族日明昨時書月本来校次死母毎気沢泳浴消無然父物生田町番白目知私立置考聞行見言話語読誰買貸起遊達部間降電面願食飲高",
-  "dueNow": 31,
-  "today": "2026-11-18"
+  "kaishiMature": 19,
+  "kanjiKnown": 16,
+  "kanjiSeen": 140,
+  "kanjiList": "一七丈三上中乗九二五人今会伝住何作使借働元兄先入全八六出分刻前勉動十友口古名君吸味呼品四場声大夫女好始嫌子学家寝屋山帰座強当彼待思急悪意所手持撮教料方族日明昨時書月本来校次死母毎気沢泳浴消済無然父物生田町番白目知私立経置考聞行表製見言話語読誰買貸資起辞送遊達部閉開間降電面願食飲高"
  },
  "plan": {
   "goals": [
@@ -607,6 +675,9 @@
     "note": "Q1–Q2 2028"
    }
   ],
+  "restDays": [
+   0
+  ],
   "daily": {
    "kaishiNew": 15,
    "kanjiRounds": 8,
@@ -619,132 +690,172 @@
     "minna": "paket て/た/ない + bab 15",
     "bab": 15,
     "kaishi": 205,
-    "kanji": 21
+    "kanji": 21,
+    "minna_en": "て/た/ない pack + ch. 15",
+    "minna_ja": "て/た/ない セット + 第15課"
    },
    {
     "start": "2026-11-23",
     "minna": "bab 16–17",
     "bab": 17,
     "kaishi": 310,
-    "kanji": 42
+    "kanji": 42,
+    "minna_en": "ch. 16–17",
+    "minna_ja": "第16–17課"
    },
    {
     "start": "2026-11-30",
     "minna": "bab 18–19",
     "bab": 19,
     "kaishi": 415,
-    "kanji": 63
+    "kanji": 63,
+    "minna_en": "ch. 18–19",
+    "minna_ja": "第18–19課"
    },
    {
     "start": "2026-12-07",
     "minna": "bab 20–21",
     "bab": 21,
     "kaishi": 520,
-    "kanji": 84
+    "kanji": 84,
+    "minna_en": "ch. 20–21",
+    "minna_ja": "第20–21課"
    },
    {
     "start": "2026-12-14",
     "minna": "bab 22–23",
     "bab": 23,
     "kaishi": 625,
-    "kanji": 105
+    "kanji": 105,
+    "minna_en": "ch. 22–23",
+    "minna_ja": "第22–23課"
    },
    {
     "start": "2026-12-21",
     "minna": "bab 24–25 (Minna I selesai)",
     "bab": 25,
     "kaishi": 730,
-    "kanji": 126
+    "kanji": 126,
+    "minna_en": "ch. 24–25 (Minna I done)",
+    "minna_ja": "第24–25課（みんなの日本語 I 完了）"
    },
    {
     "start": "2026-12-28",
     "minna": "review besar bab 1–25",
     "bab": 25,
     "kaishi": 835,
-    "kanji": 147
+    "kanji": 147,
+    "minna_en": "big review ch. 1–25",
+    "minna_ja": "第1–25課 総復習"
    },
    {
     "start": "2027-01-04",
     "minna": "bab 26–28",
     "bab": 28,
     "kaishi": 940,
-    "kanji": 168
+    "kanji": 168,
+    "minna_en": "ch. 26–28",
+    "minna_ja": "第26–28課"
    },
    {
     "start": "2027-01-11",
     "minna": "bab 29–31",
     "bab": 31,
     "kaishi": 1045,
-    "kanji": 189
+    "kanji": 189,
+    "minna_en": "ch. 29–31",
+    "minna_ja": "第29–31課"
    },
    {
     "start": "2027-01-18",
     "minna": "bab 32–34",
     "bab": 34,
     "kaishi": 1150,
-    "kanji": 210
+    "kanji": 210,
+    "minna_en": "ch. 32–34",
+    "minna_ja": "第32–34課"
    },
    {
     "start": "2027-01-25",
     "minna": "bab 35–37",
     "bab": 37,
     "kaishi": 1255,
-    "kanji": 231
+    "kanji": 231,
+    "minna_en": "ch. 35–37",
+    "minna_ja": "第35–37課"
    },
    {
     "start": "2027-02-01",
     "minna": "bab 38–40",
     "bab": 40,
     "kaishi": 1360,
-    "kanji": 252
+    "kanji": 252,
+    "minna_en": "ch. 38–40",
+    "minna_ja": "第38–40課"
    },
    {
     "start": "2027-02-08",
     "minna": "bab 41–43",
     "bab": 43,
     "kaishi": 1465,
-    "kanji": 273
+    "kanji": 273,
+    "minna_en": "ch. 41–43",
+    "minna_ja": "第41–43課"
    },
    {
     "start": "2027-02-15",
     "minna": "bab 44–47",
     "bab": 47,
     "kaishi": 1500,
-    "kanji": 294
+    "kanji": 294,
+    "minna_en": "ch. 44–47",
+    "minna_ja": "第44–47課"
    },
    {
     "start": "2027-02-22",
     "minna": "bab 48–50 + titik cek",
     "bab": 50,
     "kaishi": 1500,
-    "kanji": 315
+    "kanji": 315,
+    "minna_en": "ch. 48–50 + checkpoint",
+    "minna_ja": "第48–50課 + チェックポイント"
    }
   ],
   "months": [
    {
     "month": "2027-03",
     "text": "JFT-Basic · mulai tata bahasa N3 + deck kosakata N3",
-    "kanji": 405
+    "kanji": 405,
+    "text_en": "JFT-Basic · start N3 grammar + N3 vocab deck",
+    "text_ja": "JFT-Basic · N3文法開始 + N3単語デッキ"
    },
    {
     "month": "2027-04",
     "text": "Daftar JLPT N3 · tata bahasa N3 lanjut",
-    "kanji": 495
+    "kanji": 495,
+    "text_en": "Register for JLPT N3 · more N3 grammar",
+    "text_ja": "JLPT N3 申込 · N3文法の続き"
    },
    {
     "month": "2027-05",
     "text": "Tata bahasa N3 selesai",
-    "kanji": 585
+    "kanji": 585,
+    "text_en": "N3 grammar done",
+    "text_ja": "N3文法 完了"
    },
    {
     "month": "2027-06",
     "text": "Soal latihan + listening",
-    "kanji": 650
+    "kanji": 650,
+    "text_en": "Practice tests + listening",
+    "text_ja": "模擬問題 + 聴解"
    },
    {
     "month": "2027-07",
     "text": "Ujian N3",
-    "kanji": 650
+    "kanji": 650,
+    "text_en": "N3 exam",
+    "text_ja": "N3 本番"
    }
   ]
  }

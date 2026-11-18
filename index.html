@@ -14,65 +14,69 @@
 </head>
 <body>
 <header class="top">
-  <span class="tag mono">日本語 TRACKER · ARSENIUS</span>
-  <h1><span class="plate">JLPT N3</span><span class="plate plate-y">JULI 2027</span></h1>
-  <p class="mono muted" id="updated"></p>
-  <div class="goals" id="goals"></div>
+  <nav class="nav mono"><span class="tag">日本語 TRACKER · ARSENIUS</span><a href="wiki.html" data-i="nav.wiki"></a><a href="https://arsenius-portfolio.vercel.app" target="_blank" rel="noopener" data-i="nav.portfolio"></a><span class="lang" id="lang"></span></nav>
+  <h1><span class="plate" id="n3a">JLPT N3</span><span class="plate plate-y" id="n3b"></span></h1>
+  <p class="mono muted small" id="updated"></p>
+  <div class="goals mono" id="goals"></div>
+  <div id="banner"></div>
 </header>
 
 <main>
   <section>
-    <h2>Hari ini <span class="mono muted" id="todayLabel"></span></h2>
+    <h2><span data-i="h.today"></span> <span class="mono muted" id="todayLabel"></span></h2>
     <div class="wajib" id="wajib"></div>
   </section>
 
   <section>
-    <h2>Flex</h2>
-    <p class="mono muted small">Gambar story dari progres hari ini. 10 template, warna + angka utama diacak tiap generate.</p>
+    <h2><span data-i="h.week"></span> <span class="mono muted" id="weekLabel"></span></h2>
+    <div class="bars" id="week"></div>
+    <details class="mono small"><summary data-i="week.all"></summary><div id="weeks"></div></details>
+  </section>
+
+  <section>
+    <h2 data-i="h.consistency"></h2>
+    <div class="streak mono" id="streak"></div>
+    <div class="heat" id="heat"></div>
+    <p class="mono muted small" data-i="heat.legend"></p>
+  </section>
+
+  <section>
+    <h2 data-i="h.flex"></h2>
+    <p class="mono muted small" data-i="fx.desc"></p>
     <div class="flex">
-      <canvas id="flexCanvas" width="1080" height="1920" aria-label="Pratinjau gambar story"></canvas>
+      <div class="fx-stage"><canvas id="flexCanvas" width="1080" height="1920" aria-label="Pratinjau gambar story"></canvas><div class="fx-cover" id="flexCover" hidden>?</div><span class="fx-rar mono" id="flexRar"></span></div>
       <div class="fx-ctrl">
-        <div class="chips" id="flexChips"></div>
-        <div class="btns"><button type="button" id="flexShuffle">🎲 Acak</button><button type="button" id="flexShare">Share</button><button type="button" id="flexSave">Download PNG</button></div>
+        <button type="button" class="gacha" id="flexPull" data-i="fx.pull"></button>
+        <p class="mono small muted" id="flexInfo"></p>
+        <div class="btns"><button type="button" id="flexShare" disabled data-i="fx.share"></button><button type="button" id="flexSave" disabled data-i="fx.save"></button></div>
       </div>
     </div>
   </section>
 
-  <section>
-    <h2>Konsistensi</h2>
-    <div class="streak mono" id="streak"></div>
-    <div class="heat" id="heat"></div>
-    <p class="mono muted small">Kotak = 1 hari · warna = berapa item WAJIB beres (0–4)</p>
-  </section>
-
-  <section>
-    <h2>Minggu ini <span class="mono muted" id="weekLabel"></span></h2>
-    <div class="bars" id="week"></div>
-    <details class="mono small"><summary>Semua target mingguan</summary><div id="weeks"></div></details>
-  </section>
-
   <section class="two">
-    <div><h2>Tebak kanji</h2><p class="mono muted small">rata-rata skor per hari (ronde 10 kata)</p><div class="chart" id="kanjiChart"></div></div>
-    <div><h2>Anki</h2><p class="mono muted small">review per hari · <i class="sw again"></i>Again <i class="sw hard"></i>Hard <i class="sw good"></i>lainnya</p><div class="chart" id="ankiChart"></div></div>
+    <div><h2 data-i="h.kanji"></h2><p class="mono muted small" data-i="kanji.sub"></p><div class="chart" id="kanjiChart"></div></div>
+    <div><h2>Anki</h2><p class="mono muted small"><span data-i="anki.sub"></span> <i class="sw again"></i>Again <i class="sw hard"></i>Hard <i class="sw good"></i><span data-i="other"></span></p><div class="chart" id="ankiChart"></div></div>
   </section>
 
   <section>
-    <h2>Bank kesalahan</h2>
+    <h2 data-i="h.mistakes"></h2>
     <p class="mono muted small" id="mistakeSum"></p>
     <div class="mistakes" id="mistakes"></div>
   </section>
 
   <section>
-    <h2>Riwayat sesi</h2>
+    <h2 data-i="h.log"></h2><p class="mono muted small" id="logNote"></p>
     <div class="log" id="log"></div>
   </section>
 
   <section>
-    <h2>Setelah Februari</h2>
+    <h2 data-i="h.months"></h2>
     <div class="months" id="months"></div>
   </section>
 </main>
-<footer class="mono muted small">Data dari catatan/progres.md + Anki, diperbarui tiap akhir sesi belajar.</footer>
+<footer class="mono muted small"><span data-i="footer"></span> <a href="wiki.html">Wiki</a>.</footer>
+<p class="tip mono small" id="tip" hidden></p>
+<script src="i18n.js"></script>
 <script src="flex.js"></script>
 <script src="app.js"></script>
 </body>
