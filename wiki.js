@@ -19,6 +19,37 @@
   const card = (cls, title, meta, body) => `<div class="wcard ${cls}"><h3>${title}</h3><dl>${meta.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl>${body}</div>`;
 
   const PAGES = {
+    metode: {
+      icon: "📘", title: { id: "Metode belajar", en: "Study method", ja: "学習方法" },
+      body: () => L({
+        id: `<p class="lead">Intinya: <b>tiap hari ada 4 misi</b>. Ukurannya kuota, bukan jam, karena belajarnya di sela dan sesudah kerja.</p>`,
+        en: `<p class="lead">In short: <b>4 missions every day</b>. Measured in quotas, not hours, because studying happens around and after work.</p>`,
+        ja: `<p class="lead">要するに：<b>毎日4つのミッション</b>。仕事の合間と後に勉強するので、時間ではなくノルマで測る。</p>`,
+      }) + `<div class="steps">` + [
+        ["1", "Anki", L({ id: "15 kata baru + semua review", en: "15 new words + every review", ja: "新しい単語15個 + 復習すべて" }), "±1 h",
+          L({ id: "Semua hafalan di sini (kosakata Kaishi, kosakata tiap bab Minna, bentuk kata kerja). Jadi sesi lain tinggal latihan.", en: "All memorizing happens here (Kaishi vocab, each Minna chapter's vocab, verb forms), so the other sessions are just practice.", ja: "暗記はすべてここで（Kaishiの語彙、みんなの各課の語彙、動詞の活用）。他のセッションは練習だけ。" })],
+        ["2", L({ id: "Tebak kanji", en: "Kanji quiz", ja: "漢字クイズ" }), L({ id: "8 ronde × 10 kata", en: "8 rounds × 10 words", ja: "8ラウンド × 10語" }), "1.5–2 h",
+          L({ id: "Lihat kanjinya saja, lalu jawab cara baca + arti + 1 kalimat sendiri. Katanya cuma dari yang sudah dipelajari di Anki.", en: "See only the kanji, then answer the reading + meaning + 1 own sentence. Words only come from what's already learned in Anki.", ja: "漢字だけを見て、読み・意味・自作の文1つを答える。出題はAnkiで学んだ語だけ。" })],
+        ["3", "Minna no Nihongo", L({ id: "1 sesi", en: "1 session", ja: "1セッション" }), "45–60 min",
+          L({ id: "Tata bahasa: ringkasan pola singkat → latihan banyak → bikin kalimat sendiri. Salah langsung dikoreksi.", en: "Grammar: short pattern summary → lots of practice → write own sentences. Mistakes are corrected on the spot.", ja: "文法：文型の短いまとめ → たくさん練習 → 自分で文を作る。間違いはその場で直す。" })],
+        ["4", L({ id: "Kaiwa", en: "Conversation", ja: "会話" }), L({ id: "5–8 giliran", en: "5–8 turns", ja: "5〜8ターン" }), "15–20 min",
+          L({ id: "Ngobrol pura-pura (role-play) pakai pola hari itu, atau shadowing skrip dialog. Ini yang paling penting buat kerja di Jepang.", en: "Role-play using the day's patterns, or shadowing a dialogue script. The most important part for working in Japan.", ja: "その日の文型でロールプレイ、または会話スクリプトのシャドーイング。日本で働くために一番大事。" })],
+      ].map(([n, h, q, tm, d]) => `<div class="step"><span class="no">${n}</span><div><h3>${h}</h3><p class="mono small">${q} · ${tm}</p><p>${d}</p></div></div>`).join("") + `</div>` +
+      L({
+        id: `<h2>Kalau lagi sibuk</h2><p>Urutan prioritas: <b>Anki → review Minna → tebak kanji → kaiwa ringan</b>.</p>
+          <h2>Seminggu</h2><p>2 bab Minna per minggu (mulai Januari 3 bab). Sabtu buat ngejar yang ketinggalan, Minggu cukup Anki.</p>
+          <h2>Kalau salah</h2><p>Kesalahan masuk <b>Bank kesalahan</b> dan ditanya lagi setelah 1 → 3 → 7 → 14 hari. Benar = jaraknya makin jauh, salah = mulai lagi dari 1 hari.</p>
+          <h2>Tujuannya</h2><p>JLPT N3 Juli 2027 → kerja IT di Jepang 2028. Detailnya di <a href="#quest">Quest</a>.</p>`,
+        en: `<h2>On busy days</h2><p>Priority: <b>Anki → Minna review → kanji quiz → light conversation</b>.</p>
+          <h2>Each week</h2><p>2 Minna chapters a week (3 from January). Saturday is for catching up, Sunday is Anki only.</p>
+          <h2>When I get it wrong</h2><p>Mistakes go into the <b>Mistake bank</b> and come back after 1 → 3 → 7 → 14 days. Right = longer gap, wrong = back to 1 day.</p>
+          <h2>The goal</h2><p>JLPT N3 in July 2027 → IT job in Japan in 2028. Details in <a href="#quest">Quests</a>.</p>`,
+        ja: `<h2>忙しい日は</h2><p>優先順位：<b>Anki → みんなの復習 → 漢字クイズ → 軽い会話</b>。</p>
+          <h2>1週間</h2><p>みんなの日本語は週2課（1月からは週3課）。土曜日は遅れを取り戻す日、日曜日はAnkiだけ。</p>
+          <h2>間違えたら</h2><p>ミスは<b>ミス帳</b>に入り、1 → 3 → 7 → 14日後にもう一度出る。正解なら間隔が伸び、間違えたら1日に戻る。</p>
+          <h2>目標</h2><p>2027年7月にJLPT N3 → 2028年に日本でIT就職。詳しくは<a href="#quest">クエスト</a>へ。</p>`,
+      }),
+    },
     karakter: {
       icon: "👤", title: { id: "Karakter: Arsenius", en: "Character: Arsenius", ja: "キャラクター：アルセニウス" },
       body: () => box("Arsenius", [
@@ -28,7 +59,6 @@
         [L({ id: "Level", en: "Level", ja: "レベル" }), D ? t("fx.bab", { b: D.bab }) + " · Minna no Nihongo" : "–"],
         [L({ id: "Quest utama", en: "Main quest", ja: "メインクエスト" }), `JLPT N3 · ${days("2027-07-04")} ${t("d")}`],
         ["Kaishi", D ? `${A.kaishiOpened} / 1500` : "–"],
-        [L({ id: "Kanji RTK", en: "RTK kanji", ja: "RTK漢字" }), A.kanjiKnown ?? "–"],
         [L({ id: "Kanji ketemu", en: "Kanji seen", ja: "出会った漢字" }), A.kanjiSeen ?? "–"],
         [L({ id: "Sesi tercatat", en: "Sessions logged", ja: "記録済みセッション" }), D?.sessions.length ?? "–"],
         [L({ id: "Bahasa", en: "Languages", ja: "言語" }), L({ id: "Indonesia · Jepang (sedang dipelajari)", en: "Indonesian · Japanese (learning)", ja: "インドネシア語 · 日本語（学習中）" })],
@@ -120,7 +150,6 @@
       body: () => tbl([L({ id: "Item", en: "Item", ja: "アイテム" }), L({ id: "Slot", en: "Slot", ja: "スロット" }), L({ id: "Efek", en: "Effect", ja: "効果" })], [
         ["Minna no Nihongo Shokyu I · II", L({ id: "Senjata utama", en: "Main weapon", ja: "メイン武器" }), L({ id: "Tata bahasa bab 1–50", en: "Grammar, chapters 1–50", ja: "文法 第1〜50課" })],
         ["Kaishi 1.5k (Anki)", L({ id: "Aksesori", en: "Accessory", ja: "アクセサリー" }), L({ id: "1.500 kosakata inti, 15 baru/hari", en: "1,500 core words, 15 new/day", ja: "基本語彙1,500語、1日15語" })],
-        ["All in one Kanji – RTK order (Anki)", L({ id: "Aksesori", en: "Accessory", ja: "アクセサリー" }), L({ id: "Kanji satu per satu", en: "Kanji one by one", ja: "漢字を1字ずつ" })],
         [L({ id: "Deck Minna per bab (Anki)", en: "Minna deck per chapter (Anki)", ja: "課ごとのみんなデッキ（Anki）" }), L({ id: "Konsumabel", en: "Consumable", ja: "消耗品" }), L({ id: "Semua kosakata bab + kartu pola, dibuat sehari sebelum sesi materi", en: "All chapter vocab + pattern cards, made the day before the lesson", ja: "その課の全語彙 + 文型カード、授業の前日に作成" })],
         [L({ id: "Deck kata kerja て/た/ない", en: "て/た/ない verb deck", ja: "て/た/ない 動詞デッキ" }), L({ id: "Aksesori", en: "Accessory", ja: "アクセサリー" }), L({ id: "Bentuk kata kerja, dibiarkan dijarangkan Anki", en: "Verb forms, left for Anki to space out", ja: "動詞の活用、間隔はAnki任せ" })],
         [L({ id: "Tutor AI", en: "AI tutor", ja: "AIチューター" }), L({ id: "Pendamping", en: "Companion", ja: "仲間" }), L({ id: "Kuis, koreksi, role-play, mencatat progres", en: "Quizzes, corrections, role-play, progress logging", ja: "クイズ、訂正、ロールプレイ、進捗の記録" })],

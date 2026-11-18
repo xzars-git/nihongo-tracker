@@ -36,12 +36,9 @@
 
   const n3 = P.goals.find(g => g.id === "n3");
   const monthYear = s => new Date(s + "T00:00:00Z").toLocaleDateString(loc, { month: "long", year: "numeric", timeZone: "UTC" }).toUpperCase();
-  $("#n3a").textContent = t("goal.n3"); $("#n3b").textContent = monthYear(n3.date);
+  $("#n3a").textContent = t("goal.n3"); $("#n3b").textContent = t("journey");
   $("#updated").textContent = t("updated", { t: new Date(D.generated).toLocaleString(loc, { dateStyle: "medium", timeStyle: "short" }), b: D.bab ?? "–" });
-  $("#goals").innerHTML = P.goals.map(g => {
-    const n = daysBetween(today, g.date);
-    return `<span title="${esc(t("goalnote." + g.id))}">${g.approx ? "±" : ""}${esc(t("goal." + g.id))} <b>${n >= 0 ? n + " " + t("d") : t("passed")}</b></span>`;
-  }).join("");
+  $("#n3left").textContent = t("n3.left", { n: daysBetween(today, n3.date) });
 
   // ---------- today ----------
   const st = status(today), a = A.days[today] || {}, rounds = fullRounds(today), ss = byDay[today] || [];
@@ -50,7 +47,7 @@
   const card = (key, n, p) => `<div class="w ${st[key] ? "done" : ""}"><span class="st">${t(st[key] ? "st.done" : isRest(today) && key !== "anki" ? "st.rest" : "st.todo")}</span><h3>${t("w." + key)}</h3><div class="n">${n}</div><p>${p}</p></div>`;
   const minnaS = ss.filter(s => s.kind === "minna"), kaiwaS = ss.filter(s => s.kind === "kaiwa");
   $("#wajib").innerHTML = [
-    card("anki", t("anki.n", { a: a.kaishiNew || 0, b: P.daily.kaishiNew }), t("anki.p", { r: a.reviews || 0, ag: a.again || 0, h: a.hard || 0 }) + (A.today === today ? t("anki.due", { d: A.dueNow }) : "")),
+    card("anki", t("anki.n", { a: a.kaishiNew || 0, b: P.daily.kaishiNew }), A.today === today ? t("anki.left", { d: A.dueNow }) : ""),
     card("kanji", t("kanji.n", { a: rounds.length, b: P.daily.kanjiRounds }), rounds.length ? t("kanji.avg", { v: avg(rounds) }) : t("kanji.none")),
     card("minna", t("minna.n", { n: minnaS.length }), esc(minnaS.map(s => s.mode).join(" · ") || t("minna.none"))),
     card("kaiwa", t("kaiwa.n", { n: kaiwaS.reduce((x, s) => x + (s.turns || 0), 0) }), esc(kaiwaS.map(s => s.score).join(" · ") || t("kaiwa.target", { a: P.daily.kaiwaTurns }))),
@@ -66,17 +63,13 @@
     const pct = Math.min(100, Math.round(have / want * 100));
     return `<div class="bar ${have >= want ? "ok" : ""}"><div class="lbl"><span>${label}</span><b>${have} / ${want}</b></div><div class="track"><div class="fill" style="width:${pct}%"></div></div><p class="mono small muted">${sub}</p></div>`;
   };
-  const pace = (have, goal, perDay, unit) => {
-    const proj = Math.round(have + perDay * toCek), v = { r: perDay.toFixed(1), u: t(unit), d: fmt(cek), g: goal, p: proj, n: (Math.max(0, goal - have) / toCek).toFixed(1) };
-    return proj >= goal ? `<span class="on">${t("pace.on")}</span> · ${t("pace.onText", v)}` : `<span class="late">${t("pace.late")}</span> · ${t("pace.lateText", v)}`;
-  };
+  const pace = (have, goal, perDay, unit) => have + perDay * toCek >= goal
+    ? `<span class="on">${t("pace.ok", { d: fmt(cek) })}</span>`
+    : `<span class="late">${t("pace.need", { n: Math.ceil(Math.max(0, goal - have) / toCek), u: t(unit) })}</span>`;
   const end = P.weeks[P.weeks.length - 1], babLeft = Math.max(0, end.bab - (D.bab ?? 0));
   $("#week").innerHTML =
-    bar(t("bar.minna"), D.bab ?? 0, wk.bab, t("bar.minna.sub", { n: babLeft, d: fmt(cek), r: (babLeft / Math.max(1, toCek / 7)).toFixed(1) })) +
-    bar(t("bar.kaishi"), A.kaishiOpened ?? 0, wk.kaishi, t("bar.kaishi.sub", { pace: pace(A.kaishiOpened ?? 0, end.kaishi, rate("kaishiNew"), "unit.word"), m: A.kaishiMature ?? 0 })) +
-    bar(t("bar.kanji"), A.kanjiKnown ?? 0, wk.kanji, t("bar.kanji.sub", { pace: pace(A.kanjiKnown ?? 0, end.kanji, rate("rtkNew"), "unit.kanji"), s: A.kanjiSeen ?? 0 }));
-  $("#weeks").innerHTML = `<table><tr><th>${t("th.week")}</th><th>Minna</th><th>Kaishi</th><th>Kanji</th></tr>${P.weeks.map(w =>
-    `<tr class="${w === wk ? "cur" : ""}"><td>${fmt(w.start)}</td><td>${esc(tx(w, "minna"))}</td><td>${w.kaishi}</td><td>${w.kanji}</td></tr>`).join("")}</table>`;
+    bar(t("bar.minna"), D.bab ?? 0, wk.bab, t("bar.minna.left", { n: babLeft, d: fmt(cek) })) +
+    bar(t("bar.kaishi"), A.kaishiOpened ?? 0, wk.kaishi, pace(A.kaishiOpened ?? 0, end.kaishi, rate("kaishiNew"), "unit.word"));
 
   // ---------- consistency ----------
   const first = D.sessions.map(s => s.date).sort()[0] || today;
@@ -92,7 +85,7 @@
   const run = ok => { let n = 0, d = ok(today) ? today : addDays(today, -1); while (d >= first && ok(d)) { n++; d = addDays(d, -1); } return n; };
   const streak = run(complete), active = run(d => count(d) > 0);
   const totalRounds = D.sessions.filter(s => s.kind === "kanji" && s.total >= P.daily.kanjiPerRound).length;
-  $("#streak").innerHTML = `<span><b>${streak}</b> ${t("streak.full")}</span><span><b>${active}</b> ${t("streak.active")}</span><span><b>${totalRounds}</b> ${t("streak.rounds")}</span>`;
+  $("#streak").innerHTML = `<span>🔥 <b>${active}</b> ${t("streak.days")}</span>`;
 
   // ---------- charts (last 14 days, from the first session) ----------
   const last = Array.from({ length: 14 }, (_, i) => addDays(today, i - 13)).filter(d => d >= first);
@@ -126,8 +119,9 @@
     <div class="mdet" id="mdet" hidden></div>`;
   $("#mistakes").addEventListener("click", e => {
     const b = e.target.closest(".mc"); if (!b) return;
-    const m = D.mistakes[b.dataset.i], box = $("#mdet");
-    $("#mistakes").querySelectorAll(".mc").forEach(x => x.setAttribute("aria-pressed", x === b));
+    const m = D.mistakes[b.dataset.i], box = $("#mdet"), again = b.getAttribute("aria-pressed") === "true";
+    $("#mistakes").querySelectorAll(".mc").forEach(x => x.setAttribute("aria-pressed", !again && x === b));
+    if (again) { box.hidden = true; return; }  // tapping the open chip closes it
     box.hidden = false; b.after(box);
     box.innerHTML = `<b>${esc(m.item)}</b> <small class="mono muted">${m.due ? fmt(m.due) : "–"} · ${esc(m.interval)} ${t("d")}</small>
       <p><b class="mono">${t("m.right")}</b> ${esc(m.right)}</p><p><b class="mono">${t("m.wrong")}</b> ${esc(m.wrong)}</p>`;
@@ -148,7 +142,6 @@
   }).join("");
   $("#log").addEventListener("click", e => e.target.closest(".s")?.classList.toggle("full"));  // notes: 1 line until tapped
 
-  $("#months").innerHTML = P.months.map(m => `<div class="mo"><span class="mono small muted">${new Date(m.month + "-01T00:00:00Z").toLocaleDateString(loc, { month: "long", year: "numeric", timeZone: "UTC" })}</span><b>${t("months.kanji", { n: m.kanji })}</b><span class="small">${esc(tx(m, "text"))}</span></div>`).join("");
 
   window.initFlex?.({
     date: today, st, done: count(today), rounds: rounds.length, avg: avg(rounds), reviews: a.reviews || 0, kaishiNew: a.kaishiNew || 0,
@@ -158,6 +151,6 @@
     minna: minnaS.map(s => s.mode), kaiwa: kaiwaS.length, n3Month: monthYear(n3.date),
     daysN3: daysBetween(today, n3.date), n3Total: daysBetween(P.weeks[0].start, n3.date), startLabel: fmt(P.weeks[0].start),
     heat: Array.from({ length: 56 }, (_, i) => { const x = addDays(today, i - 55); return x < first ? -1 : count(x); }),
-    week: [[t("fx.wMinna"), D.bab ?? 0, wk.bab], [t("fx.wKaishi"), A.kaishiOpened ?? 0, wk.kaishi], [t("fx.wKanji"), A.kanjiKnown ?? 0, wk.kanji]],
+    week: [[t("fx.wMinna"), D.bab ?? 0, wk.bab], [t("fx.wKaishi"), A.kaishiOpened ?? 0, wk.kaishi]],
   });
 })();
