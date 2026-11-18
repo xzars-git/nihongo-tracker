@@ -124,9 +124,7 @@
   // compact chips; tapping one shows its right/wrong answer in a single panel below
   const chip = m => `<button type="button" class="mc ${cls(m)}" data-i="${D.mistakes.indexOf(m)}">${esc(m.item)}</button>`;
   const due = ms.filter(m => cls(m) === "due"), later = ms.filter(m => cls(m) !== "due");
-  const shown = due.slice(0, 12), rest = [...due.slice(12), ...later];  // a wall of chips is noise: the rest is one click away
-  $("#mistakes").innerHTML = `<div class="mcs">${shown.map(chip).join("")}</div>
-    ${rest.length ? `<details class="mono small"><summary>${t("m.more", { n: rest.length })}</summary><div class="mcs">${rest.map(chip).join("")}</div></details>` : ""}
+  $("#mistakes").innerHTML = `<div class="mcs">${[...due, ...later].map(chip).join("")}</div>
     <div class="mdet" id="mdet" hidden></div>`;
   $("#mistakes").addEventListener("click", e => {
     const b = e.target.closest(".mc"); if (!b) return;
