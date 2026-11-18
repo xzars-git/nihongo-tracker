@@ -150,7 +150,11 @@
   const learned = [...new Set(ss.map(s => short(s.mode)))];
   if (a.new) learned.unshift(t("fx.ankiNew", { n: a.new }));
 
+  let quotes = [];
+  try { quotes = await (await fetch("data/quotes.json")).json(); } catch { /* Flex works without quotes */ }
+
   window.initFlex?.({
+    quotes,
     min: mins(today), minEst: est(today), learned,
     week7: Array.from({ length: 7 }, (_, i) => { const x = addDays(today, i - 6); return [x, x < first ? 0 : mins(x)]; }),
     totalMin: Object.keys(byDay).concat(Object.keys(A.days)).filter((x, i, l) => l.indexOf(x) === i && x >= first).reduce((n, x) => n + mins(x), 0),

@@ -10,7 +10,10 @@
   ];
   const GOLD = { bg: "#14100a", ink: "#FFE7A3", mut: "#c9a75a", dot: "#241c0e", a: "#E8B931", af: "#14100a", b: "#FFE7A3", bf: "#14100a", r: "#E8B931" };
   const JP = ["継続は力なり", "今日も一歩前進", "毎日コツコツ", "千里の道も一歩から", "今日も頑張った", "塵も積もれば山となる"];
-  const pick = a => a[Math.floor(Math.random() * a.length)];
+  // R is seeded while a template is drawn, so toggling the quote redraws the exact same image
+  let R = Math.random;
+  const seeded = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const pick = a => a[Math.floor(R() * a.length)];
   const F = {
     num: s => `800 ${s}px 'Barlow Condensed'`, head: s => `${s}px 'Archivo Black'`,
     mono: (s, w = 400) => `${w} ${s}px 'JetBrains Mono'`, jp: (s, w = 700) => `${w} ${s}px 'Noto Sans JP'`,
@@ -38,6 +41,25 @@
     c.strokeStyle = color; c.lineWidth = lw; c.beginPath(); c.arc(0, 0, r, 0, 7); c.stroke();
     c.fillStyle = color; c.font = F.jp(r * (t.length > 1 ? 0.62 : 1.05)); c.textAlign = "center"; c.textBaseline = "middle"; c.fillText(t, 0, r * 0.05);
     c.restore();
+  }
+  function wrap(c, text, maxW) {
+    const sep = text.includes(" ") ? " " : "", words = sep ? text.split(" ") : [...text], lines = [];
+    let cur = "";
+    for (const w of words) {
+      const test = cur ? cur + sep + w : w;
+      if (cur && c.measureText(test).width > maxW) { lines.push(cur); cur = w; } else cur = test;
+    }
+    return cur ? [...lines, cur] : lines;
+  }
+  // quote band under the (shrunken) template, above the footer: y 1375-1580
+  function quoteBlock(c, p, q) {
+    const x = 80, top = 1375, area = q.sub ? 118 : 150;
+    let size = 46, lines;
+    for (; size > 26; size -= 2) { c.font = F.jp(size, 700); lines = wrap(c, q.q, 880); if (lines.length * size * 1.25 <= area) break; }
+    c.fillStyle = p.a; c.fillRect(x, top, 10, 205);
+    lines.forEach((l, i) => txt(c, l, x + 36, top + size + i * size * 1.25, F.jp(size, 700), p.ink, "left", 880));
+    if (q.sub) txt(c, q.sub, x + 36, top + area + 26, F.jp(26, 400), p.mut, "left", 880);
+    txt(c, "— " + q.by, x + 36, top + 196, F.mono(26, 700), p.mut, "left", 880);
   }
   function background(c, p) {
     c.fillStyle = p.bg; c.fillRect(0, 0, W, H);
@@ -108,7 +130,7 @@
       txt(c, t("fx.r.streak", { n: s.active }), x0 + 40, y, lf(32), m); y += 80;
       txt(c, "ありがとうございました", 540, y, F.jp(40), k, "center"); y += 40;
       c.fillStyle = k;
-      for (let x = 300; x < 780;) { const w = 3 + Math.floor(Math.random() * 4) * 3; c.fillRect(x, y, w, 90); x += w + 4 + Math.floor(Math.random() * 3) * 4; }
+      for (let x = 300; x < 780;) { const w = 3 + Math.floor(R() * 4) * 3; c.fillRect(x, y, w, 90); x += w + 4 + Math.floor(R() * 3) * 4; }
     } },
     { name: "Countdown", draw(c, p, s) {
       const h = plate(c, "JLPT N3", 80, 400, F.num(170), p.a, p.af, -2);
@@ -172,7 +194,7 @@
       const tiles = [
         [s.reviews, "fx.t1"], [`${s.rounds}/8`, "fx.t2"], [s.avg != null ? s.avg + "%" : "–", "fx.t3"],
         [s.kaishiOpened, "fx.t4"], [s.hm, "fx.time"], [s.active, "fx.t6"],
-      ], hi = Math.floor(Math.random() * tiles.length);
+      ], hi = Math.floor(R() * tiles.length);
       tiles.forEach(([v, l], i) => {
         const x = 80 + (i % 2) * 480, y = 560 + Math.floor(i / 2) * 340, on = i === hi;
         if (on) { c.fillStyle = p.a; c.fillRect(x, y, 440, 300); } else { c.strokeStyle = p.ink; c.lineWidth = 6; c.strokeRect(x, y, 440, 300); }
@@ -184,9 +206,9 @@
     { name: "Kanji wall", draw(c, p, s) {
       const h = plate(c, String(s.kanjiSeen), 80, 380, F.num(200), p.a, p.af, -2);
       txt(c, t("fx.kanjiSeen"), 110, 380 + h + 70, lab(48), p.ink);
-      const ks = [...s.kanjiList].sort(() => Math.random() - 0.5).slice(0, 36);
+      const ks = [...s.kanjiList].sort(() => R() - 0.5).slice(0, 36);
       ks.forEach((k, i) => {
-        const x = 120 + (i % 6) * 140, y = 760 + Math.floor(i / 6) * 140, on = Math.random() < 0.15;
+        const x = 120 + (i % 6) * 140, y = 760 + Math.floor(i / 6) * 140, on = R() < 0.15;
         if (on) { c.fillStyle = p.b; c.fillRect(x + 6, y + 6, 128, 128); }
         txt(c, k, x + 70, y + 108, F.jp(96), on ? p.bf : p.ink, "center");
       });
@@ -227,7 +249,7 @@
     const $ = id => document.getElementById(id), cover = $("flexCover"), rar = $("flexRar"), info = $("flexInfo"), share = $("flexShare"), save = $("flexSave");
     const sample = "0123456789ABCabc█░" + JP.join("") + s.kanjiList + "今日のノルマ済未毎日の記録今週の目標ログ成績表完了継続連続達成学習漢字クイズ復習単語累計まであとありがとうございました日本語" + ["fx.r.kaishiNew", "fx.r.reviews", "fx.r.rounds", "fx.r.score", "fx.r.minna", "fx.r.kaiwa", "fx.r.bank", "fx.r.streak", "fx.must", "fx.daysLeft", "fx.progress",
         "fx.heatSub", "fx.heatLine", "fx.wMinna", "fx.wKaishi", "fx.wKanji", "fx.hanko", "fx.t1", "fx.t2", "fx.t3", "fx.t4", "fx.t5", "fx.t6", "fx.perfect", "fx.keep",
-        "fx.kanjiSeen", "fx.time", "fx.studyToday", "fx.learned", "fx.week7", "fx.estNote", "fx.kaishi", "fx.reviews", "fx.roundsToday", "fx.daysN3", "streak.full", "streak.active", "streak.rounds", "w.anki", "w.kanji", "w.minna", "w.kaiwa", "fx.none", "fx.bab"].map(k => t(k)).join("") + s.n3Month + s.dateLabel + s.learned.join("");
+        "fx.kanjiSeen", "fx.time", "fx.studyToday", "fx.learned", "fx.week7", "fx.estNote", "fx.kaishi", "fx.reviews", "fx.roundsToday", "fx.daysN3", "streak.full", "streak.active", "streak.rounds", "w.anki", "w.kanji", "w.minna", "w.kaiwa", "fx.none", "fx.bab"].map(k => t(k)).join("") + s.n3Month + s.dateLabel + s.learned.join("") + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
     await Promise.all([F.num(80), F.head(40), F.mono(30), F.mono(30, 700), F.jp(40), F.jp(40, 400)].map(f => document.fonts.load(f, sample))).catch(() => {});
     const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
     s.hm = (s.minEst && s.min ? "±" : "") + hm(s.min); s.totalHm = hm(s.totalMin);
@@ -251,13 +273,26 @@
       store("fxPity", r === "common" ? pity + 1 : 0);
       return [pick(kolam[r]), r];
     };
-    const draw = i => {
-      const p = T[i].gold ? GOLD : pick(PAL);
+    // quotes: optional band at the bottom; the template shrinks more to make room
+    const usable = s.quotes.filter(x => x.q.length <= 125);
+    const pickQuote = prev => {
+      const x = pick(usable.filter(y => y !== prev));
+      return { ...x, sub: LANG !== "ja" ? x.tr?.[LANG] : null };
+    };
+    let showQuote = store("fxQuote") !== false, st = null;  // st = { i: template, seed, q: quote }
+    const qBox = $("flexQ"), qNew = $("flexQNew");
+    qBox.checked = showQuote; qNew.disabled = true;
+    qBox.closest(".fx-q").hidden = !usable.length;
+    const draw = () => {
+      R = seeded(st.seed);
+      const p = T[st.i].gold ? GOLD : pick(PAL), q = showQuote && usable.length ? st.q : null, k = q ? 0.75 : 0.906;
       background(c, p);
-      c.save(); c.translate(W / 2, 400); c.scale(0.906, 0.906); c.translate(-W / 2, -370);  // squeeze content into the IG safe area
-      T[i].draw(c, p, s);
+      c.save(); c.translate(W / 2, 400); c.scale(k, k); c.translate(-W / 2, -370);  // squeeze content into the IG safe area
+      T[st.i].draw(c, p, s);
       c.restore();
+      R = Math.random;
       frame(c, p, s);
+      if (q) quoteBlock(c, p, q);
       file = null; share.disabled = save.disabled = true; share.textContent = t("fx.preparing");
       cv.toBlob(b => { file = new File([b], `nihongo-${s.date}.png`, { type: "image/png" }); share.textContent = t("fx.share"); share.disabled = save.disabled = busy; });
     };
@@ -271,7 +306,8 @@
       busy = true; rar.textContent = ""; cover.hidden = false; out.innerHTML = "";
       share.disabled = save.disabled = true;
       const [i, r] = roll();
-      draw(i); col.add(i); store("fxCol", [...col]);
+      st = { i, seed: Math.floor(Math.random() * 2 ** 31), q: usable.length ? pickQuote(st?.q) : null };
+      draw(); col.add(i); store("fxCol", [...col]);
       line(`> gacha_pull ${s.date}`, "cmd"); await sleep(250);
       line(`must ${s.done}/4 · streak ${s.active}${comeback ? " · comeback_pool 1" : ""}`, "dim"); await sleep(250);
       const spin = line("", "spin"), names = T.map(x => x.name);
@@ -281,8 +317,10 @@
       await sleep(r === "legendary" ? 1100 : r === "epic" ? 750 : 500);
       busy = false; cover.hidden = true;
       rar.dataset.r = r; rar.textContent = `${r.toUpperCase()} · ${T[i].name}`;
-      share.disabled = save.disabled = !file; showInfo();
+      share.disabled = save.disabled = !file; qNew.disabled = false; showInfo();
     };
+    qBox.onchange = () => { showQuote = qBox.checked; store("fxQuote", showQuote); if (st && !busy) draw(); };
+    qNew.onclick = () => { if (!st || busy) return; st.q = pickQuote(st.q); showQuote = qBox.checked = true; store("fxQuote", true); draw(); };
     const download = () => {
       if (!file) return;
       if (url) URL.revokeObjectURL(url);

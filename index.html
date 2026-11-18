@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@800&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=4">
+<link rel="stylesheet" href="assets/css/styles.css?v=6">
 </head>
 <body>
 <header class="top">
@@ -29,6 +29,7 @@
     <div class="fx-ctrl">
       <button type="button" class="gacha" id="flexPull" data-i="fx.pull"></button>
       <p class="mono small muted" id="flexInfo"></p>
+      <div class="fx-q"><label><input type="checkbox" id="flexQ" checked> <span data-i="fx.quote"></span></label><button type="button" id="flexQNew" data-i="fx.quoteNew"></button></div>
       <div class="btns"><button type="button" id="flexShare" disabled data-i="fx.share"></button><button type="button" id="flexSave" disabled data-i="fx.save"></button></div>
     </div>
   </div>
@@ -72,9 +73,9 @@
 </main>
 <footer class="mono muted small"><span data-i="footer"></span> <a href="metode.html" data-i="nav.method"></a>.</footer>
 <p class="tip mono small" id="tip" hidden></p>
-<script src="assets/js/i18n.js?v=5"></script>
-<script src="assets/js/flex.js?v=5"></script>
-<script src="assets/js/app.js?v=5"></script>
+<script src="assets/js/i18n.js?v=6"></script>
+<script src="assets/js/flex.js?v=6"></script>
+<script src="assets/js/app.js?v=6"></script>
 <script>
   const dlg = document.getElementById("flexDlg");
   document.getElementById("flexOpen").onclick = () => dlg.showModal();
