@@ -154,10 +154,11 @@
   $("#log").addEventListener("click", e => e.target.closest(".s")?.classList.toggle("full"));  // notes: 1 line until tapped
 
 
-  // study time: Anki is measured; sessions use their logged minutes, else the method's typical length (shown with ±)
+  // study time = Anki (measured) + the study chat (measured, AFK-aware). Days without chat data fall back to logged or estimated minutes per row (shown with ±)
   const EST = { kanji: 12, minna: 20, kaiwa: 15, kosakata: 10, bonus: 15 };  // per logged row (rows are often parts of one sitting)
-  const mins = d => (byDay[d] || []).reduce((x, s) => x + (s.min ?? EST[s.kind] ?? 15), (A.days[d] || {}).ankiMin || 0);
-  const est = d => (byDay[d] || []).some(s => s.min == null);
+  const chat = d => (D.study?.days || {})[d];
+  const mins = d => ((A.days[d] || {}).ankiMin || 0) + (chat(d) ?? (byDay[d] || []).reduce((x, s) => x + (s.min ?? EST[s.kind] ?? 15), 0));
+  const est = d => chat(d) === undefined && (byDay[d] || []).some(s => s.min == null);
   const learned = [...new Set(ss.map(s => short(s.mode)))];
   if (a.new) learned.unshift(t("fx.ankiNew", { n: a.new }));
 

@@ -29,7 +29,12 @@ Anki collection ────┘    (Nihongo Sync tray app: 12:00 · 18:00 · 21:
 
 `publish.py` reads the session log and mistake bank from `progres.md` and a read-only copy of the local Anki database, then writes `data/data.json`. It commits only that file and pushes when the data changed. The site is static and renders everything in the browser from `data.json`.
 
-Study time: Anki time is measured (Anki's review log). Other sessions use the minutes logged with `--menit`; sessions without it fall back to a rough estimate and are shown with a **±**.
+Study time = Anki + the study chat, both measured:
+
+- **Anki:** the time Anki recorded per answer (capped at 60 s per card by Anki itself, so being away between cards adds nothing).
+- **Study chat:** `publish.py` reads the *timestamps* of the Claude Code session titled in `data/plan.json` (`study.sessionTitle`), never the conversation text. A gap between two messages counts at most `study.afkSeconds` (180 s); longer means away. Overlapping sessions (resumed or forked chats repeat old messages) are merged so nothing counts twice. Days are cut at 04:00, like Anki.
+- Days with no chat data fall back to the minutes logged with `--menit`, or a rough per-row estimate shown with a **±**. `--menit` is also how to add study done outside the chat.
+- Claude Code deletes old transcripts after a while, so past days are kept in `data.json` and only ever grow.
 
 ## Project structure
 
@@ -67,7 +72,7 @@ Study time: Anki time is measured (Anki's review log). Other sessions use the mi
 ## Logging a session
 
 ```bash
-python -I scripts/catat.py sesi "tebak kanji" "9/10" "short note" --menit 12
+python -I scripts/catat.py sesi "tebak kanji" "9/10" "short note"   # add --menit N only for study outside the chat
 python -I scripts/catat.py salah "<item>" "<correct answer>" "<mistake>"
 python -I scripts/catat.py review "<item>" benar
 python -I scripts/catat.py bab 16

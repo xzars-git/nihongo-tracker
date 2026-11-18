@@ -19,6 +19,7 @@ FRAC = re.compile(r"(\d+)\s*/\s*(\d+)")
 TURNS = re.compile(r"(\d+)\s*giliran")
 MINS = re.compile(r"(\d+)\s*mnt")  # session length, logged with catat.py --menit
 NOTE_MAX = 160  # notes are published in a public repo: keep them short
+TS = re.compile(r'"timestamp"\s*:\s*"([^"]+)"')
 
 
 def table(md, heading, cols):
@@ -119,18 +120,72 @@ def anki(old):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def transcripts(title):
+    """Message times of every Claude Code session whose title contains `title` (the dedicated study chat).
+    Only timestamps are read, never the conversation text. None when the transcript folder does not exist."""
+    base = os.path.join(os.path.expanduser("~"), ".claude", "projects", re.sub(r"[^A-Za-z0-9]", "-", os.path.dirname(ROOT)))
+    if not os.path.isdir(base): return None
+    out = []
+    for name in os.listdir(base):
+        if not name.endswith(".jsonl"): continue
+        times, hit = [], False
+        with open(os.path.join(base, name), encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                if not hit and '"customTitle"' in line and title in line.lower(): hit = True
+                m = TS.search(line)
+                if m: times.append(m[1])
+        if hit: out.append(times)
+    return out
+
+
+def study_minutes(sessions, cap=180):
+    """Active minutes per day (day starts at 4am) from the message times of the study chat.
+    A gap between two messages counts at most `cap` seconds: longer means away from the keyboard.
+    Sessions that overlap (a resumed or forked chat repeats old messages) are merged, so nothing counts twice."""
+    ivs = []
+    for times in sessions:
+        ts = sorted(dt.datetime.fromisoformat(t.replace("Z", "+00:00")).astimezone() for t in times)
+        ivs += [(a, a + dt.timedelta(seconds=min((b - a).total_seconds(), cap))) for a, b in zip(ts, ts[1:])]
+    secs, cur = {}, None
+    def flush(c):
+        day = (c[0] - dt.timedelta(hours=4)).date().isoformat()
+        secs[day] = secs.get(day, 0) + (c[1] - c[0]).total_seconds()
+    for a, b in sorted(ivs):
+        if cur and a <= cur[1]: cur = (cur[0], max(cur[1], b))
+        else:
+            if cur: flush(cur)
+            cur = (a, b)
+    if cur: flush(cur)
+    return {d: round(s / 60) for d, s in secs.items() if s >= 30}
+
+
+def study(plan, old):
+    """{"days": {date: minutes}}. Old values are kept (Claude Code deletes old transcripts after a while); a day only ever grows."""
+    cfg = plan.get("study", {})
+    days = dict((old or {}).get("days", {}))
+    title = cfg.get("sessionTitle", "").lower()
+    if title:
+        sessions = transcripts(title)
+        if sessions is None: print("! transkrip chat tidak ketemu, pakai waktu belajar lama")
+        else:
+            for d, m in study_minutes(sessions, cfg.get("afkSeconds", 180)).items(): days[d] = max(days.get(d, 0), m)
+    return {"days": dict(sorted(days.items())), "afkSeconds": cfg.get("afkSeconds", 180)}
+
+
 def build():
     try: old = json.load(open(OUT, encoding="utf-8"))
     except (OSError, ValueError): old = {}
     md = open(PROGRES, encoding="utf-8").read()
     bab = re.search(r"Bab sekarang:\s*(\d+)", md)
+    plan = json.load(open(os.path.join(ROOT, "data", "plan.json"), encoding="utf-8"))
     data = {
         "generated": dt.datetime.now().isoformat(timespec="minutes"),
         "bab": int(bab[1]) if bab else None,
         "sessions": sessions(md),
         "mistakes": mistakes(md),
         "anki": anki(old.get("anki")),
-        "plan": json.load(open(os.path.join(ROOT, "data", "plan.json"), encoding="utf-8")),
+        "plan": plan,
+        "study": study(plan, old.get("study")),
     }
     # Unchanged data is not rewritten, except once a day as a heartbeat (the page warns when data is >30h old).
     if {**old, "generated": data["generated"]} == data and old.get("generated", "")[:10] == data["generated"][:10]:
@@ -173,6 +228,9 @@ def selftest():
     md = "## Riwayat sesi\n| T | M | S | C |\n|---|---|---|---|\n| 2026-11-17 | kaiwa | 6 giliran · 20 mnt | ok |\n| rusak | a | b | c | d | e |\n\n## Lain\n"
     s = sessions(md)
     assert len(s) == 1 and s[0]["turns"] == 6 and s[0]["min"] == 20 and s[0]["kind"] == "kaiwa", s
+    # two sessions that repeat the same messages (a fork) must not double the time; an 18-minute gap counts only the cap
+    msgs = ["2026-01-01T03:00:00Z", "2026-01-01T03:00:40Z", "2026-01-01T03:18:40Z", "2026-01-01T03:19:25Z"]
+    assert study_minutes([msgs, msgs[:2]], 180) == {"2026-01-01": 4}, study_minutes([msgs, msgs[:2]], 180)  # 40 + 180 + 45 s = 265 s = 4.4 min
     print("selftest ok")
 
 

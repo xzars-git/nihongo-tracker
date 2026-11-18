@@ -1,13 +1,13 @@
 """Catat progres ke catatan/progres.md dengan satu perintah (dipakai sesi belajar / tutor).
 
   python -I tracker/scripts/catat.py sesi "<mode>" "<skor>" ["catatan"] [--menit N]
-      --menit N: lama sesi dalam menit (dipakai untuk jam belajar di Flex)
+      --menit N: OPSIONAL, hanya untuk belajar di luar chat (kertas, buku). Waktu di chat dihitung otomatis dari timestamp chat belajar
       mode berisi "tebak kanji" → kanji · "kaiwa"/"shadowing" → kaiwa · "kaishi" → kosakata · lainnya → Minna
       skor: "8/10", "6 giliran", atau "–"
-  python -I tracker/catat.py salah "<item>" "<jawaban benar>" "<kesalahan>"   (masuk bank, ulang besok)
-  python -I tracker/catat.py review "<item>" benar|salah                    (1 → 3 → 7 → 14 → dikuasai)
-  python -I tracker/catat.py bab <N>
-  python -I tracker/catat.py kirim                                          (update web sekarang; tanpa ini sync tiap jam)
+  python -I tracker/scripts/catat.py salah "<item>" "<jawaban benar>" "<kesalahan>"   (masuk bank, ulang besok)
+  python -I tracker/scripts/catat.py review "<item>" benar|salah                    (1 → 3 → 7 → 14 → dikuasai)
+  python -I tracker/scripts/catat.py bab <N>
+  python -I tracker/scripts/catat.py kirim                                  (update web sekarang; tanpa ini sync 12:00, 18:00, 21:00)
 """
 import datetime as dt, os, re, subprocess, sys
 
@@ -58,7 +58,7 @@ def main(a):
     if cmd == "sesi" and len(a) >= 3:
         skor = f"{a[2]} · {menit} mnt" if menit else a[2]
         md = add_row(md, "Riwayat sesi", [TODAY, a[1], skor, a[3] if len(a) > 3 else ""])
-        msg = f"sesi dicatat: {a[1]} · {skor}" + ("" if menit else "\n! tanpa --menit: jam belajar di web cuma perkiraan. Tambahkan --menit N.")
+        msg = f"sesi dicatat: {a[1]} · {skor}"
     elif cmd == "salah" and len(a) == 4:
         due = TODAY + dt.timedelta(days=1)
         existing = [r for r in rows(md, "Bank kesalahan") if r[2][0] == a[1]]
