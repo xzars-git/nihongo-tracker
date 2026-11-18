@@ -6,7 +6,7 @@
 body{margin:0;background:var(--bg) radial-gradient(var(--dot) 1.5px,transparent 1.5px) 0 0/22px 22px;color:var(--ink);font:16px/1.55 'Noto Sans JP',system-ui,sans-serif}
 a{color:inherit}
 .mono{font-family:'JetBrains Mono',monospace}.muted{color:var(--muted)}.small{font-size:13px}
-main,.top,footer{max-width:1100px;margin:0 auto;padding:0 16px}
+main,.top,footer{width:min(100%,max(75vw,1100px),2200px);margin:0 auto;padding:0 16px}  /* 3/4 of the screen, never narrower than 1100px, capped on ultra-wide */
 .top{padding-top:28px}
 .nav{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;font-size:13px;font-weight:700}
 .nav a{text-decoration:none;border-bottom:2px solid var(--hi)}
