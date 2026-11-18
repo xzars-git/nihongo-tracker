@@ -40,10 +40,13 @@ Anki collection ────┘    (Nihongo Sync tray app: 12:00 · 18:00 · 21:
 ├── data/
 │   ├── plan.json          # targets and weekly plan (hand-edited)
 │   └── data.json          # generated, do not edit
+├── app/
+│   ├── NihongoSync.cs     # Windows tray app that runs publish.py on schedule
+│   └── icon.ico
 └── scripts/
     ├── publish.py         # build data.json and push
-    ├── nihongo-sync.ps1   # tray app that runs publish.py on schedule
-    └── catat.py           # one-line logging during a study session
+    ├── catat.py           # one-line logging during a study session
+    └── build-app.ps1      # compile + install the tray app
 ```
 
 ## Logging a session
@@ -58,16 +61,21 @@ python -I scripts/catat.py kirim     # build + push now
 
 ## Nihongo Sync (tray app)
 
-A small Windows tray app (PowerShell + WinForms, nothing to install) that runs `publish.py` at 12:00, 18:00 and 21:00.
+A small Windows tray app (`NihongoSync.exe`, C# WinForms) that runs `publish.py` at 12:00, 18:00 and 21:00.
 
-- Between slots it sleeps on a single timer.
+- Between slots it waits on a single timer.
 - After boot, it catches up once if a slot was missed.
+- Hovering the tray icon shows the status, the last update and the next run. The icon is yellow when idle, grey while syncing and red after a failed sync.
 - Closing the window only hides it to the tray; **Quit** in the tray menu stops it.
-- It starts with Windows from a shortcut in the Startup folder.
+- It starts with Windows (Startup folder) and is in the Start Menu as **Nihongo Sync**.
+
+Build and install with the C# compiler that ships with Windows (no SDK needed):
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File scripts\nihongo-sync.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\build-app.ps1
 ```
+
+It installs to `%LOCALAPPDATA%\Programs\NihongoSync`.
 
 Log: `%LOCALAPPDATA%\NihongoSync\sync.log`
 
