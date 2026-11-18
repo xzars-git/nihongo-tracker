@@ -118,8 +118,20 @@
   const ms = [...D.mistakes].sort((x, y) => (x.due || "9").localeCompare(y.due || "9"));
   const cls = m => m.due && m.due <= today ? "due" : "later";
   $("#mistakeSum").textContent = t("m.sum", { n: ms.length, d: ms.filter(m => cls(m) === "due").length });
-  $("#mistakes").innerHTML = ms.map(m => `<details class="m ${cls(m)}"><summary><span>${esc(m.item)}</span><small>${m.due ? fmt(m.due) : "–"} · ${esc(m.interval)} ${t("d")}</small></summary>
-    <p><b>${t("m.right")}</b> ${esc(m.right)}</p><p><b>${t("m.wrong")}</b> ${esc(m.wrong)}</p></details>`).join("");
+  // compact chips; tapping one shows its right/wrong answer in a single panel below
+  const chip = m => `<button type="button" class="mc ${cls(m)}" data-i="${D.mistakes.indexOf(m)}">${esc(m.item)}</button>`;
+  const due = ms.filter(m => cls(m) === "due"), later = ms.filter(m => cls(m) !== "due");
+  $("#mistakes").innerHTML = `<div class="mcs">${due.map(chip).join("")}</div>
+    ${later.length ? `<details class="mono small"><summary>${t("m.later", { n: later.length })}</summary><div class="mcs">${later.map(chip).join("")}</div></details>` : ""}
+    <div class="mdet" id="mdet" hidden></div>`;
+  $("#mistakes").addEventListener("click", e => {
+    const b = e.target.closest(".mc"); if (!b) return;
+    const m = D.mistakes[b.dataset.i], box = $("#mdet");
+    $("#mistakes").querySelectorAll(".mc").forEach(x => x.setAttribute("aria-pressed", x === b));
+    box.hidden = false; b.after(box);
+    box.innerHTML = `<b>${esc(m.item)}</b> <small class="mono muted">${m.due ? fmt(m.due) : "–"} · ${esc(m.interval)} ${t("d")}</small>
+      <p><b class="mono">${t("m.right")}</b> ${esc(m.right)}</p><p><b class="mono">${t("m.wrong")}</b> ${esc(m.wrong)}</p>`;
+  });
 
   // ---------- log ----------
   // one collapsed row per day (summary chips); sessions and notes only when opened

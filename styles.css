@@ -54,7 +54,10 @@ td,th{padding:5px 8px;border-bottom:1px solid var(--dot);text-align:left}tr.cur 
 .chart + *{margin-top:26px}
 .sw{display:inline-block;width:10px;height:10px;margin:0 3px 0 6px;vertical-align:-1px}
 .again{background:var(--r)}.hard{background:var(--y)}.good{background:#6b8f2a}.kj{background:var(--ok)}
-.mistakes{display:grid;gap:10px}
+.mcs{display:flex;flex-wrap:wrap;gap:8px}
+.mc{font:700 14px 'Noto Sans JP',sans-serif;background:var(--card);color:var(--ink);border:2px solid var(--line);border-left:6px solid var(--y);padding:4px 10px;cursor:pointer}
+.mc.later{border-left-color:var(--dot);opacity:.8}.mc[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.mdet{flex-basis:100%;margin:4px 0;background:var(--card);border:3px solid var(--line);padding:10px 14px}.mdet p{margin:6px 0 0;font-size:14px}
 .m{background:var(--card);border:3px solid var(--line);border-left-width:10px;padding:10px 14px}
 .m.due{border-left-color:var(--y)}.m.later{opacity:.75}
 .m summary{display:flex;justify-content:space-between;gap:10px;font-weight:700;list-style:none}
