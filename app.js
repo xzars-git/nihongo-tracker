@@ -122,10 +122,19 @@
     <p><b>${t("m.right")}</b> ${esc(m.right)}</p><p><b>${t("m.wrong")}</b> ${esc(m.wrong)}</p></details>`).join("");
 
   // ---------- log ----------
-  const log = D.sessions.map((s, i) => [s, i]).sort((x, y) => y[0].date.localeCompare(x[0].date) || x[1] - y[1]).slice(0, 25);
+  // one collapsed row per day (summary chips); sessions and notes only when opened
   $("#logNote").textContent = t("log.note");
-  $("#log").innerHTML = log.map(([s]) => `<div class="s"><span class="mono small muted">${fmt(s.date)}</span><span class="k ${s.kind}">${t("kind." + s.kind)}</span>
-    <div><b>${esc(s.mode)}</b> <span class="sc">${esc(s.score)}</span><p>${esc(s.note)}</p></div></div>`).join("");
+  const short = m => m.replace(/\s*\([^)]*\)/g, "").trim();  // drop "(話す/今/…)" word lists
+  $("#log").innerHTML = Object.keys(byDay).sort().reverse().slice(0, 14).map((d, i) => {
+    const ss = byDay[d], kinds = [...new Set(ss.map(s => s.kind))];
+    const chips = kinds.map(k => {
+      const ks = ss.filter(s => s.kind === k), v = k === "kanji" ? avg(fullRounds(d)) : null;
+      return `<span class="k ${k}">${t("kind." + k)} ×${ks.length}${v != null ? " · " + v + "%" : ""}</span>`;
+    }).join("");
+    return `<details class="day"><summary><span class="mono">${fmt(d)}</span><span class="chips">${chips}</span></summary>
+      ${ss.map(s => `<div class="s"><span class="k ${s.kind}"></span><div><b>${esc(short(s.mode))}</b> <span class="sc">${esc(s.score)}</span>${s.note ? `<p>${esc(s.note)}</p>` : ""}</div></div>`).join("")}</details>`;
+  }).join("");
+  $("#log").addEventListener("click", e => e.target.closest(".s")?.classList.toggle("full"));  // notes: 1 line until tapped
 
   $("#months").innerHTML = P.months.map(m => `<div class="mo"><span class="mono small muted">${new Date(m.month + "-01T00:00:00Z").toLocaleDateString(loc, { month: "long", year: "numeric", timeZone: "UTC" })}</span><b>${t("months.kanji", { n: m.kanji })}</b><span class="small">${esc(tx(m, "text"))}</span></div>`).join("");
 

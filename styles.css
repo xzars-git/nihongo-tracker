@@ -62,8 +62,15 @@ td,th{padding:5px 8px;border-bottom:1px solid var(--dot);text-align:left}tr.cur 
 .m summary small{font:400 12px 'JetBrains Mono',monospace;color:var(--muted);white-space:nowrap}
 .m p{margin:6px 0 0;font-size:14px}.m p b{font-family:'JetBrains Mono',monospace;font-size:12px}
 .log{display:grid;gap:8px}
-.s{display:grid;grid-template-columns:96px 80px 1fr;gap:10px;background:var(--card);border:2px solid var(--dot);padding:8px 12px;font-size:14px}
-.s .k{font:700 11px 'JetBrains Mono',monospace;text-transform:uppercase;padding:2px 6px;align-self:start;text-align:center;color:var(--k);background:var(--dot)}
+.day{margin:0;background:var(--card);border:2px solid var(--dot)}
+.day summary{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;padding:10px 12px;font-size:14px;font-weight:700}
+.day[open] summary{border-bottom:2px solid var(--dot)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.k{font:700 11px 'JetBrains Mono',monospace;text-transform:uppercase;padding:2px 6px;color:var(--k);background:var(--dot)}
+.s{display:grid;grid-template-columns:6px 1fr;gap:10px;padding:8px 12px;font-size:14px}
+.s+.s{border-top:1px solid var(--dot)}
+.s .k{padding:0;align-self:stretch}
+.s{cursor:pointer}.s p{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}.s.full p{display:block}
 .k.kanji{background:var(--lime)}.k.minna{background:var(--y)}.k.kaiwa{background:#7cc4ff}.k.kosakata{background:#ffb37c}.k.bonus{background:#d9b8ff}
 .s .sc{font:700 13px 'JetBrains Mono',monospace}
 .s p{margin:2px 0 0;color:var(--muted);font-size:13px}
@@ -85,7 +92,7 @@ footer{padding-bottom:40px}
 .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .btns button{font:700 13px 'JetBrains Mono',monospace;background:var(--card);color:var(--ink);border:3px solid var(--line);padding:8px 12px;cursor:pointer}
 .btns button:disabled{opacity:.45;cursor:default}
-@media (max-width:700px){.two{grid-template-columns:1fr}.s{grid-template-columns:1fr auto}.s .k{grid-row:1}.s>div:last-child{grid-column:1/-1}}
+@media (max-width:700px){.two{grid-template-columns:1fr}}
 /* wiki */
 .wiki .wk-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;background:var(--y);color:var(--k);border-bottom:5px solid var(--k)}
 .wiki .wk-top .nav a{border-color:var(--k)}.wiki .wk-top .lang button{border-color:var(--k)}
