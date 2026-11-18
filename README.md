@@ -13,7 +13,7 @@ Public log of my Japanese study toward **JLPT N3 (July 2027)**, in Indonesian, E
 - **Mistake bank:** items due for spaced review (1 → 3 → 7 → 14 days), plus a **weak spots** summary (verb forms, particles, kanji, look-alike words)
 - **Achievements:** badges for words, kanji, streaks, chapters, conversations, study hours
 - **Session log:** one row per day
-- **Flex:** generates a 1080×1920 story image of the day (13 templates incl. weekly recap, study log and badges), with a console-style gacha reveal, optional quote (190-quote bank, filterable by category)
+- **Flex:** generates a 1080×1920 story image of the day (14 templates incl. weekly recap, study log and badges), with a console-style gacha reveal, optional quote (190-quote bank, filterable by category)
 - **About me** and **Method** pages
 - **Installable** on a phone (PWA) and readable offline
 - Updates itself three times a day (12:00, 18:00, 21:00); no backend
