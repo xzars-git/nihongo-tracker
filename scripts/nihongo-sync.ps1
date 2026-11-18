@@ -13,7 +13,8 @@ $STATE = Join-Path $DIR "last.txt"   # time of the last finished sync
 New-Item -ItemType Directory -Force $DIR | Out-Null
 
 $mutex = New-Object System.Threading.Mutex($false, "Local\NihongoSync")
-if (-not $mutex.WaitOne(0)) { exit }  # already running
+$showEvent = New-Object System.Threading.EventWaitHandle($false, "AutoReset", "Local\NihongoSyncShow")
+if (-not $mutex.WaitOne(0)) { if (-not $Tray) { $showEvent.Set() | Out-Null }; exit }  # already running: ask it to show its window
 
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing
 [System.Windows.Forms.Application]::EnableVisualStyles()
@@ -116,6 +117,10 @@ $slotTimer.add_Tick({ $slotTimer.Stop(); Start-Sync; Arm-Timer })
 $catchUp = New-Object System.Windows.Forms.Timer; $catchUp.Interval = 60000
 $catchUp.add_Tick({ $catchUp.Stop(); if ((Last-Sync) -lt (Prev-Slot)) { Start-Sync } })
 $catchUp.Start()
+
+# a second launch (Start menu) signals this event; checking it once a second costs next to nothing
+$showPoll = New-Object System.Windows.Forms.Timer; $showPoll.Interval = 1000
+$showPoll.add_Tick({ if ($showEvent.WaitOne(0)) { Show-Window } }); $showPoll.Start()
 
 Arm-Timer
 if (-not $Tray) { Show-Window }
