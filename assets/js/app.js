@@ -207,7 +207,7 @@
 
   window.initFlex?.({
     quotes, recap, badges: { got: got.map(b => b.label), total: badges.length, next: nextB ? { label: nextB.label, have: nextB.have, need: nextB.n } : null },
-    min: mins(today), minEst: est(today), learned,
+    min: mins(today), minEst: est(today), learned, hoursSub: $("#sumHoursSub").textContent,
     week7: Array.from({ length: 7 }, (_, i) => { const x = addDays(today, i - 6); return [x, x < first ? 0 : mins(x)]; }),
     totalMin: allMin,
     date: today, st, done: count(today), rounds: rounds.length, avg: avg(rounds), reviews: a.reviews || 0, kaishiNew: a.kaishiNew || 0,

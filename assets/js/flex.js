@@ -265,7 +265,23 @@
         c.strokeStyle = p.ink; c.lineWidth = 6; c.strokeRect(80, y + 30, 920, 60); c.fillStyle = p.a; c.fillRect(86, y + 36, 908 * Math.min(1, b.next.have / b.next.need), 48);
       }
     } },
+    // default card (not in the gacha pool): today's real numbers, Strava-style
+    { name: "Stats", draw(c, p, s) {
+      const sub = n => LANG === "ja" ? F.jp(n, 400) : F.mono(n);
+      plate(c, "今日の勉強", 80, 390, F.jp(76), p.a, p.af, -2);
+      txt(c, s.hm, 80, 740, LANG === "ja" ? F.jp(170) : F.num(300), p.ink, "left", 920);
+      txt(c, t("fx.studyToday") + (s.minEst ? " · " + t("fx.estNote") : ""), 80, 805, sub(32), p.mut, "left", 920);
+      txt(c, s.hoursSub, 80, 850, sub(28), p.mut, "left", 920);
+      [[s.reviews, "fx.t1"], [s.kaishiNew, "fx.r.kaishiNew"], [s.rounds, "fx.r.rounds"], [s.avg != null ? s.avg + "%" : "–", "fx.t3"],
+        [`${s.done}/4`, "fx.must"], [s.active, "fx.t6"]].forEach(([v, l], i) => {
+        const x = 80 + (i % 2) * 480, y = 930 + Math.floor(i / 2) * 215, on = i === 0;
+        if (on) { c.fillStyle = p.a; c.fillRect(x, y, 440, 195); } else { c.strokeStyle = p.ink; c.lineWidth = 6; c.strokeRect(x, y, 440, 195); }
+        txt(c, String(v), x + 32, y + 125, F.num(130), on ? p.af : p.ink, "left", 380);
+        txt(c, t(l), x + 32, y + 172, sub(32), on ? p.af : p.mut, "left", 380);
+      });
+    } },
   ];
+  const STAT = T.length - 1;
   const RAR = { common: [2, 6, 8, 9, 10], rare: [1, 5, 4, 3, 12], epic: [7, 0, 13], legendary: [11] };
   const COMEBACK = { common: [9], rare: [3, 5], epic: [0], legendary: [] };  // cumulative numbers only, never 0/4
   const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
@@ -275,7 +291,7 @@
     const $ = id => document.getElementById(id), cover = $("flexCover"), rar = $("flexRar"), info = $("flexInfo"), share = $("flexShare"), save = $("flexSave");
     const sample = "0123456789ABCabc█░" + JP.join("") + s.kanjiList + "今日のノルマ済未毎日の記録今週の目標ログ成績表完了継続連続達成学習漢字クイズ復習単語累計まであとありがとうございました日本語" + ["fx.r.kaishiNew", "fx.r.reviews", "fx.r.rounds", "fx.r.score", "fx.r.minna", "fx.r.kaiwa", "fx.r.bank", "fx.r.streak", "fx.must", "fx.daysLeft", "fx.progress",
         "fx.heatSub", "fx.heatLine", "fx.wMinna", "fx.wKaishi", "fx.wKanji", "fx.hanko", "fx.t1", "fx.t2", "fx.t3", "fx.t4", "fx.t5", "fx.t6", "fx.perfect", "fx.keep",
-        "fx.kanjiSeen", "fx.time", "fx.studyToday", "fx.learned", "fx.week7", "fx.estNote", "fx.kaishi", "fx.reviews", "fx.roundsToday", "fx.daysN3", "streak.full", "streak.active", "streak.rounds", "w.anki", "w.kanji", "w.minna", "w.kaiwa", "fx.none", "fx.bab"].map(k => t(k)).join("") + s.n3Month + s.dateLabel + s.learned.join("") + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("") + s.badges.got.join("") + ["fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub", "fx.bd.next", "fx.bd.none", "fx.bd.total"].map(k => t(k)).join("");
+        "fx.kanjiSeen", "fx.time", "fx.studyToday", "fx.learned", "fx.week7", "fx.estNote", "fx.kaishi", "fx.reviews", "fx.roundsToday", "fx.daysN3", "streak.full", "streak.active", "streak.rounds", "w.anki", "w.kanji", "w.minna", "w.kaiwa", "fx.none", "fx.bab"].map(k => t(k)).join("") + s.n3Month + s.dateLabel + s.hoursSub + s.learned.join("") + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("") + s.badges.got.join("") + ["fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub", "fx.bd.next", "fx.bd.none", "fx.bd.total"].map(k => t(k)).join("");
     await Promise.all([F.num(80), F.head(40), F.mono(30), F.mono(30, 700), F.jp(40), F.jp(40, 400)].map(f => document.fonts.load(f, sample))).catch(() => {});
     const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
     s.hm = (s.minEst && s.min ? "±" : "") + hm(s.min); s.totalHm = hm(s.totalMin); s.recapHm = (s.recap.est ? "±" : "") + hm(s.recap.min);
@@ -283,7 +299,7 @@
     const comeback = s.done <= 1;
     let file = null, url = null, busy = false;
     const col = new Set(store("fxCol") || []);
-    const showInfo = () => info.textContent = t("fx.info", { c: col.size, t: T.length, p: store("fxPity") || 0 }) + (comeback ? " · " + t("fx.comeback") : "") + (fontOk ? "" : " · " + t("fx.fontFail"));
+    const showInfo = () => info.textContent = t("fx.info", { c: col.size, t: STAT, p: store("fxPity") || 0 }) + (comeback ? " · " + t("fx.comeback") : "") + (fontOk ? "" : " · " + t("fx.fontFail"));
 
     const roll = () => {
       const forced = new URLSearchParams(location.search).get("t");  // hidden debug: ?t=3
@@ -310,13 +326,13 @@
       const x = pick(pool.length ? pool : usable);
       return { ...x, sub: LANG !== "ja" ? x.tr?.[LANG] : null };
     };
-    let showQuote = store("fxQuote") !== false, st = null;  // st = { i: template, seed, q: quote }
+    let showQuote = store("fxQuote") === true, st = null;  // st = { i: template, seed, q: quote }
     const qBox = $("flexQ"), qNew = $("flexQNew");
     qBox.checked = showQuote; qNew.disabled = true;
     qBox.closest(".fx-q").hidden = !usable.length;
     const draw = () => {
       R = seeded(st.seed);
-      const p = T[st.i].gold ? GOLD : pick(PAL), q = showQuote && usable.length ? st.q : null, k = q ? 0.75 : 0.906;
+      const p = T[st.i].gold ? GOLD : st.pal != null ? PAL[st.pal] : pick(PAL), q = showQuote && usable.length ? st.q : null, k = q ? 0.75 : 0.906;
       background(c, p);
       c.save(); c.translate(W / 2, 400); c.scale(k, k); c.translate(-W / 2, -370);  // squeeze content into the IG safe area
       T[st.i].draw(c, p, s);
@@ -364,6 +380,13 @@
       if (file && navigator.canShare?.({ files: [file] })) navigator.share({ files: [file] }).catch(() => {});
       else download();
     };
-    cover.hidden = false; showInfo();
+    const showStats = () => {
+      st = { i: STAT, seed: Math.floor(Math.random() * 2 ** 31), q: usable.length ? pickQuote(st?.q) : null, pal: st?.pal ?? 0 };
+      cover.hidden = true; draw(); qNew.disabled = false;
+      rar.dataset.r = "common"; rar.textContent = "STATS"; showInfo();
+    };
+    $("flexStats").onclick = () => { if (!busy) showStats(); };
+    $("flexTheme").onclick = () => { if (st && !busy) { st.pal = ((st.pal ?? -1) + 1) % PAL.length; draw(); } };
+    showStats();
   };
 })();
