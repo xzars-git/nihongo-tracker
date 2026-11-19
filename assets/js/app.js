@@ -68,8 +68,10 @@
   $("#wajib").innerHTML = [
     card("anki", t("anki.n", { a: a.kaishiNew || 0, b: P.daily.kaishiNew }), A.today === today ? t("anki.left", { d: A.dueNow }) : ""),
     card("kanji", t("kanji.n", { a: rounds.length, b: P.daily.kanjiRounds }), rounds.length ? t("kanji.avg", { v: avg(rounds) }) : t("kanji.none")),
-    card("minna", t("minna.n", { n: minnaS.length }), esc(minnaS.map(s => s.mode).join(" · ") || t("minna.none"))),
-    card("kaiwa", t("kaiwa.n", { n: kaiwaS.reduce((x, s) => x + (s.turns || 0), 0) }), esc(kaiwaS.map(s => s.score).join(" · ") || t("kaiwa.target", { a: P.daily.kaiwaTurns }))),
+    card("minna", t("minna.n", { n: minnaS.length }), esc(minnaS.map(s => s.mode.replace(/\s*\([^)]*\)/g, "").replace(/^Minna\s*/i, "")).join(" · ") || t("minna.none"))),
+    // turns when logged as turns, otherwise the number of sessions (a shadowing session has no turns); "–" scores are noise
+    card("kaiwa", kaiwaS.some(s => s.turns) ? t("kaiwa.n", { n: kaiwaS.reduce((x, s) => x + (s.turns || 0), 0) }) : kaiwaS.length ? t("minna.n", { n: kaiwaS.length }) : t("kaiwa.n", { n: 0 }),
+      esc([...kaiwaS.filter(s => s.shadowing).map(() => t("kaiwa.shadow")).slice(0, 1), ...kaiwaS.map(s => s.score).filter(x => x && x !== "–")].join(" · ") || t("kaiwa.target", { a: P.daily.kaiwaTurns }))),
   ].join("");
 
   // ---------- this week + pace ----------
