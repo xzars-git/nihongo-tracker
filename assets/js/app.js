@@ -33,6 +33,11 @@
   };
   const count = d => Object.values(status(d)).filter(Boolean).length;
   const complete = d => isRest(d) ? status(d).anki : count(d) === 4;
+  // a day counts as "studied" on any real activity, even when no mission is fully done
+  const rawMin = d => ((A.days[d] || {}).ankiMin || 0) + ((D.study?.days || {})[d] || 0);
+  const studied = d => count(d) > 0 || ((A.days[d] || {}).reviews || 0) > 0 || rawMin(d) > 0 || (byDay[d] || []).length > 0;
+  const level = d => Math.max(count(d), studied(d) ? 1 : 0);
+  const hmShort = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
 
   const n3 = P.goals.find(g => g.id === "n3");
   const monthYear = s => new Date(s + "T00:00:00Z").toLocaleDateString(loc, { month: "long", year: "numeric", timeZone: "UTC" }).toUpperCase();
@@ -87,11 +92,11 @@
   const cells = [];
   for (let d = start; d <= addDays(today, (7 - (new Date(today + "T00:00:00Z").getUTCDay() || 7)) % 7); d = addDays(d, 1))
     cells.push(d > today || d < first ? `<i style="opacity:.25"></i>`
-      : `<i data-n="${count(d)}" class="${d === today ? "today" : ""}" title="${t("heat.title", { d: fmt(d), n: count(d) })}${isRest(d) ? t("heat.rest") : ""}"></i>`);
+      : `<i data-n="${level(d)}" class="${d === today ? "today" : ""}" title="${t("heat.title", { d: fmt(d), n: count(d) })}${studied(d) ? t("heat.study", { r: (A.days[d] || {}).reviews || 0, m: hmShort(rawMin(d)) }) : ""}${isRest(d) ? t("heat.rest") : ""}"></i>`);
   $("#heat").innerHTML = cells.join("");
   $("#heat").scrollLeft = $("#heat").scrollWidth;
   const run = ok => { let n = 0, d = ok(today) ? today : addDays(today, -1); while (d >= first && ok(d)) { n++; d = addDays(d, -1); } return n; };
-  const streak = run(complete), active = run(d => count(d) > 0);
+  const streak = run(complete), active = run(studied);
   const totalRounds = D.sessions.filter(s => s.kind === "kanji" && s.total >= P.daily.kanjiPerRound).length;
 
   // ---------- charts (last 14 days, from the first session) ----------
@@ -164,7 +169,7 @@
   const allDays = []; for (let x = first; x <= today; x = addDays(x, 1)) allDays.push(x);
   const allMin = allDays.reduce((n, x) => n + mins(x), 0);
   let longest = 0, runLen = 0;
-  for (const x of allDays) { runLen = count(x) > 0 ? runLen + 1 : 0; longest = Math.max(longest, runLen); }
+  for (const x of allDays) { runLen = studied(x) ? runLen + 1 : 0; longest = Math.max(longest, runLen); }
   const stat = { words: A.kaishiOpened ?? 0, kanji: A.kanjiSeen ?? 0, streak: longest, bab: D.bab ?? 0, kaiwa: D.sessions.filter(s => s.kind === "kaiwa").length, hours: Math.floor(allMin / 60), rounds: totalRounds };
   const LADDER = { words: [100, 500, 1000, 1500], kanji: [100, 300, 500, 650], streak: [3, 7, 14, 30], bab: [20, 25, 35, 50], kaiwa: [5, 10, 25, 50], hours: [10, 25, 50, 100], rounds: [10, 25, 50, 100] };
   const badges = Object.entries(LADDER).flatMap(([k, ns]) => ns.map(n => ({ k, n, label: t("badge." + k, { n }), on: stat[k] >= n, have: stat[k] })));
@@ -176,7 +181,7 @@
   const wkDays = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6)).filter(x => x >= first);
   const wkRounds = wkDays.flatMap(fullRounds);
   const recap = {
-    min: wkDays.reduce((n, x) => n + mins(x), 0), est: wkDays.some(est), days: wkDays.filter(x => count(x) > 0).length, of: wkDays.length,
+    min: wkDays.reduce((n, x) => n + mins(x), 0), est: wkDays.some(est), days: wkDays.filter(studied).length, of: wkDays.length,
     kaishi: wkDays.reduce((n, x) => n + ((A.days[x] || {}).kaishiNew || 0), 0), reviews: wkDays.reduce((n, x) => n + ((A.days[x] || {}).reviews || 0), 0),
     rounds: wkRounds.length, avg: avg(wkRounds),
   };
@@ -192,6 +197,10 @@
   $("#sumStreak").textContent = active;
   $("#sumWeek").textContent = (recap.est ? "±" : "") + hm(recap.min);
   $("#sumWeekSub").textContent = t("sum.week.sub", { d: recap.days, n: recap.of });
+  // appreciation: partial days still count, say so
+  const yest = addDays(today, -1), pr = d => ({ r: (A.days[d] || {}).reviews || 0, m: hm(mins(d)) });
+  $("#praise").textContent = studied(today) ? (todo.length ? t("praise.today", pr(today)) : "")
+    : studied(yest) && yest >= first && !complete(yest) ? t("praise.yest", pr(yest)) : t("praise.none");
 
   let quotes = [];
   try { quotes = await (await fetch("data/quotes.json")).json(); } catch { /* Flex works without quotes */ }
@@ -207,7 +216,7 @@
     streak, active, totalRounds, mistakes: D.mistakes.length,
     minna: minnaS.map(s => s.mode), kaiwa: kaiwaS.length, n3Month: monthYear(n3.date),
     daysN3: daysBetween(today, n3.date), n3Total: daysBetween(P.weeks[0].start, n3.date), startLabel: fmt(P.weeks[0].start),
-    heat: Array.from({ length: 56 }, (_, i) => { const x = addDays(today, i - 55); return x < first ? -1 : count(x); }),
+    heat: Array.from({ length: 56 }, (_, i) => { const x = addDays(today, i - 55); return x < first ? -1 : level(x); }),
     week: [[t("fx.wMinna"), D.bab ?? 0, wk.bab], [t("fx.wKaishi"), A.kaishiOpened ?? 0, wk.kaishi]],
   });
 })();
