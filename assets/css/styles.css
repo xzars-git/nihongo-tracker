@@ -28,6 +28,10 @@ section{margin:40px 0}
 .w h3{grid-area:h;margin:0;font:400 17px 'Archivo Black',sans-serif}
 .w .n{grid-area:n;font:800 26px/1.1 'Barlow Condensed',sans-serif}
 .w .st{grid-area:st;justify-self:start;font:700 12px 'JetBrains Mono',monospace;border:2px solid currentColor;padding:1px 6px;transform:rotate(-4deg)}
+.w .st.seal{border:0;padding:0;width:54px;height:56px;margin:-6px 0;transform:rotate(-8deg);animation:stamp .35s cubic-bezier(.3,1.6,.5,1) both}
+.seal svg{display:block;width:100%;height:100%;overflow:visible}
+@keyframes stamp{from{transform:rotate(-8deg) scale(1.7);opacity:0}to{transform:rotate(-8deg) scale(1);opacity:1}}
+@media (prefers-reduced-motion:reduce){.w .st.seal{animation:none}}
 .w p{grid-area:p;margin:0;font-size:13px;color:var(--muted)}.w.done p{color:#2a3a00}
 .heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,22px);grid-auto-columns:22px;gap:5px;overflow-x:auto;padding:3px 3px 6px}
 .heat i{border-radius:3px;background:var(--dot)}

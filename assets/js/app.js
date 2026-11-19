@@ -49,7 +49,21 @@
   const st = status(today), a = A.days[today] || {}, rounds = fullRounds(today), ss = byDay[today] || [];
   $("#todayLabel").textContent = fmt(today) + (isRest(today) ? t("restday") : "");
   const avg = r => r.length ? Math.round(r.reduce((x, s) => x + s.ok / s.total, 0) / r.length * 100) : null;
-  const card = (key, n, p) => `<div class="w ${st[key] ? "done" : ""}"><span class="st">${t(st[key] ? "st.done" : isRest(today) && key !== "anki" ? "st.rest" : "st.todo")}</span><h3>${t("w." + key)}</h3><div class="n">${n}</div><p>${p}</p></div>`;
+  // wax seal for a finished mission: a lumpy blob with a drip, an embossed ring and 済 ("done"), built from fixed maths so it never changes between loads
+  const seal = (() => {
+    const pts = Array.from({ length: 28 }, (_, i) => {
+      const a = i / 28 * 2 * Math.PI, r = 27 + 1.6 * Math.sin(3 * a + 1) + 1.2 * Math.sin(5 * a + 2) + 9 * Math.exp(-((a - 2.1) ** 2) / 0.08);
+      return [32 + r * Math.cos(a), 30 + r * Math.sin(a)];
+    });
+    const mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2], f = n => n.toFixed(1);
+    let d = `M${pts[0].map(f)}`;
+    pts.forEach((p, i) => { const q = pts[(i + 1) % pts.length], m = mid(p, q); d += `Q${p.map(f)} ${m.map(f)}`; });
+    return `<svg viewBox="0 0 64 66" aria-hidden="true"><path d="${d}Z" transform="translate(2 3)" fill="#000" opacity=".35"/><path d="${d}Z" fill="#C8102E" stroke="#8f0a20" stroke-width="2"/>
+      <circle cx="32" cy="30" r="17" fill="#b30d28" stroke="#8f0a20" stroke-width="2"/><path d="M19 22a15 15 0 0 1 11-8" fill="none" stroke="#ff7a85" stroke-width="2" stroke-linecap="round" opacity=".6"/>
+      <text x="32" y="38.5" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-weight="900" font-size="21" fill="#ff8d96" opacity=".55" transform="translate(.8 .8)">済</text>
+      <text x="32" y="38.5" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-weight="900" font-size="21" fill="#7d0819">済</text></svg>`;
+  })();
+  const card = (key, n, p) => `<div class="w ${st[key] ? "done" : ""}">${st[key] ? `<span class="st seal" role="img" aria-label="${t("st.done")}">${seal}</span>` : `<span class="st">${t(isRest(today) && key !== "anki" ? "st.rest" : "st.todo")}</span>`}<h3>${t("w." + key)}</h3><div class="n">${n}</div><p>${p}</p></div>`;
   const minnaS = ss.filter(s => s.kind === "minna"), kaiwaS = ss.filter(s => s.kind === "kaiwa");
   $("#wajib").innerHTML = [
     card("anki", t("anki.n", { a: a.kaishiNew || 0, b: P.daily.kaishiNew }), A.today === today ? t("anki.left", { d: A.dueNow }) : ""),
