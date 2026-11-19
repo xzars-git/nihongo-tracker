@@ -7,7 +7,7 @@
   python -I tracker/scripts/catat.py salah "<item>" "<jawaban benar>" "<kesalahan>"   (masuk bank, ulang besok)
   python -I tracker/scripts/catat.py review "<item>" benar|salah                    (1 → 3 → 7 → 14 → dikuasai)
   python -I tracker/scripts/catat.py bab <N>
-  python -I tracker/scripts/catat.py kirim                                  (update web sekarang; tanpa ini sync 12:00, 18:00, 21:00)
+  python -I tracker/scripts/catat.py kirim                                  (update web sekarang; tanpa ini sync 00:00, 12:00, 18:00, 21:00)
 """
 import datetime as dt, os, re, subprocess, sys
 

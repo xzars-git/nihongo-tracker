@@ -16,14 +16,14 @@ Public log of my Japanese study toward **JLPT N3 (July 2027)**, in Indonesian, E
 - **Flex:** generates a 1080×1920 story image of the day (14 templates incl. weekly recap, study log and badges), with a console-style gacha reveal, optional quote (190-quote bank, filterable by category)
 - **About me** and **Method** pages
 - **Installable** on a phone (PWA) and readable offline
-- Updates itself three times a day (12:00, 18:00, 21:00); no backend
+- Updates itself four times a day (00:00, 12:00, 18:00, 21:00); no backend
 
 ## How it works
 
 ```
 catatan/progres.md ─┐
                     ├─► scripts/publish.py ─► data/data.json ─► git push ─► Vercel
-Anki collection ────┘    (Nihongo Sync tray app: 12:00 · 18:00 · 21:00)
+Anki collection ────┘    (Nihongo Sync tray app: 00:00 · 12:00 · 18:00 · 21:00)
                                   └─► backup of notes ─► private repo
 ```
 
@@ -81,7 +81,7 @@ python -I scripts/catat.py kirim     # build + push now
 
 ## Nihongo Sync (tray app)
 
-A small Windows tray app (`NihongoSync.exe`, C# WinForms) that runs `publish.py` at 12:00, 18:00 and 21:00.
+A small Windows tray app (`NihongoSync.exe`, C# WinForms) that runs `publish.py` at 00:00, 12:00, 18:00 and 21:00.
 
 - Between slots it waits on a single timer.
 - After boot, it catches up once if a slot was missed.

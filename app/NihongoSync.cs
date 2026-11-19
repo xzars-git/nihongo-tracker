@@ -1,4 +1,4 @@
-// Nihongo Sync: tray app that runs scripts/publish.py at fixed times (12:00, 18:00, 21:00).
+// Nihongo Sync: tray app that runs scripts/publish.py at fixed times (00:00, 12:00, 18:00, 21:00).
 // Closing the window hides it to the tray; only Quit stops it. Between slots it waits on one timer.
 // Built by scripts/build-app.ps1 with the C# 5 compiler that ships with Windows (.NET Framework 4).
 using System;
@@ -29,7 +29,7 @@ static class Program
 
 class SyncApp
 {
-    static readonly TimeSpan[] Slots = { new TimeSpan(12, 0, 0), new TimeSpan(18, 0, 0), new TimeSpan(21, 0, 0) };
+    static readonly TimeSpan[] Slots = { new TimeSpan(0, 0, 0), new TimeSpan(12, 0, 0), new TimeSpan(18, 0, 0), new TimeSpan(21, 0, 0) };
     static readonly TimeSpan Reminder = new TimeSpan(20, 0, 0);  // "have you studied today?" balloon, if fewer than 4 sessions are logged
     const int MaxRetries = 2, RetryMinutes = 5;
     const string Site = "https://arsenius-nihongo.vercel.app";
