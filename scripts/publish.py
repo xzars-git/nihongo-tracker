@@ -4,7 +4,7 @@ Run at the end of every study session:  python -I tracker/scripts/publish.py
 Also runs at 12:00, 18:00 and 21:00 from the Nihongo Sync tray app (scripts/nihongo-sync.ps1).
 Options: --no-push (build only)
 """
-import datetime as dt, json, os, re, shutil, sqlite3, subprocess, sys, tempfile
+import datetime as dt, glob, json, os, re, shutil, sqlite3, subprocess, sys, tempfile
 
 if sys.stdout is None:  # pythonw (Task Scheduler) has no console
     sys.stdout = sys.stderr = open(os.path.join(tempfile.gettempdir(), "nihongo-publish.log"), "a", encoding="utf-8")
@@ -13,7 +13,12 @@ sys.stdout.reconfigure(encoding="utf-8")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # tracker/
 OUT = os.path.join(ROOT, "data", "data.json")
 PROGRES = os.path.join(ROOT, "..", "catatan", "progres.md")
-ANKI = os.path.join(os.environ.get("APPDATA", ""), "Anki2", "User 1", "collection.anki2")
+def find_anki():
+    # the profile name changes (e.g. after logging in to AnkiWeb): use the most recently written collection
+    base = os.path.join(os.environ.get("APPDATA", ""), "Anki2")
+    found = glob.glob(os.path.join(base, "*", "collection.anki2"))
+    return max(found, key=os.path.getmtime) if found else os.path.join(base, "User 1", "collection.anki2")
+ANKI = find_anki()
 KANJI = re.compile(r"[一-鿿]")
 FRAC = re.compile(r"(\d+)\s*/\s*(\d+)")
 TURNS = re.compile(r"(\d+)\s*giliran")

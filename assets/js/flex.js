@@ -272,12 +272,19 @@
       txt(c, s.hm, 80, 740, LANG === "ja" ? F.jp(170) : F.num(300), p.ink, "left", 920);
       txt(c, t("fx.studyToday") + (s.minEst ? " · " + t("fx.estNote") : ""), 80, 805, sub(32), p.mut, "left", 920);
       txt(c, s.hoursSub, 80, 850, sub(28), p.mut, "left", 920);
-      [[s.reviews, "fx.t1"], [s.kaishiNew, "fx.r.kaishiNew"], [s.rounds, "fx.r.rounds"], [s.avg != null ? s.avg + "%" : "–", "fx.t3"],
-        [`${s.done}/4`, "fx.must"], [s.active, "fx.t6"]].forEach(([v, l], i) => {
-        const x = 80 + (i % 2) * 480, y = 930 + Math.floor(i / 2) * 215, on = i === 0;
+      [[s.reviews, "fx.t1"], [s.kaishiNew, "fx.r.kaishiNew"], [s.rounds + (s.avg != null ? ` · ${s.avg}%` : ""), "fx.r.rounds"], [s.active, "fx.t6"]].forEach(([v, l], i) => {
+        const x = 80 + (i % 2) * 480, y = 910 + Math.floor(i / 2) * 215, on = i === 0;
         if (on) { c.fillStyle = p.a; c.fillRect(x, y, 440, 195); } else { c.strokeStyle = p.ink; c.lineWidth = 6; c.strokeRect(x, y, 440, 195); }
-        txt(c, String(v), x + 32, y + 125, F.num(130), on ? p.af : p.ink, "left", 380);
+        txt(c, String(v), x + 32, y + 125, F.num(String(v).length > 6 ? 100 : 130), on ? p.af : p.ink, "left", 380);
         txt(c, t(l), x + 32, y + 172, sub(32), on ? p.af : p.mut, "left", 380);
+      });
+      // last 7 days, hours per day: shows consistency, not just today
+      const y0 = 1480, hMax = 110, mx = Math.max(60, ...s.week7.map(x => x[1]));
+      txt(c, `${t("fx.week7")} · ${t("fx.total", { t: s.totalHm })}`, 80, 1385 + 40, sub(28), p.mut, "left", 920);
+      s.week7.forEach(([d, m], i) => {
+        const x = 80 + i * 134, h = Math.max(6, hMax * m / mx);
+        c.fillStyle = i === 6 ? p.a : p.b; c.globalAlpha = m ? 1 : 0.25; c.fillRect(x, y0 + hMax - h, 110, h); c.globalAlpha = 1;
+        txt(c, String(+d.slice(8)), x + 55, y0 + hMax + 38, F.mono(26), p.mut, "center");
       });
     } },
   ];
