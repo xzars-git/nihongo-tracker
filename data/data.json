@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T22:52",
+ "generated": "2026-11-19T22:56",
  "bab": 15,
  "sessions": [
   {
@@ -385,6 +385,18 @@
    "min": null,
    "shadowing": false,
    "note": "Script percakapan dilatih mandiri; monolog 8 kalimat benar semua kecuali ejaan (sunde, nihongo)"
+  },
+  {
+   "date": "2026-11-19",
+   "kind": "kaiwa",
+   "mode": "kaiwa shadowing: script kantor bab 15 (38 baris, peran アルセン)",
+   "score": "–",
+   "ok": null,
+   "total": null,
+   "turns": null,
+   "min": null,
+   "shadowing": true,
+   "note": "Script dibaca keras mandiri (pola ています, てもいい, てはいけません); lanjut monolog 自己紹介"
   }
  ],
  "mistakes": [
@@ -1038,7 +1050,7 @@
    "2026-11-16": 80,
    "2026-11-17": 191,
    "2026-11-18": 70,
-   "2026-11-19": 138
+   "2026-11-19": 142
   },
   "afkSeconds": 180
  }
