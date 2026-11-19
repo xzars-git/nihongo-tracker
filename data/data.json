@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T22:44",
+ "generated": "2026-11-19T22:49",
  "bab": 15,
  "sessions": [
   {
@@ -349,6 +349,42 @@
    "min": null,
    "shadowing": false,
    "note": "Gol 2 baris い (見/起/浴/降) semua dipilih gol 1; -gi → -nde (harus -ide); 聞 → kitte. 借/来 sudah benar"
+  },
+  {
+   "date": "2026-11-19",
+   "kind": "minna",
+   "mode": "Minna bab 15: drill kata kerja て/た/ない (Set A, B, C + retry)",
+   "score": "23/28",
+   "ok": 23,
+   "total": 28,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "A 8/8, B 7/8, C 4/8, retry む/ぶ/ぐ 4/4. Lemah: pola ぐ vs む/ぶ (nonde), 置く gol 1"
+  },
+  {
+   "date": "2026-11-19",
+   "kind": "minna",
+   "mode": "Minna bab 15: latihan 20 kalimat (てもいい / てはいけません / ています)",
+   "score": "17/20",
+   "ok": 17,
+   "total": 20,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "Ronde 5/5, 4/5, 4/5, 4/5. Lemah: partikel (で tempat kerja, は pelaku vs を), ookii vs okiru"
+  },
+  {
+   "date": "2026-11-19",
+   "kind": "kaiwa",
+   "mode": "kaiwa bab 15: percakapan kantor 38 baris + monolog 自己紹介",
+   "score": "8 kalimat",
+   "ok": null,
+   "total": null,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "Script percakapan dilatih mandiri; monolog 8 kalimat benar semua kecuali ejaan (sunde, nihongo)"
   }
  ],
  "mistakes": [
@@ -364,8 +400,8 @@
    "item": "見ます",
    "right": "gol 2, 見て / 見た (mite/mita)",
    "wrong": "mitte / mitta (pakai っ), lagi 11-16; lalu tertukar dgn 見せます (misete = memperlihatkan) 2×",
-   "interval": "1",
-   "due": "2026-11-17",
+   "interval": "3",
+   "due": "2026-11-22",
    "cat": "bentuk"
   },
   {
@@ -380,8 +416,8 @@
    "item": "言います",
    "right": "gol 1, 言って / 言った / 言わない (iwanai)",
    "wrong": "ianai (lupa i saja → wa); bingung dgn います (gol 2: ite/ita/inai)",
-   "interval": "1",
-   "due": "2026-11-13",
+   "interval": "3",
+   "due": "2026-11-22",
    "cat": "bentuk"
   },
   {
@@ -428,8 +464,8 @@
    "item": "起きます",
    "right": "gol 2, 起きて / 起きた / 起きない",
    "wrong": "– (benar paket lengkap)",
-   "interval": "7",
-   "due": "2026-11-19",
+   "interval": "14",
+   "due": "2026-12-03",
    "cat": "bentuk"
   },
   {
@@ -631,6 +667,62 @@
    "interval": "1",
    "due": "2026-11-13",
    "cat": "bentuk"
+  },
+  {
+   "item": "置きます",
+   "right": "gol 1, 置いて / 置いた / 置かない (oite/oita/okanai)",
+   "wrong": "tertukar dengan 起きます: gol 2, okite/okita/okinai",
+   "interval": "1",
+   "due": "2026-11-20",
+   "cat": "bentuk"
+  },
+  {
+   "item": "行きます (ない)",
+   "right": "行かない (ikanai), 行って / 行った",
+   "wrong": "ikinai (ない gol 1 pakai a, bukan i)",
+   "interval": "1",
+   "due": "2026-11-20",
+   "cat": "bentuk"
+  },
+  {
+   "item": "飲みます / 遊びます (て・た)",
+   "right": "nonde/nonda, asonde/asonda (む・ぶ → んで)",
+   "wrong": "noide/noida, asoide/asoida (memakai pola ぐ)",
+   "interval": "1",
+   "due": "2026-11-20",
+   "cat": "lain"
+  },
+  {
+   "item": "食べます (golongan)",
+   "right": "gol 2 (tabete/tabenai)",
+   "wrong": "tulis gol 3 (hanya します & 来ます yang gol 3)",
+   "interval": "1",
+   "due": "2026-11-20",
+   "cat": "bentuk"
+  },
+  {
+   "item": "大きい vs 起きる",
+   "right": "大きい声 = ookii koe (suara keras)",
+   "wrong": "okinai koe (起きない = tidak bangun)",
+   "interval": "1",
+   "due": "2026-11-20",
+   "cat": "bentuk"
+  },
+  {
+   "item": "働いています (partikel)",
+   "right": "IT会社で働いています (tempat aktivitas = で)",
+   "wrong": "kaisha wo hataraite imasu (pakai を)",
+   "interval": "1",
+   "due": "2026-11-20",
+   "cat": "partikel"
+  },
+  {
+   "item": "友達は待っています (partikel pelaku)",
+   "right": "友達は駅の前で待っています (pelaku は, yang ditunggu を)",
+   "wrong": "Tomodachi wo matte: artinya aku menunggu teman",
+   "interval": "1",
+   "due": "2026-11-20",
+   "cat": "partikel"
   }
  ],
  "anki": {
@@ -946,7 +1038,7 @@
    "2026-11-16": 80,
    "2026-11-17": 191,
    "2026-11-18": 70,
-   "2026-11-19": 132
+   "2026-11-19": 135
   },
   "afkSeconds": 180
  }
