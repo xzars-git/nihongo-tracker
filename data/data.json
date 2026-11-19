@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-19T22:23",
+ "generated": "2026-11-19T22:27",
  "bab": 15,
  "sessions": [
   {
@@ -662,32 +662,50 @@
     "new": 1,
     "ankiMin": 1
    },
+   "2026-11-02": {
+    "reviews": 1,
+    "again": 1,
+    "hard": 0,
+    "kaishiNew": 0,
+    "rtkNew": 0,
+    "new": 0,
+    "ankiMin": 1
+   },
+   "2026-11-13": {
+    "reviews": 16,
+    "again": 4,
+    "hard": 0,
+    "kaishiNew": 15,
+    "rtkNew": 0,
+    "new": 15,
+    "ankiMin": 1
+   },
    "2026-11-14": {
-    "reviews": 50,
+    "reviews": 44,
     "again": 14,
     "hard": 6,
-    "kaishiNew": 32,
+    "kaishiNew": 12,
     "rtkNew": 0,
-    "new": 32,
-    "ankiMin": 10
+    "new": 12,
+    "ankiMin": 9
    },
    "2026-11-15": {
-    "reviews": 138,
-    "again": 0,
-    "hard": 98,
-    "kaishiNew": 42,
+    "reviews": 211,
+    "again": 2,
+    "hard": 149,
+    "kaishiNew": 33,
     "rtkNew": 0,
-    "new": 42,
-    "ankiMin": 40
+    "new": 33,
+    "ankiMin": 54
    },
    "2026-11-16": {
-    "reviews": 239,
+    "reviews": 294,
     "again": 0,
-    "hard": 115,
+    "hard": 135,
     "kaishiNew": 25,
     "rtkNew": 0,
     "new": 75,
-    "ankiMin": 66
+    "ankiMin": 80
    },
    "2026-11-17": {
     "reviews": 405,
@@ -709,23 +727,23 @@
     "ankiMin": 78
    },
    "2026-11-19": {
-    "reviews": 90,
-    "again": 54,
-    "hard": 21,
-    "kaishiNew": 7,
+    "reviews": 458,
+    "again": 177,
+    "hard": 92,
+    "kaishiNew": 17,
     "rtkNew": 0,
-    "new": 7,
-    "dueLeft": 112,
-    "ankiMin": 37
+    "new": 54,
+    "dueLeft": 31,
+    "ankiMin": 132
    }
   },
   "today": "2026-11-19",
-  "dueNow": 112,
-  "kaishiOpened": 141,
+  "dueNow": 31,
+  "kaishiOpened": 137,
   "kaishiMature": 20,
   "kanjiKnown": 16,
-  "kanjiSeen": 150,
-  "kanjiList": "一七丈三上中乗九事二五人今会伝住何作使信借働元兄先入全八六出分刻前勉動十友口古名君吸味呼品四場声大夫女好始嫌子学家寝屋山市帰座強当役彼待心思急悪意所手持撮教料方族日明昨時書月本来校様次死母毎気沢泳浴消済無然父物生田町番白目知私立経置考聞自葉行表製見言話語読誰調買貸資起辞送遊達部配閉開間降電面願食飲高"
+  "kanjiSeen": 166,
+  "kanjiList": "一七丈三上中乗九事二五人今会伝住何作使信借働元兄先入全八六出分刻前勉動医十友口古同名君吸味呼品四場声売大夫失女好始嫌子学家寝屋山市帰座強当役彼待心思急悪意所手持撮教料方族日明昨時書月服本来校楽様次歯死母毎気沢泳浴消済無然父物独生田申町番白皆目知研礼私究立経置考者聞自葉行表製見言訳話語読誰調買貸資起身辞送遊達部配閉開間降電面願食飲高"
  },
  "plan": {
   "goals": [
