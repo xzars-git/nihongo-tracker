@@ -2,7 +2,7 @@
 (() => {
   const S = {
     id: {
-      "locale": "id-ID", "nav.about": "👤 Tentang aku", "nav.portfolio": "Portofolio →",
+      "locale": "id-ID", "nav.about": "👤 Tentang aku", "nav.english": "🔤 English", "nav.portfolio": "Portofolio →",
       "h.today": "Hari ini", "h.week": "Minggu ini", "week.all": "Semua target mingguan", "h.consistency": "Konsistensi",
       "heat.legend": "1 kotak = 1 hari · hijau muda = udah belajar · makin hijau = makin banyak misi beres", "heat.study": " · {r} review · {m}", "praise.today": "Hari ini udah {r} review + {m} belajar. Misi belum lengkap, tapi harimu tetap kehitung. 👏", "praise.yest": "Kemarin {r} review + {m} belajar. Walau misi nggak lengkap, streak-mu aman. 👏", "praise.none": "Belum ada belajar hari ini. Satu kartu aja udah kehitung.",
       "h.flex": "Flex", "h.kanji": "Tebak kanji", "kanji.sub": "rata-rata skor per hari (ronde 10 kata)",
@@ -47,7 +47,7 @@
       "fx.perfect": "Hari sempurna", "fx.keep": "Lanjut terus",
     },
     en: {
-      "locale": "en-GB", "nav.about": "👤 About me", "nav.portfolio": "Portfolio →",
+      "locale": "en-GB", "nav.about": "👤 About me", "nav.english": "🔤 English", "nav.portfolio": "Portfolio →",
       "h.today": "Today", "h.week": "This week", "week.all": "All weekly targets", "h.consistency": "Consistency",
       "heat.legend": "1 box = 1 day · light green = you studied · greener = more missions done", "heat.study": " · {r} reviews · {m}", "praise.today": "Today: {r} reviews + {m} of study. Missions aren't complete, but the day still counts. 👏", "praise.yest": "Yesterday: {r} reviews + {m} of study. Missions incomplete, your streak is safe. 👏", "praise.none": "No study yet today. A single card already counts.",
       "h.flex": "Flex", "h.kanji": "Kanji quiz", "kanji.sub": "average score per day (10-word rounds)",
@@ -92,7 +92,7 @@
       "fx.perfect": "Perfect day", "fx.keep": "Keep going",
     },
     ja: {
-      "locale": "ja-JP", "nav.about": "👤 自己紹介", "nav.portfolio": "ポートフォリオ →",
+      "locale": "ja-JP", "nav.about": "👤 自己紹介", "nav.english": "🔤 English", "nav.portfolio": "ポートフォリオ →",
       "h.today": "今日", "h.week": "今週", "week.all": "週ごとの目標一覧", "h.consistency": "継続",
       "heat.legend": "1マス = 1日 · 薄い緑 = 勉強した日 · 濃いほど達成", "heat.study": " · 復習{r}枚 · {m}", "praise.today": "今日は復習{r}枚 + 勉強{m}。ミッションは未完でも、今日は記録されています。👏", "praise.yest": "昨日は復習{r}枚 + 勉強{m}。ミッション未完でも連続記録は途切れません。👏", "praise.none": "今日はまだ勉強していません。1枚でもカウントされます。",
       "h.flex": "フレックス", "h.kanji": "漢字クイズ", "kanji.sub": "1日の平均スコア（1ラウンド10語）",

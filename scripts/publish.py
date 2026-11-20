@@ -125,6 +125,21 @@ def anki(old):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+EN_COLS = {"Levels": ("date", "skill", "level", "source"), "Practice": ("date", "skill", "task", "band", "note"),
+           "Mistakes": ("date", "cat", "wrong", "right"), "Words": ("date", "word", "meaning", "example")}
+
+
+def english():
+    """data/english.json from catatan/english.md (my own reports, so not live). Skipped when the notes file is missing."""
+    src, out = os.path.join(ROOT, "..", "catatan", "english.md"), os.path.join(ROOT, "data", "english.json")
+    if not os.path.exists(src): return
+    md = open(src, encoding="utf-8").read()
+    new = json.dumps({k.lower(): [dict(zip(c, r)) for r in table(md, k, len(c))] for k, c in EN_COLS.items()}, ensure_ascii=False, indent=1)
+    if os.path.exists(out) and open(out, encoding="utf-8").read() == new: return
+    open(out, "w", encoding="utf-8").write(new)
+    print("english.json updated")
+
+
 def transcripts(title):
     """Message times of every Claude Code session whose title contains `title` (the dedicated study chat).
     Only timestamps are read, never the conversation text. None when the transcript folder does not exist."""
@@ -203,7 +218,7 @@ def build():
 
 def push():
     git = lambda *a: subprocess.run(["git", "-C", ROOT, *a], capture_output=True, text=True)
-    git("add", "data/data.json")  # only data: code changes are committed by hand
+    git("add", "data/data.json", *(["data/english.json"] if os.path.exists(os.path.join(ROOT, "data", "english.json")) else []))  # only data: code changes are committed by hand
     if git("diff", "--cached", "--quiet").returncode:
         git("commit", "--no-verify", "-m", f"progres {dt.date.today().isoformat()}")  # the sync must never be blocked by the code-check hook
     if "ahead" not in git("status", "-sb").stdout.splitlines()[0]:  # also retries an earlier failed push
@@ -236,12 +251,14 @@ def selftest():
     # two sessions that repeat the same messages (a fork) must not double the time; an 18-minute gap counts only the cap
     msgs = ["2026-01-01T12:00:00Z", "2026-01-01T12:00:40Z", "2026-01-01T12:18:40Z", "2026-01-01T12:19:25Z"]
     assert study_minutes([msgs, msgs[:2]], 180) == {"2026-01-01": 4}, study_minutes([msgs, msgs[:2]], 180)  # 40 + 180 + 45 s = 265 s = 4.4 min
+    assert table("## Words\n| D | W | M | E |\n|---|---|---|---|\n| 2026-01-01 | gist | main idea | x |\n", "Words", 4) == [["2026-01-01", "gist", "main idea", "x"]]
     print("selftest ok")
 
 
 if __name__ == "__main__":
     if "--test" in sys.argv: selftest(); sys.exit()
     build()
+    english()
     if "--no-push" not in sys.argv:
         push()
         try: backup()

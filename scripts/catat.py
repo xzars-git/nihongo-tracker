@@ -8,12 +8,20 @@
   python -I tracker/scripts/catat.py review "<item>" benar|salah                    (1 → 3 → 7 → 14 → dikuasai)
   python -I tracker/scripts/catat.py bab <N>
   python -I tracker/scripts/catat.py kirim                                  (update web sekarang; tanpa ini sync 00:00, 12:00, 18:00, 21:00)
+
+English tracker (catatan/english.md, tanggal otomatis):
+  python -I tracker/scripts/catat.py en level   "<skill>" "<A1..C2>" "<sumber>"          skill: overall|reading|listening|grammar|speaking
+  python -I tracker/scripts/catat.py en latihan "<skill>" "<soal>" "<band>" "<catatan>"  band: perkiraan, mis. "5.5", atau "–"
+  python -I tracker/scripts/catat.py en salah   "<jenis>" "<salah>" "<benar>"            jenis: article|preposition|tense|spelling|word|agreement|run-on
+  python -I tracker/scripts/catat.py en kata    "<kata>" "<arti>" "<contoh>"
 """
 import datetime as dt, os, re, subprocess, sys
 
 sys.stdout.reconfigure(encoding="utf-8")
 HERE = os.path.dirname(os.path.abspath(__file__))
 PROGRES = os.path.join(HERE, "..", "..", "catatan", "progres.md")
+ENGLISH = os.path.join(HERE, "..", "..", "catatan", "english.md")
+EN = {"level": ("Levels", 3), "latihan": ("Practice", 4), "salah": ("Mistakes", 3), "kata": ("Words", 3)}  # command -> (section, columns after the date)
 STEPS = [1, 3, 7, 14]
 TODAY = (dt.datetime.now() - dt.timedelta(hours=4)).date()  # same 4am day boundary as Anki
 
@@ -49,6 +57,11 @@ def find(md, item):
 
 
 def main(a):
+    if a[:1] == ["en"]:
+        sec, n = EN.get(a[1] if len(a) > 1 else "", (None, 0))
+        if not sec or len(a) != n + 2: sys.exit(__doc__)
+        open(ENGLISH, "w", encoding="utf-8").write(add_row(open(ENGLISH, encoding="utf-8").read(), sec, [TODAY, *a[2:]]))
+        return print(f"english {a[1]} dicatat: {a[2]}")
     menit = None
     if "--menit" in a:  # optional session length, stored in the score cell as "· N mnt"
         i = a.index("--menit"); menit = a[i + 1]; a = a[:i] + a[i + 2:]
@@ -103,6 +116,8 @@ def selftest():
     md = add_row(md, "Riwayat sesi", ["2026-01-02", "tebak kanji | ronde", "8/10", ""])
     assert "| 2026-01-02 | tebak kanji / ronde | 8/10 | – |\n\n## Bank" in md, md
     assert [r[2][0] for r in rows(md, "Bank kesalahan")] == ["見ます"]
+    en = add_row("## Words\n\n| D | W | M | E |\n|---|---|---|---|\n\n## Levels\n", "Words", ["2026-01-01", "gist", "main idea", "x"])
+    assert "| 2026-01-01 | gist | main idea | x |\n\n## Levels" in en, en
     print("selftest ok")
 
 

@@ -1,0 +1,297 @@
+{
+ "levels": [
+  {
+   "date": "2026-11-20",
+   "skill": "overall",
+   "level": "B1",
+   "source": "pre-test (online platform)"
+  },
+  {
+   "date": "2026-11-20",
+   "skill": "reading",
+   "level": "B2",
+   "source": "pre-test (online platform)"
+  },
+  {
+   "date": "2026-11-20",
+   "skill": "listening",
+   "level": "B1",
+   "source": "pre-test (online platform)"
+  },
+  {
+   "date": "2026-11-20",
+   "skill": "grammar",
+   "level": "A2",
+   "source": "pre-test (online platform)"
+  }
+ ],
+ "practice": [
+  {
+   "date": "2026-11-20",
+   "skill": "speaking",
+   "task": "Part 1: why take IELTS",
+   "band": "5",
+   "note": "est. G5 V5 C5.5. One long sentence, needs short sentences"
+  },
+  {
+   "date": "2026-11-20",
+   "skill": "speaking",
+   "task": "Part 1: study alone or with others",
+   "band": "5.5",
+   "note": "est. G5.5 V5.5 C6. Clear answer with a reason"
+  },
+  {
+   "date": "2026-11-20",
+   "skill": "writing",
+   "task": "Task 2 paragraph: foreign language vs other skills",
+   "band": "5",
+   "note": "est. TR5.5 C5 L5.5 G5. Clear opinion, weak structure and spelling"
+  },
+  {
+   "date": "2026-11-20",
+   "skill": "speaking",
+   "task": "Part 2: my background (written)",
+   "band": "5.5",
+   "note": "est. FC6 L5.5 G5.5. Good story, tense and prepositions"
+  },
+  {
+   "date": "2026-11-20",
+   "skill": "listening",
+   "task": "Self-test: C1-level podcast",
+   "band": "–",
+   "note": "Got the gist, missed uncommon words. Not scored"
+  }
+ ],
+ "mistakes": [
+  {
+   "date": "2026-11-20",
+   "cat": "article",
+   "wrong": "an backup play",
+   "right": "a backup plan"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "tense",
+   "wrong": "I've been book this class",
+   "right": "I booked this class"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "tense",
+   "wrong": "I've been test my listening level",
+   "right": "I tested my listening level"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "tense",
+   "wrong": "4 years from 2023",
+   "right": "for four years / since 2023"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "tense",
+   "wrong": "lately I'm trying",
+   "right": "lately I have been trying"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "preposition",
+   "wrong": "on this industry / on Europe",
+   "right": "in this industry / in Europe"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "agreement",
+   "wrong": "the method that force me",
+   "right": "the method that forces me"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "spelling",
+   "wrong": "imposible / sertificate / litteraly",
+   "right": "impossible / certificate / literally"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "spelling",
+   "wrong": "collage (school)",
+   "right": "college"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "word",
+   "wrong": "unpopular word",
+   "right": "uncommon word"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "word",
+   "wrong": "labour work",
+   "right": "manual labor"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "run-on",
+   "wrong": "one long sentence with three ideas",
+   "right": "three short sentences"
+  }
+ ],
+ "words": [
+  {
+   "date": "2026-11-20",
+   "word": "backup plan",
+   "meaning": "a second option if the first one fails",
+   "example": "Learning English is my backup plan."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "halfway",
+   "meaning": "at the middle of a process",
+   "example": "I got an offer halfway through my studies."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "to aim for",
+   "meaning": "to try to reach a goal",
+   "example": "I'm aiming for band 7."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "steady",
+   "meaning": "regular, without big changes",
+   "example": "I made steady progress this month."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "to track",
+   "meaning": "to record something over time",
+   "example": "I track my mistakes in a notebook."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "starting point",
+   "meaning": "the level where you begin",
+   "example": "A practice test shows my starting point."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "to force",
+   "meaning": "to make someone do something",
+   "example": "The exam forces me to study every day."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "feedback",
+   "meaning": "comments that help you improve",
+   "example": "I need feedback on my essay."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "to apply",
+   "meaning": "to use knowledge in practice",
+   "example": "I apply the corrections in my next message."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "standard of living",
+   "meaning": "how comfortable people's lives are",
+   "example": "The standard of living is high in Switzerland."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "to prove",
+   "meaning": "to show that something is true",
+   "example": "I want to prove my skills with a certificate."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "generalization",
+   "meaning": "a broad statement that is not true for everyone",
+   "example": "That is a generalization, so use \"may\" or \"often\"."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "to expand",
+   "meaning": "to make something bigger",
+   "example": "I want to expand my skills into AI."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "manual labor",
+   "meaning": "physical work, usually with the hands",
+   "example": "He did not want a job in manual labor."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "grateful",
+   "meaning": "thankful",
+   "example": "I am grateful for this opportunity."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "run-on sentence",
+   "meaning": "a sentence that joins too many ideas without a break",
+   "example": "Split this run-on sentence into two."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "gap",
+   "meaning": "the difference between two levels",
+   "example": "There is a gap between my level and my target."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "gist",
+   "meaning": "the main idea without the details",
+   "example": "I understood the gist of the podcast."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "uncommon",
+   "meaning": "not often used or seen",
+   "example": "Uncommon words are hard to hear."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "to catch",
+   "meaning": "to hear and understand something",
+   "example": "I couldn't catch the last word."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "fluency",
+   "meaning": "speaking smoothly without long pauses",
+   "example": "My fluency improves when I practice daily."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "pronunciation",
+   "meaning": "how you say words",
+   "example": "My pronunciation of \"th\" needs work."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "diagnostic",
+   "meaning": "a test that finds your strengths and weaknesses",
+   "example": "This class is a diagnostic test for my speaking."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "threshold",
+   "meaning": "the starting point of a new level",
+   "example": "B1 is called the \"threshold\" level."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "to take into account",
+   "meaning": "to consider something when you decide",
+   "example": "Take your timed test result into account."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "reliable",
+   "meaning": "something you can trust",
+   "example": "A live test is more reliable than a short pre-test."
+  }
+ ]
+}

@@ -14,6 +14,7 @@ Public log of my Japanese study toward **JLPT N3 (July 2027)**, in Indonesian, E
 - **Achievements:** badges for words, kanji, streaks, chapters, conversations, study hours
 - **Session log:** one row per day
 - **Flex:** generates a 1080×1920 story image of the day (14 templates incl. weekly recap, study log and badges), with a console-style gacha reveal, optional quote (190-quote bank, filterable by category)
+- **English tracker** (`english.html`): CEFR level per skill, practice log, recurring mistakes and new words for the IELTS plan. Written from my own reports to the AI tutor, so it is not live
 - **About me** and **Method** pages
 - **Installable** on a phone (PWA) and readable offline
 - Updates itself four times a day (00:00, 12:00, 18:00, 21:00); no backend
@@ -40,7 +41,7 @@ Study time = Anki + the study chat, both measured:
 
 ```
 .
-├── index.html, about.html, metode.html
+├── index.html, about.html, metode.html, english.html
 ├── manifest.webmanifest, sw.js      # PWA: install + offline fallback
 ├── assets/
 │   ├── css/styles.css
@@ -50,12 +51,14 @@ Study time = Anki + the study chat, both measured:
 │       ├── app.js                   # main dashboard
 │       ├── flex.js                  # story image generator
 │       ├── info.js                  # About + Method pages
+│       ├── english.js               # English tracker page
 │       └── pwa.js                   # service worker registration
 ├── data/
 │   ├── plan.json                    # targets and weekly plan (hand-edited)
 │   ├── metode.json                  # text of the Method page, ID / EN / JA (hand-edited)
 │   ├── quotes.json                  # quote bank (hand-edited)
-│   └── data.json                    # generated, do not edit
+│   ├── data.json                    # generated, do not edit
+│   └── english.json                 # generated from catatan/english.md, do not edit
 ├── app/
 │   ├── NihongoSync.cs               # Windows tray app that runs publish.py on schedule
 │   └── icon.ico
@@ -77,6 +80,15 @@ python -I scripts/catat.py salah "<item>" "<correct answer>" "<mistake>"
 python -I scripts/catat.py review "<item>" benar
 python -I scripts/catat.py bab 16
 python -I scripts/catat.py kirim     # build + push now
+```
+
+English tracker (rows go to `catatan/english.md`, the date is automatic, `publish.py` builds `data/english.json`):
+
+```bash
+python -I scripts/catat.py en level "speaking" "B1" "live test"             # overall|reading|listening|grammar|speaking, A1..C2
+python -I scripts/catat.py en latihan "writing" "Task 2 paragraph" "5.5" "note"
+python -I scripts/catat.py en salah "tense" "I've been test" "I tested"     # article|preposition|tense|spelling|word|agreement|run-on
+python -I scripts/catat.py en kata "gist" "the main idea" "I got the gist."
 ```
 
 ## Nihongo Sync (tray app)
