@@ -60,7 +60,8 @@ def main(a):
     if a[:1] == ["en"]:
         sec, n = EN.get(a[1] if len(a) > 1 else "", (None, 0))
         if not sec or len(a) != n + 2: sys.exit(__doc__)
-        open(ENGLISH, "w", encoding="utf-8").write(add_row(open(ENGLISH, encoding="utf-8").read(), sec, [TODAY, *a[2:]]))
+        md = add_row(open(ENGLISH, encoding="utf-8").read(), sec, [TODAY, *a[2:]])  # read before open(..., "w") truncates the file
+        open(ENGLISH, "w", encoding="utf-8").write(md)
         return print(f"english {a[1]} dicatat: {a[2]}")
     menit = None
     if "--menit" in a:  # optional session length, stored in the score cell as "· N mnt"

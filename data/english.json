@@ -134,6 +134,30 @@
    "cat": "run-on",
    "wrong": "one long sentence with three ideas",
    "right": "three short sentences"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "word",
+   "wrong": "I've been quite concern",
+   "right": "I have been quite concerned"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "tense",
+   "wrong": "I've been do some research",
+   "right": "I have done some research"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "agreement",
+   "wrong": "someone that trying to apply",
+   "right": "someone who is trying to apply"
+  },
+  {
+   "date": "2026-11-20",
+   "cat": "spelling",
+   "wrong": "madatory / goverment",
+   "right": "mandatory / government"
   }
  ],
  "words": [
@@ -292,6 +316,24 @@
    "word": "reliable",
    "meaning": "something you can trust",
    "example": "A live test is more reliable than a short pre-test."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "mandatory",
+   "meaning": "required by a rule or law",
+   "example": "N2 is mandatory for some jobs."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "exempt",
+   "meaning": "not required to follow a rule",
+   "example": "Category 1 employers are usually exempt."
+  },
+  {
+   "date": "2026-11-20",
+   "word": "discretion",
+   "meaning": "the power to decide in each case",
+   "example": "Officers have discretion when they review a visa."
   }
  ]
 }
