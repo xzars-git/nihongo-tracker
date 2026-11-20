@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-20T00:00",
+ "generated": "2026-11-20T09:59",
  "bab": 15,
  "sessions": [
   {
@@ -812,12 +812,22 @@
     "new": 54,
     "dueLeft": 0,
     "ankiMin": 132
+   },
+   "2026-11-20": {
+    "reviews": 68,
+    "again": 24,
+    "hard": 17,
+    "kaishiNew": 7,
+    "rtkNew": 0,
+    "new": 7,
+    "dueLeft": 109,
+    "ankiMin": 24
    }
   },
-  "today": "2026-11-19",
-  "dueNow": 0,
-  "kaishiOpened": 137,
-  "kaishiMature": 20,
+  "today": "2026-11-20",
+  "dueNow": 109,
+  "kaishiOpened": 144,
+  "kaishiMature": 21,
   "kanjiKnown": 0,
   "kanjiSeen": 153,
   "kanjiList": "一丈上中乗事人今会伝住何作使信借働元兄先入全出分刻前勉動医友同名君吸味呼品場声売大夫失女好始嫌子学家寝屋山市帰座強当役彼待心思急悪意所手持撮教料方族日明昨時書服本来校楽様次歯死母毎気沢泳浴消済無然父物独生申町番白皆目知研礼私究立経置考者聞自葉行表製見言訳話語読誰調買貸資起身辞送遊達部配閉開間降電面願食飲高"
