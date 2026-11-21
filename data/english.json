@@ -23,6 +23,12 @@
    "skill": "grammar",
    "level": "A2",
    "source": "pre-test (online platform)"
+  },
+  {
+   "date": "2026-11-21",
+   "skill": "speaking",
+   "level": "B1",
+   "source": "live test with teacher (assessment)"
   }
  ],
  "practice": [
@@ -60,6 +66,13 @@
    "task": "Self-test: C1-level podcast",
    "band": "–",
    "note": "Got the gist, missed uncommon words. Not scored"
+  },
+  {
+   "date": "2026-11-21",
+   "skill": "speaking",
+   "task": "Live speaking test (30 min, teacher)",
+   "band": "–",
+   "note": "Teacher: pauses and repetitions, frequent grammar errors in longer sentences, pronunciation mostly clear. Overall B1"
   }
  ],
  "mistakes": [
