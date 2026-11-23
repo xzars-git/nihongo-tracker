@@ -1,6 +1,6 @@
 {
- "generated": "2026-11-23T14:48",
- "bab": 15,
+ "generated": "2026-11-23T18:00",
+ "bab": 16,
  "sessions": [
   {
    "date": "2026-11-05",
@@ -397,6 +397,114 @@
    "min": null,
    "shadowing": true,
    "note": "Script dibaca keras mandiri (pola ています, てもいい, てはいけません); lanjut monolog 自己紹介"
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "kanji",
+   "mode": "tebak kanji ronde 1 dari Anki (約束/許す/頼む/守る/様子/忘れる/元気/彼/家族/友達)",
+   "score": "5/10",
+   "ok": 5,
+   "total": 10,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "Buka: 約束, 許す, 様子. 頼む arti kurang tepat, 元気 bacaan tidak ditulis."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "kanji",
+   "mode": "tebak kanji ronde 2 dari Anki (続ける/知る/嬉しい/事/変える/出来る/頑張る/手伝う/嫌い/忙しい)",
+   "score": "3/10",
+   "ok": 3,
+   "total": 10,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "Buka 6 kata: 続ける, 知る, 嬉しい, 頑張る, 手伝う, 嫌い. Kalimat: 知る (を...ている), できる (が), 忙しい ejaan."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "kanji",
+   "mode": "tebak kanji ronde 3 dari Anki (優しい/嫌/時間/誰/入る/言う/物/聞く/置く/学校)",
+   "score": "5/10",
+   "ok": 5,
+   "total": 10,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "Buka: 嫌, 誰, 入る. Arti 時間 dan 学校 tidak ditulis. 聞く: partikel に untuk orang."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "kanji",
+   "mode": "tebak kanji ronde 4 dari Anki (約束/許す/様子/頼む/知る/今度/考える/待つ/同じ/忙しい)",
+   "score": "1/10",
+   "ok": 1,
+   "total": 10,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "Arti tidak ditulis di 5 kata; Buka 4 kata. Kalimat bagus tapi 頼む belum bisa dibuat, ejaan isogashii salah lagi."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "kanji",
+   "mode": "tebak kanji ronde 5 dari Anki (町/会う/動く/楽しい/沢山/言葉/見せる/話す/始める/教える)",
+   "score": "7/10",
+   "ok": 7,
+   "total": 10,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "会う tertukar dengan 言う; 動く butuh 動かす (transitif); 話す (kata kerja) vs 話 (benda); 今から始める."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "minna",
+   "mode": "bab 16: sambung て / くて / で (cek paham)",
+   "score": "3/5",
+   "ok": 3,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "て-form urutan benar (起きて, 浴びて); salah: 元気で, いい→よくて, 会社へ行く."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "minna",
+   "mode": "bab 16: latihan くて / で",
+   "score": "2/4",
+   "ok": 2,
+   "total": 4,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "安くて, 静かで benar; 先生 harus で, いい → よくて."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "minna",
+   "mode": "bab 16: ～てから",
+   "score": "1/2",
+   "ok": 1,
+   "total": 2,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "シャワーを浴びてから寝ます benar; 仕事が終わる (が, bukan を)."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "minna",
+   "mode": "bab 16: N1はN2がadj",
+   "score": "2/2",
+   "ok": 2,
+   "total": 2,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "Kedua kalimat benar."
   }
  ],
  "mistakes": [
@@ -734,6 +842,118 @@
    "wrong": "Tomodachi wo matte: artinya aku menunggu teman",
    "interval": "1",
    "due": "2026-11-20",
+   "cat": "partikel"
+  },
+  {
+   "item": "頼む",
+   "right": "頼みます / 頼んで / 頼んだ / 頼まない",
+   "wrong": "arti kurang tepat; 11-23: belum bisa membuat bentuk (む → んで/んだ)",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "bentuk"
+  },
+  {
+   "item": "優しい",
+   "right": "やさしい",
+   "wrong": "ejaan: ditulis やしゃし",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "lain"
+  },
+  {
+   "item": "知る",
+   "right": "田中さんを知っていますか",
+   "wrong": "知りますか salah bentuk; pakai を知っています",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "partikel"
+  },
+  {
+   "item": "出来る",
+   "right": "この仕事ができますか",
+   "wrong": "partikel を → が; できるですか → できますか",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "partikel"
+  },
+  {
+   "item": "忙しい",
+   "right": "いそがしい",
+   "wrong": "ejaan: ishogashii; 11-23: ejaan ishogashii, salah lagi",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "lain"
+  },
+  {
+   "item": "聞く",
+   "right": "ジャノルさんに聞いてください",
+   "wrong": "orang yang ditanya pakai に, bukan を",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "partikel"
+  },
+  {
+   "item": "会う",
+   "right": "あう = bertemu",
+   "wrong": "tertukar dengan 言う (いう)",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "mirip"
+  },
+  {
+   "item": "動く",
+   "right": "犬が動いています / 犬を動かしてください",
+   "wrong": "動く tidak butuh objek (を); transitif = 動かす",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "lain"
+  },
+  {
+   "item": "話す / 話",
+   "right": "話（はなし）= cerita, 話す = berbicara",
+   "wrong": "kata kerja dipakai sebagai benda: 話すがあります",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "lain"
+  },
+  {
+   "item": "始める",
+   "right": "今から始めます",
+   "wrong": "今が始めます salah partikel; pakai から",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "partikel"
+  },
+  {
+   "item": "元気 / いい (sambung)",
+   "right": "元気で / よくて",
+   "wrong": "元気 (な-adj) pakai で; いい → よくて",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "partikel"
+  },
+  {
+   "item": "行きます (へ)",
+   "right": "会社へ行きました",
+   "wrong": "tujuan pakai へ/に, bukan を",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "lain"
+  },
+  {
+   "item": "先生 (sambung)",
+   "right": "先生で",
+   "wrong": "kata benda pakai で, bukan くて",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "partikel"
+  },
+  {
+   "item": "終わる",
+   "right": "仕事が終わってから",
+   "wrong": "終わる tanpa objek, subjek pakai が (bukan を)",
+   "interval": "1",
+   "due": "2026-11-24",
    "cat": "partikel"
   }
  ],
@@ -1081,7 +1301,8 @@
    "2026-11-17": 191,
    "2026-11-18": 70,
    "2026-11-19": 149,
-   "2026-11-20": 40
+   "2026-11-20": 40,
+   "2026-11-23": 45
   },
   "afkSeconds": 180
  }

@@ -171,6 +171,66 @@
    "cat": "spelling",
    "wrong": "madatory / goverment",
    "right": "mandatory / government"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "tense",
+   "wrong": "I go to Japan with family (past)",
+   "right": "I went to Japan with my family"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "preposition",
+   "wrong": "I'm lived on Tokyo",
+   "right": "I live in Tokyo"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "tense",
+   "wrong": "did u know Tanaka",
+   "right": "Do you know Tanaka?"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "word",
+   "wrong": "I'm very hate wasabi",
+   "right": "I really hate wasabi"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "word",
+   "wrong": "I'm grateful that you are well",
+   "right": "I'm glad that you are well"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "preposition",
+   "wrong": "please ask to Janoru",
+   "right": "please ask Janoru"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "word",
+   "wrong": "thats thing put",
+   "right": "I put this thing down"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "tense",
+   "wrong": "I'm used google to knew it",
+   "right": "I used Google to find out"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "word",
+   "wrong": "tanoshii = enjoy",
+   "right": "tanoshii = fun (adjective)"
+  },
+  {
+   "date": "2026-11-23",
+   "cat": "agreement",
+   "wrong": "What the purpose of this",
+   "right": "What is the purpose of this?"
   }
  ],
  "words": [
