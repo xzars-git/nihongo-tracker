@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-23T18:00",
+ "generated": "2026-11-23T21:00",
  "bab": 16,
  "sessions": [
   {
@@ -505,6 +505,18 @@
    "min": null,
    "shadowing": false,
    "note": "Kedua kalimat benar."
+  },
+  {
+   "date": "2026-11-23",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 1 (soal 1-5)",
+   "score": "4/5",
+   "ok": 4,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "Pola tidak dilabeli; soal 1: 顔を洗って dan tense lampau salah."
   }
  ],
  "mistakes": [
@@ -955,6 +967,14 @@
    "interval": "1",
    "due": "2026-11-24",
    "cat": "partikel"
+  },
+  {
+   "item": "洗う (berantai, lampau)",
+   "right": "起きて、顔を洗って、朝ごはんを食べました",
+   "wrong": "洗う butuh objek + て-form; tense di kata kerja terakhir ikut cerita (lampau)",
+   "interval": "1",
+   "due": "2026-11-24",
+   "cat": "bentuk"
   }
  ],
  "anki": {
@@ -1302,7 +1322,7 @@
    "2026-11-18": 70,
    "2026-11-19": 149,
    "2026-11-20": 40,
-   "2026-11-23": 45
+   "2026-11-23": 55
   },
   "afkSeconds": 180
  }
