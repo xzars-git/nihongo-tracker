@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-23T12:00",
+ "generated": "2026-11-23T14:48",
  "bab": 15,
  "sessions": [
   {
@@ -776,52 +776,52 @@
     "ankiMin": 54
    },
    "2026-11-16": {
-    "reviews": 294,
+    "reviews": 219,
     "again": 0,
-    "hard": 135,
+    "hard": 118,
     "kaishiNew": 25,
     "rtkNew": 0,
-    "new": 75,
-    "ankiMin": 80
+    "new": 25,
+    "ankiMin": 56
    },
    "2026-11-17": {
-    "reviews": 404,
+    "reviews": 200,
     "again": 32,
-    "hard": 101,
+    "hard": 69,
     "kaishiNew": 17,
     "rtkNew": 0,
-    "new": 117,
-    "ankiMin": 83
+    "new": 17,
+    "ankiMin": 51
    },
    "2026-11-18": {
-    "reviews": 375,
-    "again": 99,
-    "hard": 36,
+    "reviews": 181,
+    "again": 74,
+    "hard": 18,
     "kaishiNew": 17,
     "rtkNew": 0,
-    "new": 101,
+    "new": 26,
     "dueLeft": 38,
-    "ankiMin": 78
+    "ankiMin": 55
    },
    "2026-11-19": {
-    "reviews": 458,
-    "again": 177,
-    "hard": 92,
+    "reviews": 353,
+    "again": 150,
+    "hard": 76,
     "kaishiNew": 17,
     "rtkNew": 0,
-    "new": 54,
+    "new": 34,
     "dueLeft": 0,
-    "ankiMin": 132
+    "ankiMin": 119
    },
    "2026-11-20": {
-    "reviews": 346,
-    "again": 99,
-    "hard": 86,
+    "reviews": 262,
+    "again": 80,
+    "hard": 72,
     "kaishiNew": 17,
     "rtkNew": 0,
-    "new": 35,
+    "new": 34,
     "dueLeft": 0,
-    "ankiMin": 82
+    "ankiMin": 68
    },
    "2026-11-22": {
     "reviews": 4,
@@ -834,23 +834,23 @@
     "ankiMin": 0
    },
    "2026-11-23": {
-    "reviews": 53,
-    "again": 21,
-    "hard": 21,
-    "kaishiNew": 0,
+    "reviews": 423,
+    "again": 151,
+    "hard": 106,
+    "kaishiNew": 17,
     "rtkNew": 0,
-    "new": 0,
-    "dueLeft": 203,
-    "ankiMin": 17
+    "new": 34,
+    "dueLeft": 0,
+    "ankiMin": 79
    }
   },
   "today": "2026-11-23",
-  "dueNow": 203,
-  "kaishiOpened": 154,
-  "kaishiMature": 22,
+  "dueNow": 0,
+  "kaishiOpened": 171,
+  "kaishiMature": 28,
   "kanjiKnown": 0,
-  "kanjiSeen": 158,
-  "kanjiList": "一丈上中乗事人今仕会伝住何作使信借働元兄先入全出分刻前勉動医友同名君吸味呼品場声売大夫失女好始嫌子学家寝屋山市帰座強当役彼待心忙思急悪意所手持撮教料方族日明昨時書服本束来校楽様次歯死母毎気沢泳浴消済無然父物独生申町番白皆目知研礼私究立約経続置考者聞自葉行表製見言訳話語読誰調買貸資起身辞送遊達部配閉開間降電面願食飲高"
+  "kanjiSeen": 149,
+  "kanjiList": "一丈上中事人今仕会伝住何作使信優元兄先入全出分刻前勉動医友同名君味呼品国場声売変大夫失女好始嫌嬉子学守家屋山市帰度座張強当役彼待心忘忙思悪意所手持教料方族日明昨時書服本束来校楽様次止歯母毎気沢済無然父物独生申町番白皆目知研礼私究立約経続置考者聞自葉行表製見言許訳話語誰調資身辞達部配間電面頑頼願食高"
  },
  "plan": {
   "goals": [
