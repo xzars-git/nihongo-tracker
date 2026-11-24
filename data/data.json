@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T22:17",
+ "generated": "2026-11-24T23:30",
  "bab": 16,
  "sessions": [
   {
@@ -637,6 +637,18 @@
    "min": null,
    "shadowing": false,
    "note": "てください & てもいいですか benar; salah: 背が高い (tulis takakute), ています tidak dipakai (ryouri shimasu), soal 5 tanpa てから dan akhir て-form"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "kaiwa",
+   "mode": "shadowing",
+   "score": "– · 1 mnt",
+   "ok": null,
+   "total": null,
+   "turns": null,
+   "min": 1,
+   "shadowing": true,
+   "note": "タメ口日本語Podcast―夏が来たーmust-have item for the summer【日本語聴解】 · baris 1/101"
   }
  ],
  "mistakes": [
