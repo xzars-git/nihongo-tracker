@@ -55,7 +55,8 @@ Study time = Anki + the study chat, both measured:
 │       ├── app.js                   # main dashboard
 │       ├── flex.js                  # story image generator
 │       ├── info.js                  # About + Method pages
-│       ├── system.js                # System design page
+│       ├── system.js                # System design page (history diagram, zones, weak spots)
+│       ├── sysparts.js              # System page: architecture per part (tracker, Talk, Duet, Shadowing)
 │       ├── english.js               # English tracker page
 │       └── pwa.js                   # service worker registration
 ├── docs/
