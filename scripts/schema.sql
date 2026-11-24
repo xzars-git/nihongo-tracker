@@ -48,6 +48,7 @@ CREATE TABLE IF NOT EXISTS study_days (day date PRIMARY KEY, minutes int NOT NUL
 
 -- Shadowing scripts (made by scripts/shadow.py). The DB is the source of truth; data/shadow/*.json is only an export for the page.
 CREATE TABLE IF NOT EXISTS shadow_videos (id text PRIMARY KEY, title text NOT NULL, author text NOT NULL DEFAULT '', kind text NOT NULL, lang text NOT NULL DEFAULT 'ja', added timestamptz NOT NULL DEFAULT now());   -- kind: manual | auto | whisper
-CREATE TABLE IF NOT EXISTS shadow_lines (video text NOT NULL REFERENCES shadow_videos ON DELETE CASCADE, n int NOT NULL, s real NOT NULL, e real NOT NULL, t text NOT NULL, r text NOT NULL DEFAULT '', PRIMARY KEY (video, n));
+CREATE TABLE IF NOT EXISTS shadow_lines (video text NOT NULL REFERENCES shadow_videos ON DELETE CASCADE, n int NOT NULL, s real NOT NULL, e real NOT NULL, t text NOT NULL, r text NOT NULL DEFAULT '', tr text NOT NULL DEFAULT '', PRIMARY KEY (video, n));
 ALTER TABLE shadow_videos ADD COLUMN IF NOT EXISTS lang text NOT NULL DEFAULT 'ja';   -- ja | en (older databases)
 ALTER TABLE shadow_lines ADD COLUMN IF NOT EXISTS r text NOT NULL DEFAULT '';   -- romaji, made by shadow.py for Japanese lines
+ALTER TABLE shadow_lines ADD COLUMN IF NOT EXISTS tr text NOT NULL DEFAULT '';   -- Indonesian meaning, imported with: shadow.py translate <id> <file.json>

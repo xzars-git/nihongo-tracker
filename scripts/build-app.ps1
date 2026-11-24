@@ -41,6 +41,7 @@ static class Config {
     public const string Publish = @"$(Join-Path $root 'scripts\publish.py')";
     public const string Root = @"$root";
     public const string Db = @"$(Join-Path $root 'scripts\db.py')";
+    public const string Shadow = @"$(Join-Path $root 'scripts\shadow.py')";
 }
 "@
 

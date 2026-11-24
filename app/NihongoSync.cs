@@ -1,4 +1,5 @@
 // Nihongo Sync: tray app that runs scripts/publish.py at fixed times (00:00, 12:00, 18:00, 21:00).
+// Shadowing menu: opens the page from a small web server that listens on 127.0.0.1 only, and collects YouTube scripts with scripts/shadow.py.
 // Closing the window hides it to the tray; only Quit stops it. Between slots it waits on one timer.
 // Built by scripts/build-app.ps1 with the C# 5 compiler that ships with Windows (.NET Framework 4).
 using System;
@@ -6,6 +7,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
@@ -34,6 +36,7 @@ class SyncApp
     static readonly TimeSpan Reminder = new TimeSpan(20, 0, 0);  // "have you studied today?" balloon, if fewer than 4 sessions are logged
     const int MaxRetries = 2, RetryMinutes = 5;
     const string Site = "https://arsenius-nihongo.vercel.app";
+    const int ShadowPort = 8765;  // local only: the server below binds 127.0.0.1
     static readonly string Dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "NihongoSync");
     static readonly string Log = Path.Combine(Dir, "sync.log");
     static readonly string State = Path.Combine(Dir, "last.txt");  // time of the last successful sync
@@ -45,7 +48,8 @@ class SyncApp
     readonly NotifyIcon tray = new NotifyIcon();
     readonly System.Windows.Forms.Timer slotTimer = new System.Windows.Forms.Timer();
     readonly System.Windows.Forms.Timer reminderTimer = new System.Windows.Forms.Timer(), retryTimer = new System.Windows.Forms.Timer();
-    Process proc;
+    Process proc, server;  // server = the local web server for the Shadowing page
+    bool shadowBusy;
     string result = "-";
     bool quitting;
     int retries;
@@ -65,6 +69,8 @@ class SyncApp
         AddButton("Buka web", 150, delegate { Open(Site); });
         AddButton("Lihat log", 280, delegate { OpenLog(); });
         dbBtn = AddButton("Start database", 20, delegate { StartDb(); }, 340);
+        AddButton("Buka Shadowing", 150, delegate { OpenShadowing(); }, 340);
+        AddButton("Tambah video", 280, delegate { AddVideo(); }, 340);
         form.FormClosing += (s, e) => { if (!quitting) { e.Cancel = true; form.Hide(); } };  // X = hide to tray
         var handle = form.Handle;  // create the handle now so BeginInvoke works before the window is first shown
 
@@ -73,9 +79,11 @@ class SyncApp
         menu.Items.Add("Sync sekarang", null, delegate { StartSync(); });
         menu.Items.Add("Buka web", null, delegate { Open(Site); });
         menu.Items.Add("Start database", null, delegate { StartDb(); });
+        menu.Items.Add("Buka Shadowing", null, delegate { OpenShadowing(); });
+        menu.Items.Add("Tambah video Shadowing...", null, delegate { AddVideo(); });
         menu.Items.Add("Tes pengingat", null, delegate { Remind(); });
         menu.Items.Add(new ToolStripSeparator());
-        menu.Items.Add("Quit", null, delegate { quitting = true; tray.Visible = false; form.Close(); Application.Exit(); });
+        menu.Items.Add("Quit", null, delegate { quitting = true; StopServer(); tray.Visible = false; form.Close(); Application.Exit(); });
         tray.Icon = icon; tray.ContextMenuStrip = menu; tray.Visible = true;
         tray.MouseDoubleClick += delegate { ShowWindow(); };
 
@@ -139,6 +147,120 @@ class SyncApp
     public void ShowWindow() { form.Show(); form.WindowState = FormWindowState.Normal; form.Activate(); }
 
     static void Open(string target) { Process.Start(new ProcessStartInfo(target) { UseShellExecute = true }); }
+
+    // ---- Shadowing: nothing here is reachable from the internet. The server listens on 127.0.0.1 only and stops when the tray quits.
+    static bool PortOpen(int port)
+    {
+        try
+        {
+            using (var c = new System.Net.Sockets.TcpClient())
+            {
+                var r = c.BeginConnect("127.0.0.1", port, null, null);
+                return r.AsyncWaitHandle.WaitOne(300) && c.Connected;
+            }
+        }
+        catch { return false; }
+    }
+
+    void OpenShadowing()
+    {
+        if (!PortOpen(ShadowPort))
+        {
+            try
+            {
+                server = Process.Start(new ProcessStartInfo(Config.Python, "-I -m http.server " + ShadowPort + " --bind 127.0.0.1 --directory \"" + Config.Root + "\"")
+                    { UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Config.Root });
+            }
+            catch (Exception e) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Server Shadowing tidak bisa dimulai: " + e.Message, ToolTipIcon.Warning); return; }
+            for (int i = 0; i < 25 && !PortOpen(ShadowPort); i++) Thread.Sleep(150);
+        }
+        Open("http://localhost:" + ShadowPort + "/shadow.html");
+    }
+
+    void StopServer()
+    {
+        try { if (server != null && !server.HasExited) server.Kill(); } catch { }
+    }
+
+    // only an 11-character video id ever reaches the command line, never the raw text that was typed
+    static readonly Regex VideoRe = new Regex(@"(?:v=|youtu\.be/|shorts/|embed/)([\w-]{11})|^([\w-]{11})$");
+
+    bool AskVideo(out string id, out string lang)
+    {
+        string vid = null, lg = null;
+        using (var f = new Form
+        {
+            Text = "Tambah video Shadowing", ClientSize = new Size(440, 130), FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
+            StartPosition = FormStartPosition.CenterScreen, BackColor = Bg, ForeColor = Ink, Icon = form.Icon, Font = form.Font, TopMost = true,
+        })
+        {
+            var label = new Label { Text = "Link YouTube", Bounds = new Rectangle(15, 12, 400, 22) };
+            var box = new TextBox { Bounds = new Rectangle(15, 38, 410, 26) };
+            var pick = new ComboBox { Bounds = new Rectangle(15, 82, 150, 26), DropDownStyle = ComboBoxStyle.DropDownList };
+            pick.Items.AddRange(new object[] { "ja (Jepang)", "en (Inggris)" }); pick.SelectedIndex = 0;
+            var ok = new Button { Text = "Ambil naskah", Bounds = new Rectangle(255, 78, 170, 34), DialogResult = DialogResult.OK, FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(42, 43, 49) };
+            ok.Click += delegate
+            {
+                var m = VideoRe.Match(box.Text.Trim());
+                if (!m.Success) { MessageBox.Show(f, "Link YouTube tidak dikenali.", "Nihongo Sync", MessageBoxButtons.OK, MessageBoxIcon.Warning); f.DialogResult = DialogResult.None; return; }
+                vid = m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value;
+                lg = pick.SelectedIndex == 0 ? "ja" : "en";
+            };
+            f.Controls.AddRange(new Control[] { label, box, pick, ok }); f.AcceptButton = ok;
+            if (f.ShowDialog() != DialogResult.OK) { id = lang = null; return false; }
+        }
+        id = vid; lang = lg; return true;
+    }
+
+    void AddVideo()
+    {
+        if (shadowBusy) { tray.ShowBalloonTip(4000, "Nihongo Sync", "Masih ada proses Shadowing yang jalan.", ToolTipIcon.Info); return; }
+        if (!dbOk) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Database mati. Tekan Start database dulu.", ToolTipIcon.Warning); return; }
+        string id, lang;
+        if (AskVideo(out id, out lang)) RunShadow(id, lang, false);
+    }
+
+    // exit code 3 = no captions: Whisper (GPU) runs only after you answer Ya
+    void RunShadow(string id, string lang, bool whisper)
+    {
+        shadowBusy = true;
+        tray.ShowBalloonTip(3000, "Nihongo Sync", whisper ? "Whisper jalan di GPU, bisa beberapa menit..." : "Mengambil naskah...", ToolTipIcon.Info);
+        var psi = new ProcessStartInfo(Config.Python, "-X utf8 -I \"" + Config.Shadow + "\" " + id + " --lang " + lang + (whisper ? " --whisper" : ""))
+        {
+            UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Config.Root,
+            RedirectStandardOutput = true, RedirectStandardError = true, StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,
+        };
+        ThreadPool.QueueUserWorkItem(delegate
+        {
+            string output; int code;
+            try
+            {
+                using (var p = Process.Start(psi))
+                {
+                    var err = p.StandardError.ReadToEndAsync();
+                    output = (p.StandardOutput.ReadToEnd() + err.Result).Trim();
+                    p.WaitForExit(); code = p.ExitCode;
+                }
+            }
+            catch (Exception e) { output = e.Message; code = 1; }
+            form.BeginInvoke((Action)(() => ShadowDone(id, lang, whisper, code, output)));
+        });
+    }
+
+    void ShadowDone(string id, string lang, bool whisper, int code, string output)
+    {
+        shadowBusy = false;
+        var first = output.Split('\n').Select(l => l.Trim()).FirstOrDefault(l => l.Length > 0) ?? "";
+        if (code == 0) { tray.ShowBalloonTip(6000, "Nihongo Sync", first.Length > 90 ? first.Substring(0, 90) + "…" : first, ToolTipIcon.Info); return; }
+        if (code == 3 && !whisper)
+        {
+            var ask = MessageBox.Show(new Form { TopMost = true }, "Video ini tidak punya caption (" + lang + ").\n\nPakai Whisper di GPU? Butuh beberapa menit dan memakai GPU-mu.",
+                "Nihongo Sync", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (ask == DialogResult.Yes) RunShadow(id, lang, true);
+            return;
+        }
+        tray.ShowBalloonTip(7000, "Nihongo Sync", "Shadowing gagal: " + Reason(output), ToolTipIcon.Warning);
+    }
 
     // shown inside the app: relying on an external editor (the Store Notepad restores its own session and can fail on launch) was fragile
     void OpenLog()

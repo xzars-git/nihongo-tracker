@@ -4,7 +4,9 @@
   python -X utf8 -I scripts/shadow.py <link or id> --refresh   collect again even if it is already saved
   python -X utf8 -I scripts/shadow.py export                   rewrite data/shadow/*.json from the database (new PC, restore)
 
-Order: manual captions in the chosen language, then auto captions (marked "auto"), then Whisper on the GPU (marked "whisper").
+Order: manual captions in the chosen language, then auto captions (marked "auto"). Whisper on the GPU (marked "whisper") runs only
+when you add --whisper; without it a video with no captions exits with code 3 and the line NEEDS_WHISPER (the tray app asks you first).
+  python -X utf8 -I scripts/shadow.py translate <id> <file.json>   store Indonesian meanings (a JSON list, one text per line)
 Whisper needs extra packages (several GB), see whisper_lines(). A script that is already in the database is never fetched
 or transcribed again, so Whisper runs once per video. data/shadow/ is gitignored: the scripts belong to other people.
 """
@@ -99,7 +101,7 @@ def export(c):
         c.execute("update shadow_lines set r = %s where video = %s and n = %s", (romaji(t), vid, n))  # fills older videos
     index = []
     for vid, title, author, lang, kind, added in c.execute("select id, title, author, lang, kind, added::date from shadow_videos order by shadow_videos.added desc").fetchall():
-        lines = [{"s": s, "e": e, "t": t, **({"r": r} if r else {})} for s, e, t, r in c.execute("select s, e, t, r from shadow_lines where video = %s order by n", (vid,))]
+        lines = [{"s": s, "e": e, "t": t, **({"r": r} if r else {}), **({"tr": m} if m else {})} for s, e, t, r, m in c.execute("select s, e, t, r, tr from shadow_lines where video = %s order by n", (vid,))]
         json.dump({"id": vid, "title": title, "author": author, "lang": lang, "kind": kind, "lines": lines},
                   open(os.path.join(OUT, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         index.append({"id": vid, "title": title, "author": author, "lang": lang, "kind": kind, "n": len(lines), "added": str(added)})
@@ -107,12 +109,29 @@ def export(c):
     return len(index)
 
 
+def need_whisper(lang):
+    print(f"NEEDS_WHISPER: no {lang} captions. Run again with --whisper to use the GPU.")
+    sys.exit(3)
+
+
+def translate(vid, path):
+    """Store one Indonesian meaning per line (a JSON list in line order)."""
+    texts = json.load(open(path, encoding="utf-8"))
+    with db.connect() as c:
+        n = c.execute("select count(*) from shadow_lines where video = %s", (vid,)).fetchone()[0]
+        if not n: sys.exit(f"video {vid} is not in the database")
+        if len(texts) != n: sys.exit(f"{len(texts)} texts for {n} lines: the counts must match")
+        c.cursor().executemany("update shadow_lines set tr = %s where video = %s and n = %s", [(t, vid, i) for i, t in enumerate(texts)])
+        print(f"saved {n} meanings for {vid}, exported {export(c)} video(s) to data/shadow/")
+
+
 def main(a):
-    refresh = "--refresh" in a; a = [x for x in a if x != "--refresh"]
+    refresh = "--refresh" in a; whisper = "--whisper" in a; a = [x for x in a if x not in ("--refresh", "--whisper")]
     lang = "ja"
     if "--lang" in a:
         i = a.index("--lang"); lang = a[i + 1] if i + 1 < len(a) else ""; a = a[:i] + a[i + 2:]
         if lang not in MODELS: sys.exit("--lang must be ja or en")
+    if len(a) == 3 and a[0] == "translate": return translate(a[1], a[2])
     if len(a) != 1: sys.exit(__doc__)
     with db.connect() as c:
         if a[0] != "export":
@@ -121,7 +140,7 @@ def main(a):
             if row and not refresh:
                 print(f"already saved ({row[0]}, {row[1]} lines): no download, no GPU")
             else:
-                got = caption_lines(vid, lang) or whisper_lines(vid, lang)
+                got = caption_lines(vid, lang) or (whisper_lines(vid, lang) if whisper else need_whisper(lang))
                 title, author = title_of(vid)
                 save(c, vid, title, author, lang, *got)
                 print(f"saved ({lang}) from {got[0]}, {len(got[1])} lines: {title}")

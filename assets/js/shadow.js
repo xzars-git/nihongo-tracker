@@ -24,16 +24,14 @@
     autoCap: { id: "teks otomatis YouTube, mungkin ada salah", en: "YouTube auto captions, may contain mistakes", ja: "YouTube自動字幕（誤りあり）" },
     whisperCap: { id: "dibuat Whisper, mungkin ada salah", en: "made by Whisper, may contain mistakes", ja: "Whisper生成（誤りあり）" },
     loop: { id: "Ulang baris", en: "Loop line", ja: "行リピート" },
-    blur: { id: "Kaburkan teks", en: "Blur text", ja: "テキストをぼかす" },
-    hardOnly: { id: "Sulit saja", en: "Hard only", ja: "苦手のみ" },
     prev: { id: "◀ Baris", en: "◀ Line", ja: "◀ 行" },
     next: { id: "Baris ▶", en: "Line ▶", ja: "行 ▶" },
     time: { id: "Waktu latihan", en: "Practice time", ja: "練習時間" },
     keys: { id: "Tombol: Spasi putar/jeda · ←/→ baris · L ulang", en: "Keys: Space play/pause · ←/→ line · L loop", ja: "キー：Space 再生/停止 · ←/→ 行 · L リピート" },
-    hard: { id: "Tandai sulit", en: "Mark as hard", ja: "苦手にする" },
     speed: { id: "Kecepatan", en: "Speed", ja: "速度" },
     log: { id: "Catat latihan ke tracker", en: "Log this practice to the tracker", ja: "この練習をトラッカーに記録" },
     copied: { id: "Disalin. Tempel di terminal.", en: "Copied. Paste it in a terminal.", ja: "コピーしました。ターミナルに貼り付けてください。" },
+    meaning: { id: "Arti", en: "Meaning", ja: "意味" },
     romaji: { id: "Romaji", en: "Romaji", ja: "ローマ字" },
     romajiNote: { id: "Romaji dibuat otomatis, kata yang jarang bisa salah.", en: "Romaji is automatic; rare words can be wrong.", ja: "ローマ字は自動生成です。まれな語は誤りがあります。" },
     auto: { id: "Otomatis", en: "Auto", ja: "自動" },
@@ -48,7 +46,7 @@
     lines: { id: "baris", en: "lines", ja: "行" },
   };
 
-  const S = { idx: [], romaji: false, langF: "all", reps: 1, auto: false, gap: false, play: 0, wait: false, guard: 0, timer: 0, done: new Set(), vid: null, data: null, cur: 0, loop: false, blur: false, hardOnly: false, hard: new Set(), rate: 1, secs: 0, player: null, };
+  const S = { idx: [], romaji: false, langF: "all", reps: 1, auto: false, gap: false, play: 0, wait: false, guard: 0, timer: 0, done: new Set(), vid: null, data: null, cur: 0, loop: false, meaning: true, rate: 1, secs: 0, player: null, };
 
   const fmt = n => `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, "0")}`;
 
@@ -73,8 +71,7 @@
   function bar() {
     const b = (id, label, on) => `<button type="button" id="${id}" ${on === undefined ? "" : `aria-pressed="${on}"`}>${esc(label)}</button>`;
     $("#shBar").innerHTML =
-      b("shPrev", L(UI.prev)) + b("shNext", L(UI.next)) + b("shLoop", L(UI.loop), S.loop) + b("shAuto", L(UI.auto), S.auto) + b("shGap", L(UI.gap), S.gap) + (S.data?.lines.some(l => l.r) ? b("shRomaji", L(UI.romaji), S.romaji) : "") + b("shBlur", L(UI.blur), S.blur) +
-      b("shHardOnly", L(UI.hardOnly), S.hardOnly) +
+      b("shPrev", L(UI.prev)) + b("shNext", L(UI.next)) + b("shLoop", L(UI.loop), S.loop) + b("shAuto", L(UI.auto), S.auto) + b("shGap", L(UI.gap), S.gap) + (S.data?.lines.some(l => l.r) ? b("shRomaji", L(UI.romaji), S.romaji) : "") + (S.data?.lines.some(l => l.tr) ? b("shMeaning", L(UI.meaning), S.meaning) : "") +
       `<span class="sh-rates" role="group" aria-label="${esc(L(UI.reps))}" title="${esc(L(UI.reps))}">${[1, 2, 3, 5].map(r => `<button type="button" data-reps="${r}" aria-pressed="${S.reps === r}">${r}×</button>`).join("")}</span>` +
       `<span class="sh-rates" role="group" aria-label="${esc(L(UI.speed))}">${[0.5, 0.75, 1].map(r => `<button type="button" data-rate="${r}" aria-pressed="${S.rate === r}">${r}x</button>`).join("")}</span>`;
     $("#shPrev").onclick = () => go(S.cur - 1);
@@ -83,24 +80,18 @@
     $("#shAuto").onclick = () => { S.auto = !S.auto; S.play = 0; if (S.auto) { S.loop = false; go(S.cur, true); } else { clearTimeout(S.timer); S.wait = false; } pref(); bar(); };
     $("#shGap").onclick = () => { S.gap = !S.gap; pref(); bar(); };
     document.querySelectorAll("[data-reps]").forEach(x => x.onclick = () => { S.reps = +x.dataset.reps; S.play = 0; pref(); bar(); });
+    if ($("#shMeaning")) $("#shMeaning").onclick = () => { S.meaning = !S.meaning; pref(); $("#shList").classList.toggle("meaning", S.meaning); bar(); };
     if ($("#shRomaji")) $("#shRomaji").onclick = () => { S.romaji = !S.romaji; pref(); $("#shList").classList.toggle("romaji", S.romaji); bar(); };
-    $("#shBlur").onclick = () => { S.blur = !S.blur; $("#shList").classList.toggle("blur", S.blur); bar(); };
-    $("#shHardOnly").onclick = () => { S.hardOnly = !S.hardOnly; list(); bar(); };
     document.querySelectorAll("[data-rate]").forEach(x => x.onclick = () => { S.rate = +x.dataset.rate; store.set("shadow.rate", S.rate); S.player?.setPlaybackRate(S.rate); bar(); });
   }
 
   function list() {
-    const rows = S.data.lines.map((l, i) => ({ l, i })).filter(({ i }) => !S.hardOnly || S.hard.has(i));
-    $("#shList").classList.toggle("blur", S.blur); $("#shList").classList.toggle("romaji", S.romaji);
+    const rows = S.data.lines.map((l, i) => ({ l, i }));
+    $("#shList").classList.toggle("romaji", S.romaji); $("#shList").classList.toggle("meaning", S.meaning);
     $("#shList").innerHTML = rows.map(({ l, i }) =>
-      `<li data-i="${i}" class="${i === S.cur ? "on" : ""}"><button type="button" class="sh-dn" data-d="${i}" aria-pressed="${S.done.has(i)}" title="${esc(L(UI.done))}" aria-label="${esc(L(UI.done))}"></button><button type="button" class="sh-ln"><span class="mono sh-ts">${fmt(l.s)}</span><span class="sh-tx"><span class="sh-t" lang="${S.data.lang || "ja"}">${esc(l.t)}</span>${l.r ? `<span class="sh-r">${esc(l.r)}</span>` : ""}</span></button>` +
-      `<button type="button" class="sh-hd" data-h="${i}" aria-pressed="${S.hard.has(i)}" title="${esc(L(UI.hard))}" aria-label="${esc(L(UI.hard))}">★</button></li>`).join("");
+      `<li data-i="${i}" class="${i === S.cur ? "on" : ""}"><button type="button" class="sh-dn" data-d="${i}" aria-pressed="${S.done.has(i)}" title="${esc(L(UI.done))}" aria-label="${esc(L(UI.done))}"></button><button type="button" class="sh-ln"><span class="mono sh-ts">${fmt(l.s)}</span><span class="sh-tx"><span class="sh-t" lang="${S.data.lang || "ja"}">${esc(l.t)}</span>${l.r ? `<span class="sh-r">${esc(l.r)}</span>` : ""}${l.tr ? `<span class="sh-m">${esc(l.tr)}</span>` : ""}</span></button></li>`).join("");
     $("#shList").querySelectorAll(".sh-ln").forEach(b => b.onclick = () => go(+b.parentNode.dataset.i, true));
     $("#shList").querySelectorAll(".sh-dn").forEach(b => b.onclick = () => { const i = +b.dataset.d; S.done.has(i) ? S.done.delete(i) : S.done.add(i); saveDone(); b.setAttribute("aria-pressed", S.done.has(i)); $("#shMeta").textContent = meta(); });
-    $("#shList").querySelectorAll(".sh-hd").forEach(b => b.onclick = () => {
-      const i = +b.dataset.h; S.hard.has(i) ? S.hard.delete(i) : S.hard.add(i);
-      store.set("shadow.hard." + S.vid, [...S.hard]); b.setAttribute("aria-pressed", S.hard.has(i));
-    });
   }
 
   function mark() {
@@ -116,7 +107,7 @@
     mark();
   }
 
-  const pref = () => store.set("shadow.pref", { reps: S.reps, auto: S.auto, gap: S.gap, romaji: S.romaji });
+  const pref = () => store.set("shadow.pref", { reps: S.reps, auto: S.auto, gap: S.gap, romaji: S.romaji, meaning: S.meaning });
   const saveDone = () => store.set("shadow.done." + S.vid, [...S.done]);
   const seek = t => { S.guard = Date.now() + 500; S.player.seekTo(t, true); };
 
@@ -167,7 +158,7 @@
 
   async function open(id) {
     S.vid = id; S.data = await (await fetch(`data/shadow/${id}.json`, { cache: "no-store" })).json();
-    S.hard = new Set(store.get("shadow.hard." + id, [])); S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.play = 0;
+    S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.play = 0;
     $("#shBody").hidden = false; bar(); list(); $("#shMeta").textContent = meta(); logBtn();
     $("#shLog").onclick = () => navigator.clipboard?.writeText(logCmd()).then(() => { $("#shLog").textContent = "✔ " + L(UI.copied); setTimeout(logBtn, 2500); }, () => prompt(L(UI.log), logCmd()));
     await loadYT();
