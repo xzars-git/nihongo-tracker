@@ -34,7 +34,9 @@
       "パートを選んでください。点線の枠は各コンポーネントが動く場所です。ステップごとに進めるか、箱にカーソルを合わせる／タップすると、それがある理由を表示します。"),
     all: tx("Gambaran umum", "Overview", "全体像"), prev: tx("← Sebelumnya", "← Prev", "← 前へ"), next: tx("Berikut →", "Next →", "次へ →"),
     stepOf: tx("Langkah {n} dari {m}", "Step {n} of {m}", "ステップ {n}/{m}"),
-    mob: tx("Di layar kecil, panah hanya muncul per langkah. Tekan Berikut →.", "On small screens, arrows appear one step at a time. Press Next →.", "小さい画面では、矢印はステップごとに表示されます。「次へ →」を押してください。"),
+    mob: tx("Di layar kecil, panah hanya muncul per langkah. Tekan ▶ Putar alur.", "On small screens, arrows appear one step at a time. Press ▶ Play the flow.", "小さい画面では、矢印はステップごとに表示されます。「▶ 流れを再生」を押してください。"),
+    play: tx("▶ Putar alur", "▶ Play the flow", "▶ 流れを再生"), pause: tx("⏸ Jeda", "⏸ Pause", "⏸ 一時停止"),
+    flow: tx("Alur langkah demi langkah: klik satu langkah, atau putar otomatis.", "The flow step by step: click a step, or play it automatically.", "流れをステップごとに：ステップをクリックするか、自動再生。"),
     why: tx("Kenapa ada?", "Why is it here?", "なぜあるのか"),
     pick: tx("Arahkan kursor atau ketuk satu kotak di diagram.", "Hover or tap a box in the diagram.", "図の箱にカーソルを合わせるか、タップしてください。"),
   };
@@ -227,7 +229,8 @@
     body.innerHTML = `<div class="pt-walk">
         <div class="pt-step" aria-live="polite"></div>
         <div class="pt-why" aria-live="polite"></div>
-        <div class="pt-ctl"><button type="button" data-go="-1">${L(UI.prev)}</button><span class="pt-dots">${steps().map((_, i) => `<button type="button" data-s="${i}" aria-label="${i ? esc(L(UI.stepOf).replace("{n}", i).replace("{m}", p.steps.length)) : esc(L(UI.all))}">${i || "◎"}</button>`).join("")}</span><button type="button" data-go="1" class="go">${L(UI.next)}</button></div>
+        <div class="pt-ctl"><button type="button" data-play class="go"></button><button type="button" data-go="-1">${L(UI.prev)}</button><button type="button" data-go="1">${L(UI.next)}</button><span class="muted small">${L(UI.flow)}</span></div>
+        <ol class="pt-steps">${steps().map((s, i) => `<li><button type="button" data-s="${i}"><b>${i || "◎"}</b>${esc(L(s.t))}</button></li>`).join("")}</ol>
       </div>
       <div class="pt-d${p.frame ? " framed" : ""}" style="--cols:${p.cols};--areas:${esc(p.areas)}">
         ${p.frame ? `<span class="pt-fl mono">${esc(L(p.frame))}</span>` : ""}
@@ -255,7 +258,9 @@
     });
     body.querySelector(".pt-step").innerHTML = `<p class="mono small pt-no">${st.s ? L(UI.stepOf).replace("{n}", st.s).replace("{m}", p.steps.length) : L(UI.all)}</p><h3>${L(cur.t)}</h3><p>${L(cur.d)}</p>${st.s ? "" : `<p class="pt-mob muted small">${L(UI.mob)}</p>`}`;
     why(st.sel);
-    body.querySelectorAll(".pt-dots button").forEach(b => b.setAttribute("aria-current", String(+b.dataset.s === st.s)));
+    body.querySelectorAll(".pt-steps button").forEach(b => b.setAttribute("aria-current", String(+b.dataset.s === st.s)));
+    body.querySelector(".pt-steps").classList.toggle("run", !!st.timer);
+    body.querySelector("[data-play]").textContent = L(st.timer ? UI.pause : UI.play);
     body.querySelector('[data-go="-1"]').disabled = st.s === 0;
     body.querySelector('[data-go="1"]').textContent = st.s === p.steps.length ? L(UI.all) : L(UI.next);
     draw();
@@ -295,10 +300,22 @@
     g.innerHTML = paths; d.querySelector(".pt-ls").innerHTML = labels;
   };
 
+  // autoplay: one step every STEP ms, back to the overview after the last step
+  const STEP = 4500;
+  const stop = () => { clearInterval(st.timer); st.timer = null; };
+  const play = () => {
+    if (st.timer) { stop(); apply(); return; }
+    if (st.s === 0 || st.s === part().steps.length) st.s = 1;
+    st.timer = setInterval(() => { if (st.s >= part().steps.length) { stop(); st.s = 0; } else st.s++; apply(); }, STEP);
+    apply();
+  };
+
   mount.addEventListener("click", e => {
     const tab = e.target.closest(".pt-tabs button");
-    if (tab) { st.p = +tab.dataset.p; st.s = 0; st.sel = null; history.replaceState(null, "", "#" + part().id); build(); return; }
+    if (tab) { stop(); st.p = +tab.dataset.p; st.s = 0; st.sel = null; history.replaceState(null, "", "#" + part().id); build(); return; }
+    if (e.target.closest("[data-play]")) { play(); return; }
     const go = e.target.closest("[data-go]"), dot = e.target.closest("[data-s]"), n = e.target.closest(".pt-n");
+    if (go || dot) stop();
     if (go) { const m = part().steps.length; st.s = st.s === m && +go.dataset.go > 0 ? 0 : Math.max(0, Math.min(m, st.s + +go.dataset.go)); apply(); }
     else if (dot) { st.s = +dot.dataset.s; apply(); }
     else if (n) { st.sel = st.sel === n.dataset.id ? null : n.dataset.id; apply(); }

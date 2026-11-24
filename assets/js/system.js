@@ -29,6 +29,7 @@
     weakH: { id: "Kelemahan yang aku tahu", en: "Weak spots I know about", ja: "把握している弱点" },
     weakLead: { id: "Tidak ada sistem yang sempurna. Ini daftar jujur beserta rencana perbaikannya.", en: "No system is perfect. This is an honest list with the planned fix.", ja: "完璧なシステムはありません。正直な一覧と改善案です。" },
     hist: { id: "Riwayat: sebelum dan sesudah PostgreSQL", en: "History: before and after PostgreSQL", ja: "経緯：PostgreSQL導入の前後" },
+    histNote: { id: "arsip, belum termasuk Talk dan Shadowing · klik untuk membuka", en: "archive, before Talk and Shadowing · click to open", ja: "アーカイブ（TalkとShadowing以前）・クリックで開く" },
     hint: { id: "Di layar kecil, garis panah disembunyikan. Pakai langkah demi langkah untuk melihat urutannya.", en: "On small screens the arrows are hidden. Use the step-by-step flow to see the order.", ja: "小さい画面では矢印を隠します。順番はステップ実行で確認してください。" },
   };
 
@@ -133,7 +134,8 @@
 
   const page = $("#page");
   page.innerHTML = `
-    <h1>${L(UI.title)}</h1><div id="parts"></div><h2>${L(UI.hist)}</h2><p class="lead">${L(UI.lead)}</p>
+    <h1>${L(UI.title)}</h1><div id="parts"></div>
+    <details class="sys-hist" id="sysHist"><summary><b>${L(UI.hist)}</b><small class="muted">${L(UI.histNote)}</small></summary><p class="lead">${L(UI.lead)}</p>
     <div class="sys-bar">
       <div class="sys-sw" role="group" aria-label="${esc(L(UI.before))} / ${esc(L(UI.after))}">
         <button type="button" data-v="before">${L(UI.before)}<small>${L(UI.sub.before)}</small></button>
@@ -153,7 +155,7 @@
       <section class="sys-card" aria-live="polite"><h2>${L(UI.walk)}</h2><div id="sysStep"></div>
         <div class="sys-ctl"><button type="button" id="sysPrev">${L(UI.prev)}</button><button type="button" id="sysNext" class="go">${L(UI.start)}</button><button type="button" id="sysAll">${L(UI.all)}</button></div></section>
       <section class="sys-card" aria-live="polite"><h2>Inspector</h2><div id="sysInfo"></div></section>
-    </div>
+    </div></details>
     <h2>${L(UI.secH)}</h2><p>${L(UI.secLead)}</p>
     <table class="wt sys-t"><tr><th>${L(UI.zone)}</th><th>${L(UI.what)}</th><th>${L(UI.guard)}</th></tr>${ZONES.map(z => `<tr><td><b>${L(z.z)}</b></td><td>${L(z.w)}</td><td>${L(z.g)}</td></tr>`).join("")}</table>
     <h2>${L(UI.weakH)}</h2><p>${L(UI.weakLead)}</p>
@@ -213,6 +215,7 @@
   $("#sysNext").onclick = () => { st.step = st.step === S[st.view].length - 1 ? -1 : st.step + 1; render(); };
   $("#sysAll").onclick = () => { st.step = -1; render(); };
 
+  $("#sysHist").addEventListener("toggle", drawEdges); // the map has no size while closed
   let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawEdges, 80); });
   document.fonts?.ready.then(drawEdges);
   document.title = `${L(UI.title)} · Arsenius`;
