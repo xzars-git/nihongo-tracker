@@ -230,7 +230,7 @@
 
   // study time = Anki (measured) + the study chat (measured, AFK-aware). Days without chat data fall back to logged or estimated minutes per row (shown with ±)
   const EST = { kanji: 12, minna: 20, kaiwa: 15, kosakata: 10, bonus: 15 };  // per logged row (rows are often parts of one sitting)
-  const mins = d => ((A.days[d] || {}).ankiMin || 0) + (chat(d) ?? (byDay[d] || []).reduce((x, s) => x + (s.min ?? EST[s.kind] ?? 15), 0));
+  const mins = d => ((A.days[d] || {}).ankiMin || 0) + (chat(d) !== undefined ? otherMin(d) : (byDay[d] || []).reduce((x, s) => x + (s.min ?? EST[s.kind] ?? 15), 0));
   const est = d => chat(d) === undefined && (byDay[d] || []).some(s => s.min == null);
   const learned = [...new Set(ss.map(s => short(s.mode)))];
   if (a.new) learned.unshift(t("fx.ankiNew", { n: a.new }));
