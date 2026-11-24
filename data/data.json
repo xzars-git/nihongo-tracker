@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T14:39",
+ "generated": "2026-11-24T21:00",
  "bab": 16,
  "sessions": [
   {
@@ -517,6 +517,66 @@
    "min": null,
    "shadowing": false,
    "note": "Pola tidak dilabeli; soal 1: 顔を洗って dan tense lampau salah."
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 1 (soal 6-10)",
+   "score": "2/5",
+   "ok": 2,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "てから tanpa から, 終わる pakai を (harus が), tera tertukar tora, label pola tidak ditulis"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 2 (5 soal)",
+   "score": "3/5",
+   "ok": 3,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "たくさん bukan kata sifat (pakai 多い/あります), シャワーを hilang, ejaan kaisha/chiisai, label pola tidak ditulis"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 3 (5 soal)",
+   "score": "0/5",
+   "ok": 0,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "label pola tidak ditulis (3x), kalimat benar 1/5: 洗濯して, 終わる pakai を (3x), 大きい→大きくて, soal 5 menyerah"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 4 (5 soal)",
+   "score": "0/5",
+   "ok": 0,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "label pola tidak ditulis (4x), kalimat benar 3/5: 終わる が sudah benar; soal 3 abaikan は…が, soal 5 tanpa から, 手を洗う jadi souji"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 5 (5 soal)",
+   "score": "4/5",
+   "ok": 4,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "label pola 5/5 benar; salah: 買って (bukan kaette) dan 乗る (bukan hairu); ejaan chiisai & geemu masih terulang"
   }
  ],
  "mistakes": [
@@ -962,10 +1022,10 @@
   },
   {
    "item": "終わる",
-   "right": "仕事が終わってから",
-   "wrong": "終わる tanpa objek, subjek pakai が (bukan を)",
+   "right": "授業が終わってから",
+   "wrong": "終わる tanpa objek, subjek pakai が (bukan を); 11-24: pakai を lagi (ulang), harus が; 11-24: pakai を lagi (ketiga kali), harus が",
    "interval": "1",
-   "due": "2026-11-24",
+   "due": "2026-11-25",
    "cat": "partikel"
   },
   {
@@ -975,6 +1035,134 @@
    "interval": "1",
    "due": "2026-11-24",
    "cat": "bentuk"
+  },
+  {
+   "item": "V てから (setelah ~)",
+   "right": "晩ご飯を食べてから、お風呂に入ります",
+   "wrong": "tulis V1て saja tanpa から padahal soal 'after'",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "お寺 (otera)",
+   "right": "お寺がきれいです",
+   "wrong": "tulis tora (harimau) dan を; harus tera + が",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "スーパー (suupaa)",
+   "right": "suupaa",
+   "wrong": "ejaan supaa, vokal panjang hilang",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "山が多い / たくさんあります",
+   "right": "日本は山が多いです",
+   "wrong": "tulis takusan desu; takusan bukan adj, pakai ooi atau takusan arimasu",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "シャワーを浴びる",
+   "right": "シャワーを浴びてから寝ます",
+   "wrong": "objek shawaa wo dibuang, tinggal abite",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "会社 (kaisha)",
+   "right": "kaisha",
+   "wrong": "ejaan kaisho",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "小さい (chiisai)",
+   "right": "chiisakute",
+   "wrong": "ejaan chisakute, vokal panjang hilang; 11-24: ejaan chisakute lagi (kedua kali)",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "洗濯する (sentaku suru)",
+   "right": "洗濯して",
+   "wrong": "tulis sentaite; 洗濯 = kata benda + する, bukan kata kerja sendiri",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "授業 (jugyou)",
+   "right": "jugyou",
+   "wrong": "ejaan juugyou, 'u' kelebihan",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "大きい (ookii) + て",
+   "right": "大きくて (ookikute)",
+   "wrong": "ookii kute; い-adj: buang い + くて",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "乗る / 降りる (noru / oriru)",
+   "right": "電車に乗って、本を読んで、新宿で降りました",
+   "wrong": "menyerah; belum hafal 乗る (に) dan 降りる",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "bentuk"
+  },
+  {
+   "item": "手を洗う (te wo arau)",
+   "right": "家に帰ってから、手を洗います",
+   "wrong": "tulis te wa souji shimasu; 洗う = cuci tangan, souji = bersih-bersih ruangan; partikel を; から hilang",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "partikel"
+  },
+  {
+   "item": "N1は N2が adj (pola 4)",
+   "right": "佐藤さんは家が大きいです",
+   "wrong": "soal minta は…が, ditulis Sato-san no ie wa ookii desu",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "買う → 買って (katte)",
+   "right": "切符を買って",
+   "wrong": "tulis kaette (itu 帰る); 買う = katte",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "bentuk"
+  },
+  {
+   "item": "電車に乗る (noru)",
+   "right": "電車に乗りました",
+   "wrong": "tulis hairimashita; 入る = masuk ruangan, 電車 = 乗る",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "ゲーム (geemu)",
+   "right": "geemu",
+   "wrong": "ejaan gemmu",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
   }
  ],
  "anki": {
@@ -1340,7 +1528,7 @@
    "2026-11-19": 149,
    "2026-11-20": 40,
    "2026-11-23": 58,
-   "2026-11-24": 19
+   "2026-11-24": 51
   },
   "afkSeconds": 180
  }
