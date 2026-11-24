@@ -59,7 +59,7 @@ class SyncApp
         Directory.CreateDirectory(Dir);
         var icon = MakeIcon(Yellow);
 
-        form.Text = "Nihongo Sync"; form.Icon = icon; form.ClientSize = new Size(420, 395);
+        form.Text = "Nihongo Sync"; form.Icon = icon; form.ClientSize = new Size(420, 440);
         form.FormBorderStyle = FormBorderStyle.FixedSingle; form.MaximizeBox = false; form.StartPosition = FormStartPosition.CenterScreen;
         form.BackColor = Bg; form.ForeColor = Ink; form.Font = new Font("Segoe UI", 10);
         var title = new Label { Text = "Nihongo Sync", ForeColor = Yellow, Font = new Font("Segoe UI", 16, FontStyle.Bold), Bounds = new Rectangle(20, 15, 380, 36) };
@@ -71,6 +71,7 @@ class SyncApp
         dbBtn = AddButton("Start database", 20, delegate { StartDb(); }, 340);
         AddButton("Buka Shadowing", 150, delegate { OpenShadowing(); }, 340);
         AddButton("Tambah video", 280, delegate { AddVideo(); }, 340);
+        AddButton("Salin kunci web", 20, delegate { CopyKey(); }, 385);
         form.FormClosing += (s, e) => { if (!quitting) { e.Cancel = true; form.Hide(); } };  // X = hide to tray
         var handle = form.Handle;  // create the handle now so BeginInvoke works before the window is first shown
 
@@ -81,6 +82,7 @@ class SyncApp
         menu.Items.Add("Start database", null, delegate { StartDb(); });
         menu.Items.Add("Buka Shadowing", null, delegate { OpenShadowing(); });
         menu.Items.Add("Tambah video Shadowing...", null, delegate { AddVideo(); });
+        menu.Items.Add("Salin kunci Shadowing (web)", null, delegate { CopyKey(); });
         menu.Items.Add("Tes pengingat", null, delegate { Remind(); });
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Quit", null, delegate { quitting = true; StopServer(); tray.Visible = false; form.Close(); Application.Exit(); });
@@ -177,6 +179,15 @@ class SyncApp
         Open("http://localhost:" + ShadowPort + "/shadow.html");
     }
 
+    // the passphrase that opens the encrypted scripts on the web: type or paste it once per browser (it is never in the repo)
+    void CopyKey()
+    {
+        var key = Path.Combine(Dir, "shadow.key");
+        if (!File.Exists(key)) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Kunci belum dibuat. Tambah satu video dulu.", ToolTipIcon.Info); return; }
+        try { Clipboard.SetText(File.ReadAllText(key).Trim()); tray.ShowBalloonTip(6000, "Nihongo Sync", "Kunci disalin. Tempel di halaman Shadowing di web (sekali per perangkat).", ToolTipIcon.Info); }
+        catch (Exception e) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Tidak bisa menyalin: " + e.Message, ToolTipIcon.Warning); }
+    }
+
     void StopServer()
     {
         try { if (server != null && !server.HasExited) server.Kill(); } catch { }
@@ -251,7 +262,12 @@ class SyncApp
     {
         shadowBusy = false;
         var first = output.Split('\n').Select(l => l.Trim()).FirstOrDefault(l => l.Length > 0) ?? "";
-        if (code == 0) { tray.ShowBalloonTip(6000, "Nihongo Sync", first.Length > 90 ? first.Substring(0, 90) + "…" : first, ToolTipIcon.Info); return; }
+        if (code == 0)
+        {
+            tray.ShowBalloonTip(6000, "Nihongo Sync", (first.Length > 80 ? first.Substring(0, 80) + "…" : first) + "\nMengirim ke web...", ToolTipIcon.Info);
+            StartSync();  // publish.py also pushes the encrypted scripts, so the web gets the new video right away
+            return;
+        }
         if (code == 3 && !whisper)
         {
             var ask = MessageBox.Show(new Form { TopMost = true }, "Video ini tidak punya caption (" + lang + ").\n\nPakai Whisper di GPU? Butuh beberapa menit dan memakai GPU-mu.",

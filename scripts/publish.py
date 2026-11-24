@@ -247,7 +247,7 @@ def build(c):
 
 def push():
     git = lambda *a: subprocess.run(["git", "-C", ROOT, *a], capture_output=True, text=True)
-    git("add", "data/data.json", "data/english.json")  # only data: code changes are committed by hand
+    git("add", *[p for p in ("data/data.json", "data/english.json", "data/shadow-enc") if os.path.exists(os.path.join(ROOT, p))])  # only data: code changes are committed by hand
     if git("diff", "--cached", "--quiet").returncode:
         git("commit", "--no-verify", "-m", f"progres {dt.date.today().isoformat()}")  # the sync must never be blocked by the code-check hook
     if "ahead" not in git("status", "-sb").stdout.splitlines()[0]:  # also retries an earlier failed push

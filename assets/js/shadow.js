@@ -17,10 +17,14 @@
       ja: "一文を聞いて、同時かすぐ後に声に出します。一行をなめらかになるまで繰り返し、録音して聞き比べます。",
     },
     empty: {
-      id: "Naskah shadowing hanya tersimpan di komputer pemilik situs dan tidak dipublikasikan (hak cipta). Riwayat latihannya ada di bawah.",
-      en: "Shadowing scripts stay on the site owner's computer and are not published (copyright). The practice history is below.",
-      ja: "シャドーイングのスクリプトはサイト所有者のパソコンにだけ保存され、公開されません（著作権）。練習履歴は下にあります。",
+      id: "Belum ada naskah shadowing. Riwayat latihannya ada di bawah.",
+      en: "No shadowing scripts yet. The practice history is below.",
+      ja: "シャドーイングのスクリプトはまだありません。練習履歴は下にあります。",
     },
+    lock: { id: "Naskah dienkripsi (hak cipta). Masukkan kata sandi pemilik untuk membukanya.", en: "The scripts are encrypted (copyright). Enter the owner's passphrase to unlock them.", ja: "スクリプトは暗号化されています（著作権）。所有者のパスフレーズを入力してください。" },
+    unlock: { id: "Buka", en: "Unlock", ja: "開く" },
+    wrong: { id: "Kata sandi salah.", en: "Wrong passphrase.", ja: "パスフレーズが違います。" },
+    pass: { id: "Kata sandi", en: "Passphrase", ja: "パスフレーズ" },
     autoCap: { id: "teks otomatis YouTube, mungkin ada salah", en: "YouTube auto captions, may contain mistakes", ja: "YouTube自動字幕（誤りあり）" },
     whisperCap: { id: "dibuat Whisper, mungkin ada salah", en: "made by Whisper, may contain mistakes", ja: "Whisper生成（誤りあり）" },
     loop: { id: "Ulang baris", en: "Loop line", ja: "行リピート" },
@@ -46,7 +50,7 @@
     lines: { id: "baris", en: "lines", ja: "行" },
   };
 
-  const S = { idx: [], romaji: false, langF: "all", reps: 1, auto: false, gap: false, play: 0, wait: false, guard: 0, timer: 0, done: new Set(), vid: null, data: null, cur: 0, loop: false, meaning: true, rate: 1, secs: 0, player: null, };
+  const S = { key: null, idx: [], romaji: false, langF: "all", reps: 1, auto: false, gap: false, play: 0, wait: false, guard: 0, timer: 0, done: new Set(), vid: null, data: null, cur: 0, loop: false, meaning: true, rate: 1, secs: 0, player: null, };
 
   const fmt = n => `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, "0")}`;
 
@@ -156,8 +160,38 @@
     });
   }
 
+  // Local copy first (plain, gitignored). On the public site the scripts come encrypted from data/shadow-enc/ and are opened with the owner's passphrase.
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  async function deriveKey(pass, meta) {
+    const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(pass), "PBKDF2", false, ["deriveKey"]);
+    return crypto.subtle.deriveKey({ name: "PBKDF2", salt: b64(meta.salt), iterations: meta.iter, hash: "SHA-256" }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+  }
+  const dec = async f => JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(f.iv) }, S.key, b64(f.ct))));
+  const getJSON = async url => (await fetch(url, { cache: "no-store" })).json();
+
+  async function load(id) {
+    if (!S.key) return getJSON(`data/shadow/${id}.json`);
+    return dec(await getJSON(`data/shadow-enc/${S.idx.find(v => v.id === id).file}.json`));
+  }
+
+  async function unlock() {
+    let meta;
+    try { const r = await fetch("data/shadow-enc/meta.json", { cache: "no-store" }); if (!r.ok) return; meta = await r.json(); } catch { return; }
+    const tryPass = async pass => {
+      try { S.key = await deriveKey(pass, meta); S.idx = await dec(await getJSON("data/shadow-enc/index.json")); store.set("shadow.pass", pass); return true; }
+      catch { S.key = null; S.idx = []; return false; }
+    };
+    const saved = store.get("shadow.pass", "");
+    if (saved && await tryPass(saved)) return;
+    await new Promise(done => {
+      $("#shPick").innerHTML = `<form class="sh-lock"><label>${esc(L(UI.lock))}</label><div><input type="password" autocomplete="current-password" aria-label="${esc(L(UI.pass))}" placeholder="${esc(L(UI.pass))}"><button type="submit">${esc(L(UI.unlock))}</button></div><p class="sh-err" role="alert"></p></form>`;
+      const f = $("#shPick form");
+      f.onsubmit = async e => { e.preventDefault(); if (await tryPass(f.querySelector("input").value.trim())) done(); else f.querySelector(".sh-err").textContent = L(UI.wrong); };
+    });
+  }
+
   async function open(id) {
-    S.vid = id; S.data = await (await fetch(`data/shadow/${id}.json`, { cache: "no-store" })).json();
+    S.vid = id; S.data = await load(id);
     S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.play = 0;
     $("#shBody").hidden = false; bar(); list(); $("#shMeta").textContent = meta(); logBtn();
     $("#shLog").onclick = () => navigator.clipboard?.writeText(logCmd()).then(() => { $("#shLog").textContent = "✔ " + L(UI.copied); setTimeout(logBtn, 2500); }, () => prompt(L(UI.log), logCmd()));
@@ -196,7 +230,8 @@
 
   (async () => {
     shell(); history(); S.rate = store.get("shadow.rate", 1); Object.assign(S, store.get("shadow.pref", {})); S.langF = store.get("shadow.lang", "all");
-    try { S.idx = await (await fetch("data/shadow/index.json", { cache: "no-store" })).json(); } catch { S.idx = []; }
+    try { S.idx = await getJSON("data/shadow/index.json"); } catch { S.idx = []; }
+    if (!Array.isArray(S.idx) || !S.idx.length) await unlock();
     if (!Array.isArray(S.idx) || !S.idx.length) { $("#shPick").innerHTML = `<p class="sh-empty">${esc(L(UI.empty))}</p>`; return; }
     const first = pick()[0];
     if (first) await open(first.id).then(pick);

@@ -9,8 +9,10 @@ when you add --whisper; without it a video with no captions exits with code 3 an
   python -X utf8 -I scripts/shadow.py translate <id> <file.json>   store Indonesian meanings (a JSON list, one text per line)
 Whisper needs extra packages (several GB), see whisper_lines(). A script that is already in the database is never fetched
 or transcribed again, so Whisper runs once per video. data/shadow/ is gitignored: the scripts belong to other people.
+The public site gets an ENCRYPTED copy in data/shadow-enc/ (AES-256-GCM, key from PBKDF2 over a passphrase that lives only in
+%LOCALAPPDATA%/NihongoSync/shadow.key, never in the repo). Only someone with the passphrase can read the scripts on the web.
 """
-import json, os, re, sys, tempfile, urllib.parse, urllib.request
+import base64, hashlib, hmac, json, os, re, secrets, sys, tempfile, urllib.parse, urllib.request
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)  # -I drops the script folder from sys.path
@@ -94,18 +96,67 @@ def save(c, vid, title, author, lang, kind, lines):
                            [(vid, n, round(s, 2), round(e, 2), t, romaji(t) if lang == "ja" else "") for n, (s, e, t) in enumerate(lines)])
 
 
+KEYFILE = os.path.join(os.environ.get("LOCALAPPDATA", ""), "NihongoSync", "shadow.key")
+WEB = os.path.join(HERE, "..", "data", "shadow-enc")
+ITER = 600000  # PBKDF2-SHA256 rounds; the page repeats this with the browser's Web Crypto
+
+
+def web_key():
+    """(passphrase, 32-byte key). The passphrase is made once and kept in KEYFILE; the public salt is in data/shadow-enc/meta.json."""
+    os.makedirs(os.path.dirname(KEYFILE), exist_ok=True); os.makedirs(WEB, exist_ok=True)
+    if not os.path.exists(KEYFILE): open(KEYFILE, "w", encoding="ascii").write(secrets.token_urlsafe(15))
+    pw = open(KEYFILE, encoding="ascii").read().strip()
+    mp = os.path.join(WEB, "meta.json")
+    if os.path.exists(mp): salt = base64.b64decode(json.load(open(mp, encoding="utf-8"))["salt"])
+    else:
+        salt = secrets.token_bytes(16)
+        json.dump({"v": 1, "kdf": "PBKDF2-SHA256", "iter": ITER, "salt": base64.b64encode(salt).decode()}, open(mp, "w", encoding="utf-8"), indent=1)
+    return pw, hashlib.pbkdf2_hmac("sha256", pw.encode(), salt, ITER, 32)
+
+
+def seal(key, obj):
+    """AES-GCM. The IV is derived from the content, so unchanged data gives an identical file (no git noise) and an IV is never reused for different data."""
+    try: from Crypto.Cipher import AES
+    except ImportError: sys.exit("Encryption needs: python -m pip install pycryptodome")
+    data = json.dumps(obj, ensure_ascii=False).encode("utf-8")
+    iv = hmac.new(key, b"iv:" + data, "sha256").digest()[:12]
+    ct, tag = AES.new(key, AES.MODE_GCM, nonce=iv).encrypt_and_digest(data)
+    return {"iv": base64.b64encode(iv).decode(), "ct": base64.b64encode(ct + tag).decode()}
+
+
+def put(name, obj):
+    text, path = json.dumps(obj, indent=1), os.path.join(WEB, name)
+    if not os.path.exists(path) or open(path, encoding="utf-8").read() != text:
+        open(path, "w", encoding="utf-8", newline="\n").write(text)
+
+
+def export_web(videos, index):
+    """Encrypted files for the public site. File names come from an HMAC of the video id, so they do not reveal which videos you practice."""
+    pw, key = web_key()
+    keep, web_index = {"meta.json", "index.json"}, []
+    for obj, entry in zip(videos, index):
+        name = hmac.new(pw.encode(), b"name:" + obj["id"].encode(), "sha256").hexdigest()[:20]
+        put(name + ".json", seal(key, obj)); keep.add(name + ".json")
+        web_index.append({**entry, "file": name})
+    put("index.json", seal(key, web_index))
+    for f in os.listdir(WEB):
+        if f not in keep: os.remove(os.path.join(WEB, f))
+
+
 def export(c):
     """Write data/shadow/<id>.json for every saved video, plus index.json (newest first)."""
     os.makedirs(OUT, exist_ok=True)
     for vid, n, t in c.execute("select l.video, l.n, l.t from shadow_lines l join shadow_videos v on v.id = l.video where v.lang = 'ja' and l.r = ''").fetchall():
         c.execute("update shadow_lines set r = %s where video = %s and n = %s", (romaji(t), vid, n))  # fills older videos
-    index = []
+    index, videos = [], []
     for vid, title, author, lang, kind, added in c.execute("select id, title, author, lang, kind, added::date from shadow_videos order by shadow_videos.added desc").fetchall():
         lines = [{"s": s, "e": e, "t": t, **({"r": r} if r else {}), **({"tr": m} if m else {})} for s, e, t, r, m in c.execute("select s, e, t, r, tr from shadow_lines where video = %s order by n", (vid,))]
-        json.dump({"id": vid, "title": title, "author": author, "lang": lang, "kind": kind, "lines": lines},
-                  open(os.path.join(OUT, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        obj = {"id": vid, "title": title, "author": author, "lang": lang, "kind": kind, "lines": lines}
+        videos.append(obj)
+        json.dump(obj, open(os.path.join(OUT, vid + ".json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
         index.append({"id": vid, "title": title, "author": author, "lang": lang, "kind": kind, "n": len(lines), "added": str(added)})
     json.dump(index, open(os.path.join(OUT, "index.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    export_web(videos, index)
     return len(index)
 
 
