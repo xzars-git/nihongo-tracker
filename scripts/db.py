@@ -4,7 +4,8 @@
   python -I scripts/db.py check    test the connection and count rows
   python -I scripts/db.py ping     exit 0 when the database answers (used by the tray app)
   python -I scripts/db.py dump [file]  write a plain-SQL backup (default catatan/db-backup.sql in the notes repo)
-  python -I scripts/db.py today    print how many sessions are logged today (day starts at 4am; used by the 20:00 reminder)
+  python -I scripts/db.py status   print server version, row counts, due reviews, backup and web-data times (tray window)
+  python -I scripts/db.py today   print how many sessions are logged today (day starts at 4am; used by the 20:00 reminder)
 """
 import glob, os, subprocess, sys
 from urllib.parse import urlparse, unquote
@@ -60,5 +61,21 @@ def today():
     with connect() as c: print(c.execute("select count(*) from sessions where day = (now() - interval '4 hours')::date").fetchone()[0])
 
 
+def _age(path):
+    """'dd MMM HH:mm' of a file's last change, or 'belum ada'."""
+    import datetime as dt
+    return dt.datetime.fromtimestamp(os.path.getmtime(path)).strftime("%d %b %H:%M") if os.path.exists(path) else "belum ada"
+
+
+def status():
+    """Lines for the tray window: server version, row counts, due reviews, backup and web-data times."""
+    with connect() as c:
+        ver = c.execute("show server_version").fetchone()[0]
+        n_s, n_m, due = c.execute("select (select count(*) from sessions), (select count(*) from mistakes), (select count(*) from mistakes where due <= current_date)").fetchone()
+    print(f"Server: PostgreSQL {ver}")
+    print(f"Data: {n_s} sesi, {n_m} bank ({due} jatuh tempo)")
+    print(f"Backup: {_age(os.path.join(HERE, '..', '..', 'catatan', 'db-backup.sql'))}, data web: {_age(os.path.join(HERE, '..', 'data', 'data.json'))}")
+
+
 if __name__ == "__main__":
-    {"init": init, "check": check, "ping": ping, "today": today, "dump": lambda: dump(*sys.argv[2:3])}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda: sys.exit(__doc__))()
+    {"init": init, "check": check, "ping": ping, "today": today, "status": status, "dump": lambda: dump(*sys.argv[2:3])}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda: sys.exit(__doc__))()

@@ -102,9 +102,19 @@
   const daysLeft = Math.max(1, Array.from({ length: 7 }, (_, i) => addDays(wk.start, i)).filter(d => d >= today && !isRest(d)).length);
   const prev = P.weeks[P.weeks.indexOf(wk) - 1] || wk;
   const alerts = [];  // shown big under the summary tiles (today view only)
+  // severity = needed daily pace / normal pace. One card shape for every level, escalating by colour and size:
+  // lv0 yellow (>1x) → lv1 coral (1.5x) → lv2 deep red (2x) → lv3 black + hazard stripes (3x, plus a blinking frame around the page)
+  let danger = false;
+  const LV = [["WARNING", "PACE SLIPPING"], ["BEHIND", "FALLING BEHIND TARGET"], ["CRITICAL ALERT", "PROGRESS BREACH DETECTED"], ["CRITICAL ALERT", "SYSTEM FAILURE IMMINENT"]];
   const behind = (have, goal, norm, key) => {
-    const gap = goal - have, r = gap / daysLeft;
-    if (gap > 0 && r > norm) alerts.push(`<p class="alert ${r >= norm * 1.5 ? "bad" : ""}" role="alert">${esc(t(key, { gap, goal, d: daysLeft, n: Math.ceil(r), norm: Math.round(norm) }))}</p>`);
+    const gap = goal - have, r = gap / daysLeft, sev = r / norm;
+    if (gap <= 0 || sev <= 1) return;
+    const lv = sev >= 3 ? 3 : sev >= 2 ? 2 : sev >= 1.5 ? 1 : 0, integ = Math.max(0, Math.round(have / goal * 100)), thr = Math.min(10, Math.ceil(sev * 2.5));
+    danger = danger || lv === 3;
+    alerts.push(`<div class="alert lv${lv}" role="alert"><div class="ct">${LV[lv][0]}</div><div class="cs">${LV[lv][1]}</div>` +
+      `<p class="cm">${esc(t(key, { gap, goal, d: daysLeft, n: Math.ceil(r), norm: Math.round(norm) }))}</p>` +
+      `<div class="cstat"><div><small>SYSTEM INTEGRITY</small><b>${integ}%</b><i class="ib"><u style="width:${integ}%"></u></i></div>` +
+      `<div><small>THREAT LEVEL</small><span class="tl">${"<u class='on'></u>".repeat(thr)}${"<u></u>".repeat(10 - thr)}</span></div></div></div>`);
   };
   behind(A.kaishiOpened ?? 0, wk.kaishi, P.daily.kaishiNew, "alert.kaishi");
   behind(D.bab ?? 0, wk.bab, (wk.bab - prev.bab) / 6, "alert.minna");
@@ -237,6 +247,7 @@
     $("#sumWeek").textContent = (w.some(est) ? "±" : "") + hm(w.reduce((n, x) => n + mins(x), 0));
     $("#sumWeekSub").textContent = t("sum.week.sub", { d: w.filter(studied).length, n: w.length });
     $("#alerts").innerHTML = d === today ? alerts.join("") : "";
+    document.body.classList.toggle("danger", d === today && danger);
     // appreciation: partial days still count, say so
     $("#praise").textContent = d !== today ? "" : studied(today) ? (todo.length ? t("praise.today", pr(today)) : "")
       : studied(yest) && yest >= first && !complete(yest) ? t("praise.yest", pr(yest)) : t("praise.none");

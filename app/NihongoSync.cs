@@ -55,16 +55,16 @@ class SyncApp
         Directory.CreateDirectory(Dir);
         var icon = MakeIcon(Yellow);
 
-        form.Text = "Nihongo Sync"; form.Icon = icon; form.ClientSize = new Size(420, 295);
+        form.Text = "Nihongo Sync"; form.Icon = icon; form.ClientSize = new Size(420, 395);
         form.FormBorderStyle = FormBorderStyle.FixedSingle; form.MaximizeBox = false; form.StartPosition = FormStartPosition.CenterScreen;
         form.BackColor = Bg; form.ForeColor = Ink; form.Font = new Font("Segoe UI", 10);
         var title = new Label { Text = "Nihongo Sync", ForeColor = Yellow, Font = new Font("Segoe UI", 16, FontStyle.Bold), Bounds = new Rectangle(20, 15, 380, 36) };
-        info.Bounds = new Rectangle(20, 58, 380, 120);
+        info.Bounds = new Rectangle(20, 58, 380, 220);
         form.Controls.Add(title); form.Controls.Add(info);
         syncBtn = AddButton("Sync sekarang", 20, delegate { StartSync(); });
         AddButton("Buka web", 150, delegate { Open(Site); });
         AddButton("Lihat log", 280, delegate { OpenLog(); });
-        dbBtn = AddButton("Start database", 20, delegate { StartDb(); }, 240);
+        dbBtn = AddButton("Start database", 20, delegate { StartDb(); }, 340);
         form.FormClosing += (s, e) => { if (!quitting) { e.Cancel = true; form.Hide(); } };  // X = hide to tray
         var handle = form.Handle;  // create the handle now so BeginInvoke works before the window is first shown
 
@@ -98,7 +98,7 @@ class SyncApp
         CheckDb();
     }
 
-    Button AddButton(string text, int x, EventHandler click, int y = 195)
+    Button AddButton(string text, int x, EventHandler click, int y = 295)
     {
         var b = new Button { Text = text, Bounds = new Rectangle(x, y, 120, 34), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(42, 43, 49) };
         b.Click += click; form.Controls.Add(b); return b;
@@ -122,6 +122,19 @@ class SyncApp
     }
     static readonly Icon IconOk = MakeIcon(Yellow), IconBusy = MakeIcon(Color.FromArgb(150, 150, 150)), IconFail = MakeIcon(Color.FromArgb(255, 90, 95));
     bool failed, dbOk = true;
+    string dbInfo = "";  // lines from "db.py status": server version, row counts, backup and web-data times
+
+    // newest Anki profile folder and when its collection last changed (Anki writes it while you review)
+    static string AnkiLine()
+    {
+        try
+        {
+            var files = Directory.GetDirectories(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Anki2"))
+                .Select(d => new FileInfo(Path.Combine(d, "collection.anki2"))).Where(f => f.Exists).OrderByDescending(f => f.LastWriteTime).ToArray();
+            return files.Length == 0 ? "Anki: koleksi tidak ditemukan" : "Anki: " + files[0].Directory.Name + ", terakhir " + files[0].LastWriteTime.ToString("dd MMM HH:mm");
+        }
+        catch { return "Anki: tidak bisa dibaca"; }
+    }
 
     public void ShowWindow() { form.Show(); form.WindowState = FormWindowState.Normal; form.Activate(); }
 
@@ -211,9 +224,9 @@ class SyncApp
     {
         ThreadPool.QueueUserWorkItem(delegate
         {
-            string o; bool ok;
-            try { ok = RunDb("ping", out o) == 0; } catch { ok = false; }
-            form.BeginInvoke((Action)(() => { dbOk = ok; dbBtn.Enabled = !ok; Refresh(); }));
+            string o, st = ""; bool ok;
+            try { ok = RunDb("ping", out o) == 0; if (ok && RunDb("status", out o) == 0) st = o.Replace("\r\n", "\n"); } catch { ok = false; }
+            form.BeginInvoke((Action)(() => { dbOk = ok; dbInfo = st; dbBtn.Enabled = !ok; Refresh(); }));
         });
     }
 
@@ -253,10 +266,10 @@ class SyncApp
     void Refresh()
     {
         var last = LastSync();
-        info.Text = string.Format("Jadwal: {0} · pengingat {4:hh\\:mm}\n\nSync terakhir: {1}\nHasil: {2}\nBerikutnya: {3:ddd HH:mm}\nDatabase: {5}",
+        info.Text = string.Format("Jadwal: {0} · pengingat {4:hh\\:mm}\n\nSync terakhir: {1}\nHasil: {2}\nBerikutnya: {3:ddd HH:mm}\nDatabase: {5}{6}\n{7}",
             string.Join(" · ", Slots.Select(s => s.ToString(@"hh\:mm"))),
             last == DateTime.MinValue ? "belum pernah" : last.ToString("ddd dd MMM, HH:mm"),
-            proc != null ? "sedang sync..." : result, NextSlot(), Reminder, dbOk ? "aktif" : "MATI (tekan Start database)");
+            proc != null ? "sedang sync..." : result, NextSlot(), Reminder, dbOk ? "aktif" : "MATI (tekan Start database)", dbInfo.Length > 0 ? "\n" + dbInfo : "", AnkiLine());
         // hover text (max 63 chars): status, last update, next run
         var status = proc != null ? "sedang sync" : !dbOk ? "DB MATI" : failed ? "GAGAL" : "aktif";
         var lastShort = last == DateTime.MinValue ? "-" : last.Date == DateTime.Today ? last.ToString("HH:mm") : last.ToString("dd MMM HH:mm");
