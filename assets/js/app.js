@@ -39,9 +39,9 @@
   const level = d => Math.max(count(d), studied(d) ? 1 : 0);
   const hmShort = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
 
-  const n3 = P.goals.find(g => g.id === "n3");
+  const n3 = P.goals.find(g => g.id === "n2");
   const monthYear = s => new Date(s + "T00:00:00Z").toLocaleDateString(loc, { month: "long", year: "numeric", timeZone: "UTC" }).toUpperCase();
-  $("#n3a").textContent = t("goal.n3"); $("#n3b").textContent = t("journey");
+  $("#n3a").textContent = t("goal.n2"); $("#n3b").textContent = t("journey");
   $("#updated").textContent = t("updated", { t: new Date(D.generated).toLocaleString(loc, { dateStyle: "medium", timeStyle: "short" }), b: D.bab ?? "–" });
   $("#n3left").textContent = t("n3.left", { n: daysBetween(today, n3.date) });
 
@@ -120,7 +120,7 @@
   behind(D.bab ?? 0, wk.bab, (wk.bab - prev.bab) / 6, "alert.minna");
 
   // ---------- toward N3: what the exam needs vs what is learned, and when the current pace gets there ----------
-  const NEED = { vocab: 3700, kanji: 650 };
+  const NEED = { vocab: 6000, kanji: 1000 };
   const fmtY = s => new Date(s + "T00:00:00Z").toLocaleDateString(loc, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
   const words = A.kaishiOpened ?? 0, perDay = rate("kaishiNew");
   const done = perDay > 0 ? addDays(today, Math.ceil(Math.max(0, NEED.vocab - words) / perDay)) : null;

@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T10:50",
+ "generated": "2026-11-24T11:57",
  "bab": 16,
  "sessions": [
   {
@@ -1084,23 +1084,23 @@
     "ankiMin": 79
    },
    "2026-11-24": {
-    "reviews": 258,
-    "again": 76,
-    "hard": 89,
-    "kaishiNew": 7,
+    "reviews": 281,
+    "again": 93,
+    "hard": 92,
+    "kaishiNew": 15,
     "rtkNew": 0,
-    "new": 24,
-    "dueLeft": 1,
-    "ankiMin": 72
+    "new": 32,
+    "dueLeft": 9,
+    "ankiMin": 81
    }
   },
   "today": "2026-11-24",
-  "dueNow": 1,
-  "kaishiOpened": 178,
+  "dueNow": 9,
+  "kaishiOpened": 186,
   "kaishiMature": 29,
   "kanjiKnown": 0,
-  "kanjiSeen": 153,
-  "kanjiList": "一丈上中事人今仕会伝住何作使信優元兄先入全出分刻前勉動医友同名君味呼品回国場声売変夜大夫失女奴好始嫌嬉子学守家屋山市帰度座張強当役彼待心忘忙思悪意所手持教料方族日明昨時書服本束来校楽様次止歯母毎気沢済無然父物独生申町番白皆目知研礼私究立約経続置考者聞自葉行表製見言許訳話語誰調買資身辞達部配間電面頑頼願食高"
+  "kanjiSeen": 159,
+  "kanjiList": "一丈上中事人今仕会伝住何作使信俺優元兄先入全出分刻前勉動医友同名君味呼品回国場声売変夜夢大夫失女奴好始嫌嬉子学守家屋山市帰度座張強当役彼待心忘忙思悪意所手持教料方族日明昨時書服本束来校楽様次止歯母毎気沢済無然父物独理生申男町番白皆目知研礼私究立約経続置考者聞自葉行表製見解言許訳話語誰調買資身辞達部配間難電面頑頼願食高"
  },
  "plan": {
   "goals": [
@@ -1122,7 +1122,14 @@
     "label": "JLPT N3",
     "date": "2027-07-04",
     "approx": true,
-    "note": "Juli 2027, cadangan Desember 2027"
+    "note": "Titik cek menuju N2: Juli 2027, cadangan Desember 2027"
+   },
+   {
+    "id": "n2",
+    "label": "JLPT N2",
+    "date": "2027-12-05",
+    "approx": true,
+    "note": "Desember 2027, target utama"
    },
    {
     "id": "work",
@@ -1333,7 +1340,7 @@
    "2026-11-19": 149,
    "2026-11-20": 40,
    "2026-11-23": 58,
-   "2026-11-24": 7
+   "2026-11-24": 19
   },
   "afkSeconds": 180
  }

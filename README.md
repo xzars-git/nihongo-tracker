@@ -1,6 +1,6 @@
 # 日本語 Tracker
 
-Public log of my Japanese study toward **JLPT N3 (July 2027)**, in Indonesian, English and Japanese.
+Public log of my Japanese study toward **JLPT N2 (December 2027)**, with N3 in July 2027 as a checkpoint, in Indonesian, English and Japanese.
 
 **Live:** https://arsenius-nihongo.vercel.app
 
@@ -8,7 +8,7 @@ Public log of my Japanese study toward **JLPT N3 (July 2027)**, in Indonesian, E
 
 - **Today:** four daily missions (Anki, kanji quiz, Minna no Nihongo, conversation) checked from real data
 - **This week:** progress bars for Minna no Nihongo chapters and Kaishi 1.5k vocabulary, with pace toward the checkpoint
-- **Toward N3:** vocabulary and kanji against what the exam needs, with a forecast date at the last 7 days' pace
+- **Toward N2:** vocabulary and kanji against what the exam needs, with a forecast date at the last 7 days' pace
 - **Consistency:** activity heatmap and streak
 - **Mistake bank:** items due for spaced review (1 → 3 → 7 → 14 days), plus a **weak spots** summary (verb forms, particles, kanji, look-alike words)
 - **Achievements:** badges for words, kanji, streaks, chapters, conversations, study hours

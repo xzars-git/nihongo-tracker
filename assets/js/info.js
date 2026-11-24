@@ -11,11 +11,11 @@
 
   const about = () => `<h1>${L({ id: "Tentang aku", en: "About me", ja: "自己紹介" })}</h1>` + L({
     id: `<p class="lead">Halo, aku <b>Arsenius</b>, Flutter developer dari Bandung. Sudah lebih dari 3 tahun menulis Flutter di tempat kerja.</p>
-      <p>Sekarang aku belajar bahasa Jepang dari <i>Minna no Nihongo</i>, targetnya <b>JLPT N3 Juli 2027</b>, lalu kerja di bidang IT di Jepang mulai 2028. Aku belajar di sela dan sesudah kerja, ditemani tutor AI. Halaman ini mencatat progresnya dan ter-update otomatis.</p>`,
+      <p>Sekarang aku belajar bahasa Jepang dari <i>Minna no Nihongo</i>, targetnya <b>JLPT N2 Desember 2027</b>, lalu kerja di bidang IT di Jepang mulai 2028. Aku belajar di sela dan sesudah kerja, ditemani tutor AI. Halaman ini mencatat progresnya dan ter-update otomatis.</p>`,
     en: `<p class="lead">Hi, I'm <b>Arsenius</b>, a Flutter developer from Bandung. I've been writing Flutter at work for over 3 years.</p>
-      <p>I'm now learning Japanese with <i>Minna no Nihongo</i>, aiming for <b>JLPT N3 in July 2027</b> and an IT job in Japan from 2028. I study around and after work with an AI tutor. This site tracks the progress and updates itself.</p>`,
+      <p>I'm now learning Japanese with <i>Minna no Nihongo</i>, aiming for <b>JLPT N2 in December 2027</b> and an IT job in Japan from 2028. I study around and after work with an AI tutor. This site tracks the progress and updates itself.</p>`,
     ja: `<p class="lead">こんにちは、バンドンのFlutter開発者<b>アルセニウス</b>です。仕事でFlutterを3年以上書いています。</p>
-      <p>今は『みんなの日本語』で日本語を勉強中。目標は<b>2027年7月のJLPT N3</b>、そして2028年から日本でIT関係の仕事をすることです。仕事の合間と後にAIチューターと勉強しています。このサイトは進捗を記録し、自動で更新されます。</p>`,
+      <p>今は『みんなの日本語』で日本語を勉強中。目標は<b>2027年12月のJLPT N2</b>、そして2028年から日本でIT関係の仕事をすることです。仕事の合間と後にAIチューターと勉強しています。このサイトは進捗を記録し、自動で更新されます。</p>`,
   }) + facts([
     [L({ id: "Pekerjaan", en: "Job", ja: "仕事" }), L({ id: "Flutter mobile developer", en: "Flutter mobile developer", ja: "Flutterモバイル開発者" })],
     [L({ id: "Tempat kerja", en: "Workplace", ja: "勤務先" }), L({ id: "Bapenda Jabar, sejak Feb 2023", en: "Bapenda Jabar, since Feb 2023", ja: "西ジャワ州歳入庁（2023年2月〜）" })],
@@ -23,7 +23,7 @@
     [L({ id: "Sedang belajar", en: "Studying", ja: "学習中" }), D ? `Minna no Nihongo · ${t("fx.bab", { b: D.bab })}` : "–"],
     [L({ id: "Kata Kaishi", en: "Kaishi words", ja: "Kaishi 単語" }), D ? `${A.kaishiOpened} / 1500` : "–"],
     [L({ id: "Kanji sudah ketemu", en: "Kanji seen", ja: "出会った漢字" }), A.kanjiSeen ?? "–"],
-    [L({ id: "Target", en: "Goal", ja: "目標" }), `JLPT N3 · ${days("2027-07-04")} ${t("d")}`],
+    [L({ id: "Target", en: "Goal", ja: "目標" }), `JLPT N2 · ${days("2027-12-05")} ${t("d")}`],
   ]) + `<p><a class="cta" href="https://arsenius-portfolio.vercel.app" target="_blank" rel="noopener">${L({ id: "Lihat portofolio →", en: "See my portfolio →", ja: "ポートフォリオを見る →" })}</a></p>`;
 
   const step = (n, h, q, tm, d) => `<div class="step"><span class="no">${n}</span><div><h3>${h}</h3><p class="mono small">${q} · ${tm}</p><p>${d}</p></div></div>`;

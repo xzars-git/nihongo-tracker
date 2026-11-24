@@ -64,7 +64,7 @@
     txt(c, s.dateLabel, 1000, 330, F.mono(34, 700), p.ink, "right");
     txt(c, `⏱ ${s.hm} · 🔥 ${s.active}`, 1000, 380, F.mono(30, 700), p.mut, "right");
     txt(c, "arsenius-nihongo.vercel.app", 80, 1630, F.mono(28), p.mut);
-    txt(c, `N3 まで あと ${s.daysN3} 日`, 1000, 1630, F.jp(34), p.ink, "right");
+    txt(c, `N2 まで あと ${s.daysN3} 日`, 1000, 1630, F.jp(34), p.ink, "right");
   }
   // one box of the stat grid
   function tile(c, p, x, y, v, l, on) {
@@ -107,7 +107,7 @@
   window.initFlex = async s => {
     const cv = document.getElementById("flexCanvas"), c = cv.getContext("2d");
     const $ = id => document.getElementById(id), share = $("flexShare"), save = $("flexSave");
-    const sample = "0123456789ABCabc今日の勉強今週のまとめ日連続N3まであと" + ["fx.t1", "fx.r.kaishiNew", "fx.r.rounds", "fx.t6", "fx.studyToday", "fx.estNote", "fx.week7", "fx.total",
+    const sample = "0123456789ABCabc今日の勉強今週のまとめ日連続N2まであと" + ["fx.t1", "fx.r.kaishiNew", "fx.r.rounds", "fx.t6", "fx.studyToday", "fx.estNote", "fx.week7", "fx.total",
         "fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub"].map(k => t(k)).join("") + s.dateLabel + s.hoursSub + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
     await Promise.all([F.num(80), F.head(40), F.mono(30), F.mono(30, 700), F.jp(40), F.jp(40, 400)].map(f => document.fonts.load(f, sample))).catch(() => {});
     const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });

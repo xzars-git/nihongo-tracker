@@ -18,7 +18,14 @@
       "label": "JLPT N3",
       "date": "2027-07-04",
       "approx": true,
-      "note": "Juli 2027, cadangan Desember 2027"
+      "note": "Titik cek menuju N2: Juli 2027, cadangan Desember 2027"
+    },
+    {
+      "id": "n2",
+      "label": "JLPT N2",
+      "date": "2027-12-05",
+      "approx": true,
+      "note": "Desember 2027, target utama"
     },
     {
       "id": "work",
