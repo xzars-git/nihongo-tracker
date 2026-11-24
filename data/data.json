@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T23:31",
+ "generated": "2026-11-24T23:35",
  "bab": 16,
  "sessions": [
   {
@@ -649,6 +649,18 @@
    "min": 1,
    "shadowing": true,
    "note": "タメ口日本語Podcast―夏が来たーmust-have item for the summer【日本語聴解】 · baris 1/101"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "kaiwa",
+   "mode": "shadowing",
+   "score": "– · 1 mnt",
+   "ok": null,
+   "total": null,
+   "turns": null,
+   "min": 1,
+   "shadowing": true,
+   "note": "タメ口日本語Podcast―夏が来たーmust-have item for the summer【日本語聴解】 · baris 26/101"
   }
  ],
  "mistakes": [
