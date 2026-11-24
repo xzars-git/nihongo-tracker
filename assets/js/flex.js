@@ -102,13 +102,38 @@
       });
     },
   };
+  // progress status: same levels as the dashboard alert cards (lv -1 = on pace)
+  const LVC = [["#F2C200", "#111"], ["#FF5A5F", "#111"], ["#D1202F", "#fff"], ["#111", "#F2C200"]];
+  const LVT = ["WARNING", "BEHIND", "CRITICAL ALERT", "CRITICAL ALERT"];
+  T.status = (c, p, s) => {
+    const worst = s.prog.reduce((a, b) => b.lv > a.lv ? b : a), lv = worst.lv, ok = lv < 0;
+    plate(c, "進捗ステータス", 80, 390, F.jp(76), p.a, p.af, -2);
+    const [bg, fg] = ok ? [p.b, p.bf] : LVC[lv];
+    plate(c, ok ? "ON TRACK" : LVT[lv], 80, 560, F.head(110), bg, fg, -2, 34);
+    txt(c, t(ok ? "fx.st.ok" : "fx.st.late"), 80, 800, sub(30), p.mut, "left", 920);
+    s.prog.forEach((g, i) => {
+      const y = 850 + i * 370;
+      c.strokeStyle = p.ink; c.lineWidth = 6; c.strokeRect(80, y, 920, 335);
+      txt(c, g.name, 112, y + 66, lab(44), p.ink, "left", 560);
+      txt(c, `${g.have} / ${g.goal}`, 112, y + 112, sub(30), p.mut, "left", 560);
+      txt(c, g.integ + "%", 968, y + 100, F.num(110), p.ink, "right", 330);
+      c.strokeRect(112, y + 140, 856, 40);
+      c.fillStyle = g.lv < 0 ? p.b : LVC[g.lv][0]; c.fillRect(112, y + 140, 856 * Math.min(100, g.integ) / 100, 40);
+      txt(c, "THREAT LEVEL", 112, y + 232, F.mono(24, 700), p.mut);
+      for (let k = 0; k < 10; k++) {
+        const x = 112 + k * 86;
+        if (k < g.thr) { c.fillStyle = LVC[Math.max(g.lv, 0)][0]; c.fillRect(x, y + 246, 76, 34); } else { c.lineWidth = 4; c.strokeRect(x, y + 246, 76, 34); }
+      }
+      txt(c, g.lv < 0 ? t("fx.st.fine") : t("fx.st.need", { n: Math.ceil(g.r), u: t(g.unit), norm: Math.round(g.norm) }), 112, y + 316, sub(26), p.mut, "left", 840);
+    });
+  };
   const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
 
   window.initFlex = async s => {
     const cv = document.getElementById("flexCanvas"), c = cv.getContext("2d");
     const $ = id => document.getElementById(id), share = $("flexShare"), save = $("flexSave");
-    const sample = "0123456789ABCabc今日の勉強今週のまとめ日連続N2まであと" + ["fx.t1", "fx.r.kaishiNew", "fx.r.rounds", "fx.t6", "fx.studyToday", "fx.estNote", "fx.week7", "fx.total",
-        "fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub"].map(k => t(k)).join("") + s.dateLabel + s.hoursSub + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
+    const sample = "0123456789ABCabc今日の勉強今週のまとめ進捗ステータス日連続N2まであと" + ["fx.t1", "fx.r.kaishiNew", "fx.r.rounds", "fx.t6", "fx.studyToday", "fx.estNote", "fx.week7", "fx.total",
+        "fx.st.ok", "fx.st.late", "fx.st.fine", "fx.st.need", "fx.st.words", "fx.st.chapters", "fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub"].map(k => t(k)).join("") + s.dateLabel + s.hoursSub + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
     await Promise.all([F.num(80), F.head(40), F.mono(30), F.mono(30, 700), F.jp(40), F.jp(40, 400)].map(f => document.fonts.load(f, sample))).catch(() => {});
     const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
     s.hm = (s.minEst && s.min ? "±" : "") + hm(s.min); s.totalHm = hm(s.totalMin); s.recapHm = (s.recap.est ? "±" : "") + hm(s.recap.min);
@@ -138,12 +163,13 @@
       frame(c, p, s);
       if (st.pal === 5) { c.strokeStyle = p.a; c.lineWidth = 10; c.strokeRect(30, 30, 1020, 1860); c.lineWidth = 3; c.strokeRect(54, 54, 972, 1812); }
       if (q) quoteBlock(c, p, q);
-      document.querySelectorAll("#flexStats, #flexWeek").forEach(b => b.setAttribute("aria-pressed", b.id === (st.mode === "stats" ? "flexStats" : "flexWeek")));
+      document.querySelectorAll("#flexStats, #flexWeek, #flexStatus").forEach(b => b.setAttribute("aria-pressed", b.id === "flex" + st.mode[0].toUpperCase() + st.mode.slice(1)));
       file = null; share.disabled = save.disabled = true; share.textContent = t("fx.preparing");
-      cv.toBlob(b => { file = new File([b], `nihongo-${s.date}${st.mode === "week" ? "-week" : ""}.png`, { type: "image/png" }); share.textContent = t("fx.share"); share.disabled = save.disabled = false; });
+      cv.toBlob(b => { file = new File([b], `nihongo-${s.date}${st.mode === "stats" ? "" : "-" + st.mode}.png`, { type: "image/png" }); share.textContent = t("fx.share"); share.disabled = save.disabled = false; });
     };
     $("flexStats").onclick = () => { st.mode = "stats"; draw(); };
     $("flexWeek").onclick = () => { st.mode = "week"; draw(); };
+    $("flexStatus").onclick = () => { st.mode = "status"; draw(); };
     $("flexTheme").onclick = () => { st.pal = (st.pal + 1) % PAL.length; store("fxPal", st.pal); draw(); };
     qBox.onchange = () => { showQuote = qBox.checked; store("fxQuote", showQuote); draw(); };
     tagSel.onchange = () => { qTag = tagSel.value; store("fxQTag", qTag); st.q = pickQuote(st.q); showQuote = qBox.checked = true; store("fxQuote", true); draw(); };

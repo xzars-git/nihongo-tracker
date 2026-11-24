@@ -106,10 +106,15 @@
   // lv0 yellow (>1x) → lv1 coral (1.5x) → lv2 deep red (2x) → lv3 black + hazard stripes (3x, plus a blinking frame around the page)
   let danger = false;
   const LV = [["WARNING", "PACE SLIPPING"], ["BEHIND", "FALLING BEHIND TARGET"], ["CRITICAL ALERT", "PROGRESS BREACH DETECTED"], ["CRITICAL ALERT", "SYSTEM FAILURE IMMINENT"]];
+  // lv -1 = on pace; shared by the alert cards and the Flex "Status" image
+  const gauge = (have, goal, norm) => {
+    const gap = goal - have, r = gap / daysLeft, sev = gap > 0 ? r / norm : 0;
+    return { have, goal, gap, r, norm, lv: sev <= 1 ? -1 : sev >= 3 ? 3 : sev >= 2 ? 2 : sev >= 1.5 ? 1 : 0,
+      integ: Math.max(0, Math.round(have / goal * 100)), thr: sev <= 1 ? 0 : Math.min(10, Math.ceil(sev * 2.5)) };
+  };
   const behind = (have, goal, norm, key) => {
-    const gap = goal - have, r = gap / daysLeft, sev = r / norm;
-    if (gap <= 0 || sev <= 1) return;
-    const lv = sev >= 3 ? 3 : sev >= 2 ? 2 : sev >= 1.5 ? 1 : 0, integ = Math.max(0, Math.round(have / goal * 100)), thr = Math.min(10, Math.ceil(sev * 2.5));
+    const { gap, r, lv, integ, thr } = gauge(have, goal, norm);
+    if (lv < 0) return;
     danger = danger || lv === 3;
     alerts.push(`<div class="alert lv${lv}" role="alert"><div class="ct">${LV[lv][0]}</div><div class="cs">${LV[lv][1]}</div>` +
       `<p class="cm">${esc(t(key, { gap, goal, d: daysLeft, n: Math.ceil(r), norm: Math.round(norm) }))}</p>` +
@@ -275,6 +280,10 @@
     minna: minnaS.map(s => s.mode), kaiwa: kaiwaS.length, n3Month: monthYear(n3.date),
     daysN3: daysBetween(today, n3.date), n3Total: daysBetween(P.weeks[0].start, n3.date), startLabel: fmt(P.weeks[0].start),
     heat: Array.from({ length: 56 }, (_, i) => { const x = addDays(today, i - 55); return x < first ? -1 : level(x); }),
+    prog: [
+      { name: t("fx.wKaishi"), unit: "fx.st.words", ...gauge(A.kaishiOpened ?? 0, wk.kaishi, P.daily.kaishiNew) },
+      { name: t("fx.wMinna"), unit: "fx.st.chapters", ...gauge(D.bab ?? 0, wk.bab, (wk.bab - prev.bab) / 6) },
+    ],
     week: [[t("fx.wMinna"), D.bab ?? 0, wk.bab], [t("fx.wKaishi"), A.kaishiOpened ?? 0, wk.kaishi]],
   });
 })();
