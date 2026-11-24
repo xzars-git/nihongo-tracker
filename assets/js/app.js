@@ -42,7 +42,7 @@
   // optional activities (no daily quota): Anki Bab decks count as Minna, kanji met in Anki count as kanji
   const acts = d => {
     const a = A.days[d] || {}, ss = byDay[d] || [];
-    return { kanji: ss.some(s => s.kind === "kanji") || (a.kanjiNew || 0) > 0, minna: ss.some(s => s.kind === "minna") || (a.minnaRev || 0) > 0, kaiwa: ss.some(s => s.kind === "kaiwa") };
+    return { kanji: ss.some(s => s.kind === "kanji"), minna: ss.some(s => s.kind === "minna") || (a.minnaRev || 0) > 0, kaiwa: ss.some(s => s.kind === "kaiwa") };
   };
   // a day counts as "studied" on any real activity, even when the floor is not met
   const rawMin = d => ((A.days[d] || {}).ankiMin || 0) + (chat(d) || 0);

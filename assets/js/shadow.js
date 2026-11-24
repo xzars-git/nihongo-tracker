@@ -138,12 +138,21 @@
     if (S.gap) { p.pauseVideo(); S.wait = true; S.timer = setTimeout(step, (l.e - l.s) * 1000 / S.rate + 700); } else step();
   }
 
+  // Like Anki's answer-time cap: one line counts at most `cap` seconds until you move on or touch the page.
+  // Anything above it (e.g. a loop left running) is AFK and not practice. The cap grows with long lines, repeats and slow speed.
+  function add(dt) {
+    const l = S.data.lines[S.cur], cap = Math.max(60, (l.e - l.s) * S.reps * (S.gap ? 2 : 1) / S.rate * 1.5);
+    if (S.cur !== S.lineAt) { S.lineAt = S.cur; S.lineSecs = 0; }
+    if (S.lineSecs < cap) { S.secs += dt; S.lineSecs += dt; } else S.afk += dt;
+  }
+  ["pointerdown", "keydown"].forEach(e => document.addEventListener(e, () => { S.lineSecs = 0; }, true));
+
   function tick() {
     const p = S.player; if (!p?.getCurrentTime) return;
-    if (S.wait) { S.secs += 0.1; return; }  // your turn to speak counts as practice
+    if (S.wait) { add(0.1); return; }  // your turn to speak counts as practice
     const t = p.getCurrentTime(), ls = S.data.lines, playing = p.getPlayerState() === 1;
     const over = playing && Date.now() > S.guard && t >= ls[S.cur].e + 0.2;
-    if (playing) { S.secs += 0.1; $("#shMeta").textContent = meta(); logBtn(); }
+    if (playing) { add(0.1); $("#shMeta").textContent = meta(); logBtn(); }
     if (S.loop) { if (over) seek(ls[S.cur].s); }
     else if (S.auto) { if (over) endPlay(); }
     else {
@@ -156,11 +165,12 @@
   const logCmd = () => `python -X utf8 -I tracker/scripts/catat.py shadow ${S.vid} ${logMin()}`;
   const logBtn = () => { $("#shLog").textContent = `📋 ${L(UI.log)}: ${logMin()} min`; };
 
-  const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}`;
+  const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}${S.afk >= 1 ? ` · AFK ${fmt(S.afk)}` : ""}`;
 
   // Resume file: done lines + current line of one video, to continue on another device or browser.
   function exportProgress() {
-    const p = { app: "shadowing", v: 1, vid: S.vid, title: S.data.title, n: S.data.lines.length, done: [...S.done].sort((a, b) => a - b), cur: S.cur, at: new Date().toISOString() };
+    const p = { app: "shadowing", v: 1, vid: S.vid, title: S.data.title, n: S.data.lines.length, done: [...S.done].sort((a, b) => a - b), cur: S.cur, at: new Date().toISOString(),
+      time: { start: S.start, activeSec: Math.round(S.secs), afkSec: Math.round(S.afk), logMin: logMin(), rule: "one line counts max(60 s, line length x repeats / speed x 1.5) until you move on or touch the page; the rest is AFK" } };
     const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([JSON.stringify(p)], { type: "application/json" })), download: `shadowing-${S.vid}-${p.done.length}of${p.n}.json` });
     a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   }
@@ -215,7 +225,7 @@
 
   async function open(id) {
     S.vid = id; S.data = await load(id);
-    S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.play = 0;
+    S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.afk = 0; S.lineSecs = 0; S.lineAt = 0; S.start = new Date().toISOString(); S.play = 0;
     $("#shBody").hidden = false; bar(); list(); $("#shMeta").textContent = meta(); logBtn();
     $("#shLog").onclick = () => navigator.clipboard?.writeText(logCmd()).then(() => { $("#shLog").textContent = "✔ " + L(UI.copied); setTimeout(logBtn, 2500); }, () => prompt(L(UI.log), logCmd()));
     await loadYT();
