@@ -125,6 +125,90 @@
     { w: { id: "Satu PC adalah titik tunggal: PC mati berarti tidak ada update.", en: "One PC is a single point of failure: PC off means no updates.", ja: "1台のPCが単一障害点。PCがオフなら更新されない。" }, f: { id: "Sync gagal dengan pesan jelas dan data lama tetap aman di situs. Cadangan melindungi dari kehilangan data.", en: "A failed sync reports clearly and the old data stays on the site. The backup protects against data loss.", ja: "同期失敗は明確に通知され、サイト上の古いデータは残る。バックアップがデータ消失を防ぐ。" } },
   ];
 
+  // Architecture overview tiles. f = flow top to bottom; an array inside f = nodes side by side. k = colour kind, w = why the step exists.
+  const KIND = {
+    you: { id: "Kamu", en: "You", ja: "あなた" }, run: { id: "Kode", en: "Code", ja: "コード" }, ai: { id: "Model AI", en: "AI model", ja: "AIモデル" },
+    db: { id: "Data", en: "Data", ja: "データ" }, web: { id: "Web", en: "Web", ja: "Web" }, lock: { id: "Proteksi", en: "Protection", ja: "保護" },
+  };
+  const ARC = {
+    h: { id: "Arsitektur sekilas", en: "Architecture at a glance", ja: "アーキテクチャ概要" },
+    lead: { id: "Enam alur utama. Titik kuning menunjukkan arah data. Arahkan kursor atau ketuk kotak untuk tahu kenapa langkah itu ada, klik untuk menyematkan.", en: "The six main flows. The yellow dot shows where the data goes. Hover or tap a box to see why that step exists; click to pin it.", ja: "主な6つの流れ。黄色の点がデータの向きを示します。箱にカーソルを合わせるかタップすると、その手順がある理由を表示。クリックで固定。" },
+    detail: { id: "Detail: sebelum dan sesudah PostgreSQL", en: "In detail: before and after PostgreSQL", ja: "詳細：PostgreSQL導入の前後" },
+  };
+  const TILES = [
+    { t: { id: "Pencatatan harian", en: "Daily logging", ja: "毎日の記録" },
+      s: { id: "Dari latihan di chat sampai angka di situs ini.", en: "From a drill in the chat to the numbers on this site.", ja: "チャットでの練習から、このサイトの数字まで。" },
+      f: [
+        { n: { id: "Kamu + tutor AI", en: "You + AI tutor", ja: "あなた＋AIチューター" }, k: "you", w: { id: "Belajar terjadi di chat. Kalau mencatat butuh lebih dari satu perintah, aku pasti melewatkannya.", en: "Learning happens in the chat. If logging took more than one command, I would skip it.", ja: "学習はチャットで行う。記録に1コマンド以上かかると、きっとサボってしまう。" } },
+        { n: "catat.py", k: "run", w: { id: "Satu alat untuk semua jenis catatan (sesi, kesalahan, kata Inggris), jadi format datanya selalu sama.", en: "One tool for every kind of log (sessions, mistakes, English words), so the data format never drifts.", ja: "セッション・間違い・英単語をすべて1つのツールで記録するので、データ形式がぶれない。" } },
+        { n: "PostgreSQL", k: "db", w: { id: "Tabel bisa di-query dan tidak membengkak. File markdown yang lama terus memanjang dan mudah rusak.", en: "Tables can be queried and do not bloat. The old markdown files kept growing and broke easily.", ja: "表はクエリでき、肥大化しない。以前のMarkdownファイルは長くなり続け、壊れやすかった。" } },
+        { n: "publish.py", k: "run", w: { id: "Mengubah baris database jadi dua file JSON. Situs tidak pernah menyentuh database, jadi tidak ada yang bisa membobolnya dari internet.", en: "Turns database rows into two JSON files. The site never touches the database, so nobody can reach it from the internet.", ja: "DBの行を2つのJSONファイルに変換。サイトはDBに触れないので、インターネットから到達できない。" } },
+        [{ n: "GitHub", k: "web", w: { id: "Riwayat setiap perubahan data tersimpan, dan push memicu deploy otomatis.", en: "Every data change has a history, and a push triggers the deploy automatically.", ja: "データ変更の履歴が残り、pushで自動デプロイが走る。" } },
+         { n: "Vercel", k: "web", w: { id: "Situs statis: gratis, cepat, dan tidak ada server yang bisa diretas.", en: "A static site: free, fast, and there is no server to hack.", ja: "静的サイト：無料で速く、攻撃できるサーバーがない。" } }],
+        { n: "Browser", k: "web", w: { id: "Grafik dan kartu alert dihitung di perangkatmu dari JSON yang sama, jadi tidak perlu backend.", en: "Charts and alert cards are computed on your device from the same JSON, so no backend is needed.", ja: "グラフとアラートカードは同じJSONから端末で計算するので、バックエンドが要らない。" } },
+      ] },
+    { t: { id: "Sync dan cadangan", en: "Sync and backup", ja: "同期とバックアップ" },
+      s: { id: "Berjalan sendiri empat kali sehari dari aplikasi tray.", en: "Runs by itself four times a day from the tray app.", ja: "トレイアプリから1日4回、自動で実行。" },
+      f: [
+        { n: "Nihongo Sync (tray)", k: "run", w: { id: "Jadwal otomatis, jadi aku tidak perlu ingat untuk sync. Ia juga mengingatkan jam 20:00 kalau belum belajar.", en: "An automatic schedule, so I never have to remember to sync. It also reminds me at 20:00 if I have not studied.", ja: "自動スケジュールなので同期を覚えておく必要がない。20:00に未学習ならリマインドもする。" } },
+        { n: { id: "Cek database", en: "Database check", ja: "DB確認" }, k: "lock", w: { id: "Kalau database mati, sync berhenti dengan pesan jelas. Lebih baik data lama daripada data kosong di situs.", en: "If the database is down, the sync stops with a clear message. Old data on the site is better than empty data.", ja: "DBが止まっていれば、明確なメッセージで同期を中断。空のデータより古いデータのほうがまし。" } },
+        [{ n: { id: "JSON publik", en: "Public JSON", ja: "公開JSON" }, k: "web", w: { id: "Hanya file di daftar putih yang boleh ikut. Tidak ada password atau catatan mentah.", en: "Only allow-listed files may go along. No passwords and no raw notes.", ja: "許可リストのファイルだけを含める。パスワードや生ノートは入らない。" } },
+         { n: { id: "Cadangan SQL", en: "SQL backup", ja: "SQLバックアップ" }, k: "db", w: { id: "Salinan penuh database ke repo privat, supaya PC rusak tidak berarti data hilang.", en: "A full copy of the database to a private repo, so a broken PC does not mean lost data.", ja: "DB全体を非公開リポジトリにコピー。PCが壊れてもデータは失われない。" } }],
+        { n: { id: "Push jika berubah", en: "Push only if changed", ja: "変更時のみpush" }, k: "run", w: { id: "Tidak ada commit kosong dan tidak ada deploy yang sia-sia.", en: "No empty commits and no wasted deploys.", ja: "空のコミットや無駄なデプロイをしない。" } },
+      ] },
+    { t: { id: "Talk: tutor percakapan", en: "Talk: conversation tutor", ja: "Talk：会話チューター" },
+      s: { id: "Ngobrol dengan Yuki. Semua berjalan di PC ini, suaramu tidak keluar.", en: "Chat with Yuki. Everything runs on this PC; your voice never leaves it.", ja: "ゆきと会話。すべてこのPCで動き、声は外に出ない。" },
+      f: [
+        { n: { id: "Mic: klik bicara", en: "Mic: click to talk", ja: "マイク：クリックで話す" }, k: "you", w: { id: "Klik untuk mulai, klik untuk kirim. Tidak deteksi otomatis, jadi jeda saat berpikir tidak memotong kalimatmu.", en: "Click to start, click to send. No auto-detect, so a pause while you think never cuts you off.", ja: "クリックで開始、もう一度で送信。自動検出しないので、考える間に途切れない。" } },
+        [{ n: "kotoba-whisper (JA)", k: "ai", w: { id: "Model Whisper yang dilatih khusus untuk bahasa Jepang, jadi kanji-nya lebih tepat.", en: "A Whisper model trained for Japanese, so the kanji come out right more often.", ja: "日本語向けに学習したWhisperなので、漢字がより正確。" } },
+         { n: "whisper-small (ID/EN)", k: "ai", w: { id: "Kamu memilih bahasa sebelum bicara, jadi bahasa Jepang tidak salah ditulis sebagai bahasa Inggris.", en: "You pick the language before you speak, so Japanese is never written down as English.", ja: "話す前に言語を選ぶので、日本語が英語として書き起こされない。" } }],
+        { n: "Qwen3.5 9B (Ollama)", k: "ai", w: { id: "Model lokal di GPU: gratis, offline, dan percakapanmu tidak dikirim ke mana pun. Mode berpikir dimatikan supaya balasan cepat muncul.", en: "A local model on the GPU: free, offline, and your chat is sent nowhere. Thinking mode is off so replies start quickly.", ja: "GPU上のローカルモデル：無料・オフラインで、会話はどこにも送られない。思考モードはオフにして返答を速くしている。" } },
+        [{ n: { id: "Koreksi", en: "Correction", ja: "添削" }, k: "run", w: { id: "Koreksi dicek terpisah dari obrolan, jadi Yuki tetap ngobrol natural seperti teman.", en: "Grammar is checked in a separate pass, so Yuki can keep chatting naturally like a friend.", ja: "文法は別の処理で確認するので、ゆきは友だちのように自然に話し続けられる。" } },
+         { n: { id: "Furigana + romaji", en: "Furigana + romaji", ja: "ふりがな＋ローマ字" }, k: "run", w: { id: "Bacaan kanji diambil dari kamus (UniDic), bukan dari AI, jadi tidak mengarang.", en: "Kanji readings come from a dictionary (UniDic), not from the AI, so they are never made up.", ja: "読みはAIではなく辞書（UniDic）から取るので、でたらめにならない。" } }],
+        { n: "AivisSpeech", k: "ai", w: { id: "Suara Jepang lokal yang natural. Kalau tidak jalan, otomatis pakai VOICEVOX.", en: "A natural local Japanese voice. If it is not running, VOICEVOX takes over.", ja: "自然なローカル日本語音声。起動していなければVOICEVOXに切り替える。" } },
+        { n: { id: "Report → tracker", en: "Report → tracker", ja: "レポート → トラッカー" }, k: "db", w: { id: "Hanya menit dan kesalahan yang kamu pilih yang dicatat, setelah kamu menekan Kirim. Audio tidak pernah disimpan.", en: "Only the minutes and the mistakes you choose are logged, after you press Send. Audio is never saved.", ja: "送信を押した後、時間と選んだ間違いだけを記録。音声は保存しない。" } },
+      ] },
+    { t: { id: "Duet: shadowing dialog", en: "Duet: dialogue shadowing", ja: "Duet：対話シャドーイング" },
+      s: { id: "Gaya duet TikTok: Yuki membaca satu baris, kamu menjawab.", en: "TikTok duet style: Yuki reads one line, you answer.", ja: "TikTokのデュエット風：ゆきが1行読み、あなたが答える。" },
+      f: [
+        { n: { id: "Pilih adegan", en: "Pick a scene", ja: "場面を選ぶ" }, k: "you", w: { id: "Adegan nyata (kafe, kerja, akhir pekan) supaya kalimatnya langsung terpakai di hidup sehari-hari.", en: "Real scenes (café, work, weekend) so the sentences are useful in daily life right away.", ja: "カフェ・仕事・週末など実際の場面なので、文がすぐ日常で使える。" } },
+        { n: { id: "AI menulis naskah", en: "AI writes the script", ja: "AIが台本を書く" }, k: "ai", w: { id: "Ditulis sebagai pasangan baris (Yuki, kamu) dalam JSON, jadi peran tidak pernah tertukar. Baris tanpa kana dibuang.", en: "Written as line pairs (Yuki, you) in JSON, so the roles never swap. Lines without kana are dropped.", ja: "（ゆき、あなた）の行ペアをJSONで書かせるので、役が入れ替わらない。かなのない行は捨てる。" } },
+        { n: { id: "Yuki bicara", en: "Yuki speaks", ja: "ゆきが話す" }, k: "ai", w: { id: "Mendengar dulu adalah inti shadowing: tiru ritmenya sebelum membaca.", en: "Listening first is the core of shadowing: copy the rhythm before you read.", ja: "先に聞くのがシャドーイングの基本：読む前にリズムをまねる。" } },
+        { n: { id: "Kamu mengulang", en: "You repeat", ja: "あなたが繰り返す" }, k: "you", w: { id: "Bantuan teks tiga tingkat (penuh, huruf awal, tanpa teks) supaya naskah bisa dilepas pelan-pelan.", en: "Three levels of text help (full, first letters, none) so you can let go of the script step by step.", ja: "文字の補助は3段階（全文・頭文字・なし）で、少しずつ台本から離れられる。" } },
+        { n: { id: "Skor per kata", en: "Score per word", ja: "単語ごとの採点" }, k: "run", w: { id: "Dibandingkan dalam hiragana, bukan kanji, jadi kanji berbeda dari pengenal suara tidak dihitung salah.", en: "Compared in hiragana, not kanji, so a different kanji from speech recognition is not counted as a mistake.", ja: "漢字ではなくひらがなで比べるので、音声認識の漢字違いは間違いにならない。" } },
+        { n: { id: "Kirim → tracker", en: "Send → tracker", ja: "送信 → トラッカー" }, k: "db", w: { id: "Skor rata-rata dan menit masuk tracker, jadi latihan Duet ikut terhitung di target mingguan.", en: "The average score and minutes go to the tracker, so Duet practice counts toward the weekly target.", ja: "平均スコアと時間をトラッカーへ。Duetの練習も週目標に数える。" } },
+      ] },
+    { t: { id: "Shadowing video", en: "Video shadowing", ja: "動画シャドーイング" },
+      s: { id: "Naskah dari video YouTube, dikunci di situs publik.", en: "Scripts from YouTube videos, locked on the public site.", ja: "YouTube動画の台本を、公開サイト上では鍵付きで。" },
+      f: [
+        { n: { id: "Link YouTube", en: "YouTube link", ja: "YouTubeリンク" }, k: "you", w: { id: "Materi asli dari video yang memang aku suka, jadi aku mau mengulangnya.", en: "Real material from videos I actually like, so I want to repeat them.", ja: "自分が本当に好きな動画の素材なので、繰り返したくなる。" } },
+        [{ n: { id: "Subtitle", en: "Captions", ja: "字幕" }, k: "run", w: { id: "Subtitle yang sudah ada dipakai dulu karena cepat dan gratis.", en: "Existing captions are used first because they are fast and free.", ja: "既存の字幕を優先。速くて無料だから。" } },
+         { n: "Whisper (GPU)", k: "ai", w: { id: "Hanya untuk video tanpa subtitle, dan hanya setelah ditanya, karena berat dan lambat.", en: "Only for videos without captions, and only after asking, because it is heavy and slow.", ja: "字幕のない動画だけ、確認してから実行。重くて遅いから。" } }],
+        { n: { id: "Arti + romaji", en: "Meanings + romaji", ja: "意味＋ローマ字" }, k: "run", w: { id: "Dibuat sekali di PC, jadi halaman web tetap ringan.", en: "Made once on the PC, so the web page stays light.", ja: "PCで一度だけ作るので、Webページは軽いまま。" } },
+        { n: "AES-256 encrypt", k: "lock", w: { id: "Naskah adalah teks milik orang lain, jadi hanya salinan terenkripsi yang boleh ada di situs publik.", en: "The script is other people's text, so only an encrypted copy may sit on the public site.", ja: "台本は他人の文章なので、公開サイトには暗号化したコピーだけを置く。" } },
+        { n: { id: "Buka di browser", en: "Unlock in browser", ja: "ブラウザで解錠" }, k: "web", w: { id: "Passphrase dimasukkan sekali per perangkat dan dekripsi terjadi di browser. Kuncinya tidak pernah ada di repo.", en: "The passphrase is entered once per device and decryption happens in the browser. The key is never in the repo.", ja: "パスフレーズは端末ごとに1回入力し、復号はブラウザ内で行う。鍵はリポジトリにない。" } },
+        { n: { id: "Menit → tracker", en: "Minutes → tracker", ja: "時間 → トラッカー" }, k: "db", w: { id: "Menit latihan dicatat dengan catat.py seperti latihan lain.", en: "Practice minutes are logged with catat.py like any other practice.", ja: "練習時間はほかの練習と同じくcatat.pyで記録。" } },
+      ] },
+    { t: { id: "Di mana data berhenti", en: "Where data stops", ja: "データの行き先" },
+      s: { id: "Dari yang paling privat sampai yang publik. Makin ke bawah, makin sedikit yang ikut.", en: "From most private to public. The further down, the less goes along.", ja: "最も私的なものから公開まで。下に行くほど、渡るものは少ない。" },
+      f: [
+        { n: { id: "Suaramu", en: "Your voice", ja: "あなたの声" }, k: "lock", w: { id: "Hanya di memori PC ini sampai selesai ditranskripsi, lalu dibuang. Tidak pernah ditulis ke disk atau dikirim.", en: "Kept in this PC's memory only until it is transcribed, then dropped. Never written to disk or sent.", ja: "書き起こしが終わるまでこのPCのメモリにだけあり、その後破棄。ディスクにも外にも出ない。" } },
+        { n: { id: "Database (PC ini)", en: "Database (this PC)", ja: "DB（このPC）" }, k: "db", w: { id: "Data lengkap tinggal di PC ini, dilindungi password. Kredensial ada di file lokal di luar repo.", en: "The full data lives on this PC, behind a password. Credentials sit in a local file outside the repo.", ja: "完全なデータはこのPCにあり、パスワードで保護。認証情報はリポジトリ外のローカルファイル。" } },
+        { n: { id: "Cadangan (repo privat)", en: "Backup (private repo)", ja: "バックアップ（非公開）" }, k: "db", w: { id: "Hanya untuk pemulihan. Aman selama akunnya aman, jadi pakai 2FA.", en: "Only for recovery. It is as safe as the account, so 2FA is on.", ja: "復旧専用。アカウント次第の安全性なので2FAを使う。" } },
+        [{ n: { id: "Angka + catatan", en: "Numbers + notes", ja: "数字＋メモ" }, k: "web", w: { id: "Publik, jadi aturan utamanya: tidak menulis hal pribadi di catatan sesi.", en: "Public, so the main rule is: never write anything private in a session note.", ja: "公開なので、セッションのメモに私的なことは書かないのが鉄則。" } },
+         { n: { id: "Naskah (terkunci)", en: "Scripts (locked)", ja: "台本（鍵付き）" }, k: "lock", w: { id: "Publik tapi terenkripsi, jadi hanya pemilik passphrase yang bisa membaca.", en: "Public but encrypted, so only the passphrase owner can read them.", ja: "公開だが暗号化されており、パスフレーズを持つ人だけが読める。" } }],
+      ] },
+  ];
+  const nodesOf = s => Array.isArray(s) ? s : [s];
+  const nm = x => typeof x.n === "string" ? x.n : L(x.n);
+  const tilesHTML = () => `<h2>${L(ARC.h)}</h2><p>${L(ARC.lead)}</p>
+    <div class="arc-lg mono">${Object.keys(KIND).map(k => `<span><i class="k-${k}"></i>${L(KIND[k])}</span>`).join("")}</div>
+    <div class="arc-grid" id="arcGrid">${TILES.map((t, ti) => `<article class="arc-t" style="--n:${t.f.length};--o:${ti}"><h3>${L(t.t)}</h3><div class="arc-f">${t.f.map((s, si) =>
+      (si ? `<span class="arc-a" style="--i:${si - 1}" aria-hidden="true"><i></i></span>` : "") +
+      `<div class="arc-s">${nodesOf(s).map((x, j) => `<button type="button" class="arc-n k-${x.k}" style="--i:${si}" data-k="${ti}.${si}.${j}" aria-pressed="false">${esc(nm(x))}</button>`).join("")}</div>`).join("")}</div>
+      <p class="arc-why" aria-live="polite">${L(t.s)}</p></article>`).join("")}</div>
+    <h2>${L(ARC.detail)}</h2>`;
+
   const st = { view: "after", step: -1, sel: null };
   const badge = k => `<span class="sys-bd ${k}">${L(UI.badge[k])}</span>`;
   const shown = (id) => st.view === "after" || N[id].st !== "new";
@@ -132,7 +216,7 @@
 
   const page = $("#page");
   page.innerHTML = `
-    <h1>${L(UI.title)}</h1><p class="lead">${L(UI.lead)}</p>
+    <h1>${L(UI.title)}</h1>${tilesHTML()}<p class="lead">${L(UI.lead)}</p>
     <div class="sys-bar">
       <div class="sys-sw" role="group" aria-label="${esc(L(UI.before))} / ${esc(L(UI.after))}">
         <button type="button" data-v="before">${L(UI.before)}<small>${L(UI.sub.before)}</small></button>
@@ -211,6 +295,26 @@
   $("#sysPrev").onclick = () => { st.step--; render(); };
   $("#sysNext").onclick = () => { st.step = st.step === S[st.view].length - 1 ? -1 : st.step + 1; render(); };
   $("#sysAll").onclick = () => { st.step = -1; render(); };
+
+  // tiles: hover/focus shows the why, click pins it; leaving the tile goes back to the pinned box or the summary
+  const why = b => { const [ti, si, j] = b.dataset.k.split(".").map(Number); return nodesOf(TILES[ti].f[si])[j]; };
+  const show = (art, b) => {
+    art.querySelectorAll(".arc-n").forEach(n => n.classList.toggle("cur", n === b));
+    const x = b && why(b), ti = +art.style.getPropertyValue("--o");
+    art.querySelector(".arc-why").innerHTML = x ? `<b>${esc(nm(x))}</b> ${L(x.w)}` : L(TILES[ti].s);
+  };
+  document.querySelectorAll(".arc-t").forEach(art => {
+    const pinned = () => art.querySelector('.arc-n[aria-pressed="true"]');
+    art.addEventListener("mouseover", e => { const b = e.target.closest(".arc-n"); if (b) show(art, b); });
+    art.addEventListener("focusin", e => { const b = e.target.closest(".arc-n"); if (b) show(art, b); });
+    art.addEventListener("mouseleave", () => show(art, pinned()));
+    art.addEventListener("click", e => {
+      const b = e.target.closest(".arc-n"); if (!b) return;
+      const on = b.getAttribute("aria-pressed") !== "true";
+      art.querySelectorAll(".arc-n").forEach(n => n.setAttribute("aria-pressed", String(on && n === b)));
+      show(art, on ? b : null);
+    });
+  });
   let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawEdges, 80); });
   document.fonts?.ready.then(drawEdges);
   document.title = `${L(UI.title)} · Arsenius`;

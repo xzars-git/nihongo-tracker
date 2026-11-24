@@ -210,7 +210,27 @@ body.danger::after{content:"";position:fixed;inset:0;pointer-events:none;z-index
 .sys-t td{padding:8px 10px}
 @media (max-width:860px){.sys-map{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.sys-n{grid-column:auto;grid-row:auto}.sys-map svg{display:none}.sys-cols{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:600px){.sys h1{font-size:26px}}
-@media (prefers-reduced-motion:reduce){.sys-e.new{animation:none}}
+.arc-lg{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;margin:0 0 14px}.arc-lg span{display:flex;align-items:center;gap:6px}
+.arc-lg i{width:14px;height:14px;border:2px solid #111;background:var(--kc)}
+.k-you{--kc:#d9b8ff}.k-run{--kc:#7cc4ff}.k-ai{--kc:#ffb37c}.k-db{--kc:#B6FF00}.k-web{--kc:#F2C200}.k-lock{--kc:#ff8f94}
+.arc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.arc-t{display:flex;flex-direction:column;min-width:0;background:var(--card);border:3px solid var(--line);padding:0 14px 12px;opacity:0;transform:translateY(14px);animation:arcin .5s ease-out forwards;animation-delay:calc(var(--o) * .1s)}
+.arc-t h3{margin:0 -14px 14px;padding:8px 14px;background:var(--ink);color:var(--bg);font:700 13px 'JetBrains Mono','Noto Sans JP',monospace;letter-spacing:.06em;text-transform:uppercase;text-align:center}
+.arc-f{display:flex;flex-direction:column;align-items:center;flex:1}
+.arc-s{display:flex;gap:8px;justify-content:center;width:100%}
+.arc-n{flex:1 1 0;max-width:230px;min-width:0;min-height:40px;padding:6px 8px;background:var(--kc);color:#111;border:2px solid #111;box-shadow:3px 3px 0 var(--line);font:700 12px/1.25 'JetBrains Mono','Noto Sans JP',monospace;overflow-wrap:anywhere;cursor:pointer;animation:arcglow calc(var(--n) * .8s) linear infinite;animation-delay:calc(var(--i) * .8s)}
+.arc-n:hover,.arc-n.cur{outline:3px solid var(--ink);outline-offset:2px}
+.arc-n[aria-pressed=true]{outline:3px solid var(--ink);outline-offset:2px;transform:translate(2px,2px);box-shadow:1px 1px 0 var(--line)}
+.arc-a{position:relative;width:3px;height:24px;margin:4px 0 9px;background:var(--muted)}
+.arc-a::after{content:"";position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid var(--muted)}
+.arc-a i{position:absolute;left:50%;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--y);box-shadow:0 0 0 2px #111;opacity:0;animation:arcdot calc(var(--n) * .8s) linear infinite;animation-delay:calc(var(--i) * .8s + .35s)}
+.arc-why{margin:14px 0 0;padding-top:10px;border-top:2px dashed var(--dot);min-height:5.2em;font-size:13px;color:var(--muted)}.arc-why b{color:var(--ink);margin-right:4px}
+@keyframes arcin{to{opacity:1;transform:none}}
+@keyframes arcdot{0%{top:0;opacity:1}10%{top:100%;opacity:1}11%,100%{top:100%;opacity:0}}
+@keyframes arcglow{0%{box-shadow:3px 3px 0 var(--line),0 0 0 5px color-mix(in srgb,var(--kc) 60%,transparent)}12%,100%{box-shadow:3px 3px 0 var(--line)}}
+@media (max-width:1000px){.arc-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.arc-grid{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){.sys-e.new,.arc-n,.arc-a i{animation:none}.arc-t{animation:none;opacity:1;transform:none}}
 /* Shadowing page */
 .sh{max-width:860px;margin:0 auto;padding:10px 16px 60px}
 .sh h1{font:900 44px/1 'Archivo Black',sans-serif;margin:18px 0 8px}
@@ -250,3 +270,8 @@ body.danger::after{content:"";position:fixed;inset:0;pointer-events:none;z-index
 .sh-lock{border:3px solid var(--line);background:var(--card);padding:14px;display:flex;flex-direction:column;gap:10px}
 .sh-lock div{display:flex;gap:8px;flex-wrap:wrap}.sh-lock input{flex:1;min-width:200px;font:16px 'JetBrains Mono',monospace;background:var(--bg);color:var(--ink);border:3px solid var(--line);padding:8px 10px}
 .sh-lock button{font:700 14px 'JetBrains Mono',monospace;background:var(--y);color:var(--k);border:3px solid var(--line);padding:8px 16px;cursor:pointer}.sh-err{margin:0;color:var(--r);min-height:1.2em}
+/* Talk showcase page */
+.tk{max-width:760px;margin:0 auto;padding:10px 16px 60px}
+.tk h1{font:900 44px/1 'Archivo Black',sans-serif;margin:18px 0 6px}.tk h2{font:900 22px 'Archivo Black',sans-serif;margin:26px 0 6px}
+.tk-tag{font-size:12px;color:var(--muted);margin:0 0 10px}.tk-lead{font-size:18px;margin:0 0 8px}
+.tk-steps{padding-left:22px}.tk-steps li{margin:6px 0}
