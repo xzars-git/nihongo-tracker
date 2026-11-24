@@ -23,7 +23,8 @@ section{margin:40px 0}
 .goals span{background:var(--card);border:2px solid var(--line);padding:3px 9px}.goals b{color:var(--hi)}
 .banner{margin:14px 0 0;padding:10px 14px;background:var(--y);color:var(--k);font-weight:700;border:3px solid var(--k)}.banner.bad{background:var(--r);color:#fff}
 .wajib{display:grid;gap:8px}
-.w{background:var(--card);border:3px solid var(--line);padding:10px 14px;display:grid;grid-template-columns:62px minmax(0,1fr) auto;grid-template-areas:"st h n" "st p p";align-items:center;gap:0 12px}
+.w{background:var(--card);border:3px solid var(--line);padding:10px 14px;display:grid;grid-template-columns:76px minmax(0,1fr) auto;grid-template-areas:"st h n" "st p p";align-items:center;gap:0 12px}
+@media (max-width:600px){.w{grid-template-columns:76px minmax(0,1fr);grid-template-areas:"st h" "st n" "st p"}}
 .w.done{background:var(--lime);color:var(--k);border-color:var(--lime)}
 .w h3{grid-area:h;margin:0;font:400 17px 'Archivo Black',sans-serif}
 .w .n{grid-area:n;font:800 26px/1.1 'Barlow Condensed',sans-serif}

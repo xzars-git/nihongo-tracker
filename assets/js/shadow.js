@@ -48,6 +48,9 @@
     histSum: { id: "{n} sesi · {m} menit tercatat", en: "{n} sessions · {m} minutes logged", ja: "{n}回 · 記録 {m}分" },
     none: { id: "Belum ada video untuk bahasa ini.", en: "No videos for this language yet.", ja: "この言語の動画はまだありません。" },
     lines: { id: "baris", en: "lines", ja: "行" },
+    exp: { id: "Ekspor progres", en: "Export progress", ja: "進捗を書き出す" },
+    imp: { id: "Impor progres", en: "Import progress", ja: "進捗を読み込む" },
+    impBad: { id: "File progres tidak cocok dengan video yang ada.", en: "This progress file does not match any video here.", ja: "この進捗ファイルに合う動画がありません。" },
   };
 
   const S = { key: null, idx: [], romaji: false, langF: "all", reps: 1, auto: false, gap: false, play: 0, wait: false, guard: 0, timer: 0, done: new Set(), vid: null, data: null, cur: 0, loop: false, meaning: true, rate: 1, secs: 0, player: null, };
@@ -65,6 +68,9 @@
         <div class="sh-bar" id="shBar"></div>
         <p class="mono sh-meta" id="shMeta"></p>
         <button type="button" class="sh-logbtn mono" id="shLog"></button>
+        <button type="button" class="sh-logbtn mono" id="shExp">⬇ ${esc(L(UI.exp))}</button>
+        <button type="button" class="sh-logbtn mono" id="shImp">⬆ ${esc(L(UI.imp))}</button>
+        <input type="file" id="shImpFile" accept=".json,application/json" hidden>
         <ol class="sh-list" id="shList"></ol>
         <p class="mono sh-keys">${esc(L(UI.keys))}</p>
         <p class="mono sh-keys">${esc(L(UI.romajiNote))}</p>
@@ -152,6 +158,23 @@
 
   const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}`;
 
+  // Resume file: done lines + current line of one video, to continue on another device or browser.
+  function exportProgress() {
+    const p = { app: "shadowing", v: 1, vid: S.vid, title: S.data.title, n: S.data.lines.length, done: [...S.done].sort((a, b) => a - b), cur: S.cur, at: new Date().toISOString() };
+    const a = Object.assign(document.createElement("a"), { href: URL.createObjectURL(new Blob([JSON.stringify(p)], { type: "application/json" })), download: `shadowing-${S.vid}-${p.done.length}of${p.n}.json` });
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  async function importProgress(f) {
+    let p; try { p = JSON.parse(await f.text()); } catch {}
+    if (p?.app !== "shadowing" || !S.idx.some(v => v.id === p.vid)) return alert(L(UI.impBad));
+    if (p.vid !== S.vid) { await open(p.vid); pick(); }
+    const n = S.data.lines.length, ok = i => Number.isInteger(i) && i >= 0 && i < n;
+    (p.done || []).filter(ok).forEach(i => S.done.add(i)); saveDone(); list();  // merge: never drops lines done here
+    if (ok(p.cur)) { S.cur = p.cur; mark(); S.player?.seekTo?.(S.data.lines[S.cur].s, true); }
+    $("#shMeta").textContent = meta();
+  }
+
   function loadYT() {
     return new Promise(ok => {
       if (window.YT?.Player) return ok();
@@ -229,7 +252,10 @@
   }
 
   (async () => {
-    shell(); history(); S.rate = store.get("shadow.rate", 1); Object.assign(S, store.get("shadow.pref", {})); S.langF = store.get("shadow.lang", "all");
+    shell(); history();
+    $("#shExp").onclick = exportProgress;
+    $("#shImp").onclick = () => $("#shImpFile").click();
+    $("#shImpFile").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) importProgress(f); }; S.rate = store.get("shadow.rate", 1); Object.assign(S, store.get("shadow.pref", {})); S.langF = store.get("shadow.lang", "all");
     try { S.idx = await getJSON("data/shadow/index.json"); } catch { S.idx = []; }
     if (!Array.isArray(S.idx) || !S.idx.length) await unlock();
     if (!Array.isArray(S.idx) || !S.idx.length) { $("#shPick").innerHTML = `<p class="sh-empty">${esc(L(UI.empty))}</p>`; return; }
