@@ -37,6 +37,8 @@ CREATE TABLE IF NOT EXISTS anki_days (          -- one row per study day, upsert
   rtk_new   int NOT NULL DEFAULT 0,
   new_cards int NOT NULL DEFAULT 0,
   anki_min  int NOT NULL DEFAULT 0,
+  minna_rev int NOT NULL DEFAULT 0,               -- reviews in the Minna No Nihongo::Bab decks
+  kanji_new int NOT NULL DEFAULT 0,               -- kanji met for the first time that day (any deck)
   due_left  int                                   -- what was left at the day's last sync
 );
 CREATE TABLE IF NOT EXISTS anki_state (          -- one row (id = 1): totals from the last sync
@@ -52,3 +54,5 @@ CREATE TABLE IF NOT EXISTS shadow_lines (video text NOT NULL REFERENCES shadow_v
 ALTER TABLE shadow_videos ADD COLUMN IF NOT EXISTS lang text NOT NULL DEFAULT 'ja';   -- ja | en (older databases)
 ALTER TABLE shadow_lines ADD COLUMN IF NOT EXISTS r text NOT NULL DEFAULT '';   -- romaji, made by shadow.py for Japanese lines
 ALTER TABLE shadow_lines ADD COLUMN IF NOT EXISTS tr text NOT NULL DEFAULT '';   -- Indonesian meaning, imported with: shadow.py translate <id> <file.json>
+ALTER TABLE anki_days ADD COLUMN IF NOT EXISTS minna_rev int NOT NULL DEFAULT 0;   -- older databases
+ALTER TABLE anki_days ADD COLUMN IF NOT EXISTS kanji_new int NOT NULL DEFAULT 0;

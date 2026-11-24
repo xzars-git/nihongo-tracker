@@ -92,17 +92,21 @@ def anki(old):
         decks = dict(c.execute("select id, name from decks"))
         kaishi = next(i for i, n in decks.items() if n == "Kaishi 1.5k")
         rtk = {i for i, n in decks.items() if n.startswith("All in one Kanji")}
+        minna = {i for i, n in decks.items() if n.lower().startswith("minna no nihongo")}  # Bab decks count as Minna activity
         crt = c.execute("select crt from col").fetchone()[0]
         today = (dt.datetime.now() - dt.timedelta(hours=4)).date()  # Anki's day starts at 4am
-        days, seen, seen_rtk = {}, set(), set()
-        for rid, ease, typ, cid, nid, did, ms in c.execute(
-                "select r.id, r.ease, r.type, r.cid, k.nid, k.did, r.time from revlog r join cards k on k.id=r.cid order by r.id"):
+        days, seen, seen_rtk, seen_kanji = {}, set(), set(), set()
+        for rid, ease, typ, cid, nid, did, ms, flds in c.execute(
+                "select r.id, r.ease, r.type, r.cid, k.nid, k.did, r.time, n.flds from revlog r join cards k on k.id=r.cid join notes n on n.id=k.nid order by r.id"):
             d = (dt.datetime.fromtimestamp(rid / 1000) - dt.timedelta(hours=4)).date().isoformat()
-            x = days.setdefault(d, {"reviews": 0, "again": 0, "hard": 0, "kaishiNew": 0, "rtkNew": 0, "new": 0})
+            x = days.setdefault(d, dict.fromkeys(ANKI_DAY[:9], 0))
             x["ankiMs"] = x.get("ankiMs", 0) + ms  # Anki caps each answer at 60s
             x["reviews"] += 1; x["again"] += ease == 1; x["hard"] += ease == 2  # sched v2/v3: ease 2 = Hard
             if cid not in seen:
                 seen.add(cid); x["new"] += 1; x["kaishiNew"] += did == kaishi
+                for ch in KANJI.findall(flds.split("\x1f")[0]):  # kanji met for the first time on this day, any deck
+                    if ch not in seen_kanji: seen_kanji.add(ch); x["kanjiNew"] += 1
+            x["minnaRev"] += did in minna
             if did in rtk and nid not in seen_rtk:  # RTK has 2 cards per kanji: count notes
                 seen_rtk.add(nid); x["rtkNew"] += 1
         studied = c.execute("select n.id, n.flds, k.did, k.ivl from cards k join notes n on n.id=k.nid where k.type>0").fetchall()
@@ -113,7 +117,7 @@ def anki(old):
         # remember what was left at each day's last run, so past days can be judged "Anki beres" too
         for d, x in (old or {}).get("days", {}).items():
             if "dueLeft" in x and d in days: days[d]["dueLeft"] = x["dueLeft"]
-        days.setdefault(today.isoformat(), {"reviews": 0, "again": 0, "hard": 0, "kaishiNew": 0, "rtkNew": 0, "new": 0})["dueLeft"] = due_now
+        days.setdefault(today.isoformat(), dict.fromkeys(ANKI_DAY[:9], 0))["dueLeft"] = due_now
         for x in days.values(): x["ankiMin"] = round(x.pop("ankiMs", 0) / 6e4)
         return {"days": days, "today": today.isoformat(), "dueNow": due_now,
                 "kaishiOpened": len({n for n, _, d, _ in studied if d == kaishi}),
@@ -195,7 +199,7 @@ def study(plan, old, c):
     return {"days": dict(sorted(days.items())), "afkSeconds": cfg.get("afkSeconds", 180)}
 
 
-ANKI_DAY = ("reviews", "again", "hard", "kaishiNew", "rtkNew", "new", "ankiMin", "dueLeft")
+ANKI_DAY = ("reviews", "again", "hard", "kaishiNew", "rtkNew", "new", "ankiMin", "minnaRev", "kanjiNew", "dueLeft")
 
 
 def load_anki(c):
@@ -203,17 +207,17 @@ def load_anki(c):
     st = c.execute("select today::text, due_now, kaishi_opened, kaishi_mature, kanji_known, kanji_seen, kanji_list from anki_state").fetchone()
     if not st: return None
     days = {}
-    for d, *v in c.execute("select day::text, reviews, again, hard, kaishi_new, rtk_new, new_cards, anki_min, due_left from anki_days order by day"):
+    for d, *v in c.execute("select day::text, reviews, again, hard, kaishi_new, rtk_new, new_cards, anki_min, minna_rev, kanji_new, due_left from anki_days order by day"):
         days[d] = {k: x for k, x in zip(ANKI_DAY, v) if x is not None}
     return {"days": days, "today": st[0], "dueNow": st[1], "kaishiOpened": st[2], "kaishiMature": st[3], "kanjiKnown": st[4], "kanjiSeen": st[5], "kanjiList": st[6]}
 
 
 def save_anki(c, a):
     for d, x in a["days"].items():
-        c.execute("""insert into anki_days (day, reviews, again, hard, kaishi_new, rtk_new, new_cards, anki_min, due_left) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+        c.execute("""insert into anki_days (day, reviews, again, hard, kaishi_new, rtk_new, new_cards, anki_min, minna_rev, kanji_new, due_left) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                      on conflict (day) do update set reviews=excluded.reviews, again=excluded.again, hard=excluded.hard, kaishi_new=excluded.kaishi_new,
-                     rtk_new=excluded.rtk_new, new_cards=excluded.new_cards, anki_min=excluded.anki_min, due_left=coalesce(excluded.due_left, anki_days.due_left)""",
-                  (d, *(x.get(k, 0) for k in ANKI_DAY[:7]), x.get("dueLeft")))
+                     rtk_new=excluded.rtk_new, new_cards=excluded.new_cards, anki_min=excluded.anki_min, minna_rev=excluded.minna_rev, kanji_new=excluded.kanji_new, due_left=coalesce(excluded.due_left, anki_days.due_left)""",
+                  (d, *(x.get(k, 0) for k in ANKI_DAY[:9]), x.get("dueLeft")))
     c.execute("""insert into anki_state values (1,%s,%s,%s,%s,%s,%s,%s) on conflict (id) do update set today=excluded.today, due_now=excluded.due_now,
                  kaishi_opened=excluded.kaishi_opened, kaishi_mature=excluded.kaishi_mature, kanji_known=excluded.kanji_known, kanji_seen=excluded.kanji_seen, kanji_list=excluded.kanji_list""",
               (a["today"], a["dueNow"], a["kaishiOpened"], a["kaishiMature"], a["kanjiKnown"], a["kanjiSeen"], a["kanjiList"]))

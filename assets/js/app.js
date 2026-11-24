@@ -19,24 +19,36 @@
 
   const byDay = {};
   for (const s of D.sessions) (byDay[s.date] ||= []).push(s);
+  const first = D.sessions.map(s => s.date).sort()[0] || today;
   const fullRounds = d => (byDay[d] || []).filter(s => s.kind === "kanji" && s.total >= P.daily.kanjiPerRound);
   const isRest = d => (P.restDays || []).includes(new Date(d + "T00:00:00Z").getUTCDay());
+  // Daily floor = Anki cleared + one active session (rest day: Anki only). Everything else is flexible and judged per week.
+  const chat = d => (D.study?.days || {})[d];                                       // measured study-chat minutes
+  const otherMin = d => (chat(d) || 0) + (byDay[d] || []).reduce((x, s) => x + (s.min || 0), 0);
   const status = d => {
     const a = A.days[d] || {}, ss = byDay[d] || [];
     return {
-      // dueLeft = reviews left at that day's last sync; old days without it fall back to the Kaishi quota
-      anki: (a.kaishiNew || 0) >= P.daily.kaishiNew && (a.dueLeft === undefined ? d !== A.today : a.dueLeft === 0),
-      kanji: fullRounds(d).length >= P.daily.kanjiRounds,
-      minna: ss.some(s => s.kind === "minna"),
-      kaiwa: ss.some(s => s.kind === "kaiwa" && (s.shadowing || (s.turns ?? 0) >= P.daily.kaiwaTurns)),
+      // dueLeft = reviews left at that day's last sync; old days without it count any review
+      anki: a.dueLeft === undefined ? d !== A.today && (a.reviews || 0) > 0 : a.dueLeft === 0,
+      // 30+ measured chat minutes; a row with its own minutes (paper, Talk, Duet: --menit) or any row on a day without chat data counts as one session
+      active: (chat(d) || 0) >= 30 || ss.some(s => s.min != null) || (chat(d) === undefined && ss.length > 0),
     };
   };
-  const count = d => Object.values(status(d)).filter(Boolean).length;
-  const complete = d => isRest(d) ? status(d).anki : count(d) === 4;
-  // a day counts as "studied" on any real activity, even when no mission is fully done
-  const rawMin = d => ((A.days[d] || {}).ankiMin || 0) + ((D.study?.days || {})[d] || 0);
+  const floorKeys = d => isRest(d) ? ["anki"] : ["anki", "active"];
+  const count = d => { const s = status(d); return floorKeys(d).filter(k => s[k]).length; };
+  const complete = d => count(d) === floorKeys(d).length;
+  // light day: floor not met, but Anki cleared + at least 15 minutes of other study
+  const light = d => !complete(d) && status(d).anki && otherMin(d) >= 15;
+  // optional activities (no daily quota): Anki Bab decks count as Minna, kanji met in Anki count as kanji
+  const acts = d => {
+    const a = A.days[d] || {}, ss = byDay[d] || [];
+    return { kanji: ss.some(s => s.kind === "kanji") || (a.kanjiNew || 0) > 0, minna: ss.some(s => s.kind === "minna") || (a.minnaRev || 0) > 0, kaiwa: ss.some(s => s.kind === "kaiwa") };
+  };
+  // a day counts as "studied" on any real activity, even when the floor is not met
+  const rawMin = d => ((A.days[d] || {}).ankiMin || 0) + (chat(d) || 0);
   const studied = d => count(d) > 0 || ((A.days[d] || {}).reviews || 0) > 0 || rawMin(d) > 0 || (byDay[d] || []).length > 0;
-  const level = d => Math.max(count(d), studied(d) ? 1 : 0);
+  // heatmap: 1 studied · light · 2 floor · 3–4 floor + more kinds of practice
+  const level = d => complete(d) ? Math.max(2, Math.min(4, 1 + Object.values(acts(d)).filter(Boolean).length)) : light(d) ? "light" : studied(d) ? 1 : 0;
   const hmShort = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
 
   const n3 = P.goals.find(g => g.id === "n2");
@@ -62,7 +74,8 @@
       <text x="32" y="38.5" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-weight="900" font-size="21" fill="#ff8d96" opacity=".55" transform="translate(.8 .8)">済</text>
       <text x="32" y="38.5" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-weight="900" font-size="21" fill="#7d0819">済</text></svg>`;
   })();
-  const card = (st, d, key, n, p) => `<div class="w ${st[key] ? "done" : ""}">${st[key] ? `<span class="st seal" role="img" aria-label="${t("st.done")}">${seal}</span>` : `<span class="st">${t(isRest(d) && key !== "anki" ? "st.rest" : "st.todo")}</span>`}<h3>${t("w." + key)}</h3><div class="n">${n}</div><p>${p}</p></div>`;
+  // floor cards say TODO until done; optional cards say FLEXIBLE instead (no daily quota)
+  const card = (st, d, key, n, p, opt) => `<div class="w ${st[key] ? "done" : ""}">${st[key] ? `<span class="st seal" role="img" aria-label="${t("st.done")}">${seal}</span>` : `<span class="st">${t(opt ? "st.opt" : isRest(d) && key !== "anki" ? "st.rest" : "st.todo")}</span>`}<h3>${t("w." + key)}</h3><div class="n">${n}</div><p>${p}</p></div>`;
   const minnaS = ss.filter(s => s.kind === "minna"), kaiwaS = ss.filter(s => s.kind === "kaiwa");
   // the Today block for any day: tapping a day in the heatmap shows that day instead
   const renderDay = d => {
@@ -70,13 +83,15 @@
   const minnaS = ss.filter(s => s.kind === "minna"), kaiwaS = ss.filter(s => s.kind === "kaiwa");
   $("#todayH").textContent = d === today ? t("h.today") : "";
   $("#todayLabel").textContent = fmt(d) + (isRest(d) ? t("restday") : "");
+  const ac = acts(d);
   $("#wajib").innerHTML = [
-    card(st, d, "anki", t("anki.n", { a: a.kaishiNew || 0, b: P.daily.kaishiNew }), A.today === d ? t("anki.left", { d: A.dueNow }) : ""),
-    card(st, d, "kanji",t("kanji.n", { a: rounds.length, b: P.daily.kanjiRounds }), rounds.length ? t("kanji.avg", { v: avg(rounds) }) : t("kanji.none")),
-    card(st, d, "minna",t("minna.n", { n: minnaS.length }), esc(minnaS.map(s => s.mode.replace(/\s*\([^)]*\)/g, "").replace(/^Minna\s*/i, "")).join(" · ") || t("minna.none"))),
+    card(st, d, "anki", t("anki.n", { a: a.reviews || 0, b: a.kaishiNew || 0 }), A.today === d ? t("anki.left", { d: A.dueNow }) : ""),
+    card(st, d, "active", t("act.n", { m: otherMin(d) }), t("act.rule")),
+    card(ac, d, "kanji", t("kanji.n", { a: rounds.length, b: a.kanjiNew || 0 }), rounds.length ? t("kanji.avg", { v: avg(rounds) }) : t("kanji.none"), true),
+    card(ac, d, "minna", t("minna.n", { n: minnaS.length }), esc([...minnaS.map(s => s.mode.replace(/\s*\([^)]*\)/g, "").replace(/^Minna\s*/i, "")), ...(a.minnaRev ? [t("minna.anki", { n: a.minnaRev })] : [])].join(" · ") || t("minna.none")), true),
     // turns when logged as turns, otherwise the number of sessions (a shadowing session has no turns); "–" scores are noise
-    card(st, d, "kaiwa",kaiwaS.some(s => s.turns) ? t("kaiwa.n", { n: kaiwaS.reduce((x, s) => x + (s.turns || 0), 0) }) : kaiwaS.length ? t("minna.n", { n: kaiwaS.length }) : t("kaiwa.n", { n: 0 }),
-      esc([...kaiwaS.filter(s => s.shadowing).map(() => t("kaiwa.shadow")).slice(0, 1), ...kaiwaS.map(s => s.score).filter(x => x && x !== "–")].join(" · ") || t("kaiwa.target", { a: P.daily.kaiwaTurns }))),
+    card(ac, d, "kaiwa", kaiwaS.some(s => s.turns) ? t("kaiwa.n", { n: kaiwaS.reduce((x, s) => x + (s.turns || 0), 0) }) : kaiwaS.length ? t("minna.n", { n: kaiwaS.length }) : t("kaiwa.n", { n: 0 }),
+      esc([...kaiwaS.filter(s => s.shadowing).map(() => t("kaiwa.shadow")).slice(0, 1), ...kaiwaS.map(s => s.score).filter(x => x && x !== "–")].join(" · ") || t("kaiwa.target")), true),
   ].join("");
   };
 
@@ -94,13 +109,21 @@
     ? `<span class="on">${t("pace.ok", { d: fmt(cek) })}</span>`
     : `<span class="late">${t("pace.need", { n: Math.ceil(Math.max(0, goal - have) / toCek), u: t(unit) })}</span>`;
   const end = P.weeks[P.weeks.length - 1], babLeft = Math.max(0, end.bab - (D.bab ?? 0));
+  const prev = P.weeks[P.weeks.indexOf(wk) - 1] || wk;
+  // this week so far: kanji met in Anki vs the plan's weekly kanji step, floor days, and zero-study days (today is still open)
+  const wkSoFar = Array.from({ length: 7 }, (_, i) => addDays(wk.start, i)).filter(x => x <= today && x >= first);
+  const kanjiWeek = wkSoFar.reduce((n, x) => n + ((A.days[x] || {}).kanjiNew || 0), 0), kanjiStep = wk === prev ? wk.kanji : wk.kanji - prev.kanji;
+  const zeroDays = wkSoFar.filter(x => x < today && !studied(x)).length;
   $("#week").innerHTML =
     bar(t("bar.minna"), D.bab ?? 0, wk.bab, t("bar.minna.left", { n: babLeft, d: fmt(cek) })) +
-    bar(t("bar.kaishi"), A.kaishiOpened ?? 0, wk.kaishi, pace(A.kaishiOpened ?? 0, end.kaishi, rate("kaishiNew"), "unit.word"));
+    bar(t("bar.kaishi"), A.kaishiOpened ?? 0, wk.kaishi, pace(A.kaishiOpened ?? 0, end.kaishi, rate("kaishiNew"), "unit.word")) +
+    bar(t("bar.kanjiWeek"), kanjiWeek, kanjiStep, t("bar.kanjiWeek.sub")) +
+    `<p class="mono small muted">${t("week.floor", { n: wkSoFar.filter(complete).length, d: wkSoFar.length, z: zeroDays })}</p>`;
 
   // ---------- alerts: behind this week's target → what the remaining days must look like (red from 1.5x the normal daily pace) ----------
   const daysLeft = Math.max(1, Array.from({ length: 7 }, (_, i) => addDays(wk.start, i)).filter(d => d >= today && !isRest(d)).length);
-  const prev = P.weeks[P.weeks.indexOf(wk) - 1] || wk;
+  // pace alone tops out at BEHIND (lv1); CRITICAL needs zero-study days this week: 1 day → lv2, 2+ → lv3 with the blinking frame
+  const cap = zeroDays === 0 ? 1 : zeroDays === 1 ? 2 : 3;
   const alerts = [];  // shown big under the summary tiles (today view only)
   // severity = needed daily pace / normal pace. One card shape for every level, escalating by colour and size:
   // lv0 yellow (>1x) → lv1 coral (1.5x) → lv2 deep red (2x) → lv3 black + hazard stripes (3x, plus a blinking frame around the page)
@@ -109,7 +132,7 @@
   // lv -1 = on pace; shared by the alert cards and the Flex "Status" image
   const gauge = (have, goal, norm) => {
     const gap = goal - have, r = gap / daysLeft, sev = gap > 0 ? r / norm : 0;
-    return { have, goal, gap, r, norm, lv: sev <= 1 ? -1 : sev >= 3 ? 3 : sev >= 2 ? 2 : sev >= 1.5 ? 1 : 0,
+    return { have, goal, gap, r, norm, lv: sev <= 1 ? -1 : Math.min(cap, sev >= 3 ? 3 : sev >= 2 ? 2 : sev >= 1.5 ? 1 : 0),
       integ: Math.max(0, Math.round(have / goal * 100)), thr: sev <= 1 ? 0 : Math.min(10, Math.ceil(sev * 2.5)) };
   };
   const behind = (have, goal, norm, key) => {
@@ -133,14 +156,13 @@
   $("#n3bars").innerHTML = bar(t("n3.vocab"), words, NEED.vocab, vocabSub) + bar(t("n3.kanji"), A.kanjiSeen ?? 0, NEED.kanji, t("n3.kanji.sub", { t: wk.kanji }));
 
   // ---------- consistency ----------
-  const first = D.sessions.map(s => s.date).sort()[0] || today;
   let start = addDays(today, -7 * 17);
   if (start < first) start = first;
   start = addDays(start, -((new Date(start + "T00:00:00Z").getUTCDay() + 6) % 7)); // back to Monday
   const cells = [];
   for (let d = start; d <= addDays(today, (7 - (new Date(today + "T00:00:00Z").getUTCDay() || 7)) % 7); d = addDays(d, 1))
     cells.push(d > today || d < first ? `<i style="opacity:.25"></i>`
-      : `<i data-n="${level(d)}" class="${d === today ? "today" : ""}" data-d="${d}" title="${t("heat.title", { d: fmt(d), n: count(d) })}${studied(d) ? t("heat.study", { r: (A.days[d] || {}).reviews || 0, m: hmShort(rawMin(d)) }) : ""}${isRest(d) ? t("heat.rest") : ""}"></i>`);
+      : `<i data-n="${level(d)}" class="${d === today ? "today" : ""}" data-d="${d}" title="${t("heat.title", { d: fmt(d), n: count(d), m: floorKeys(d).length })}${light(d) ? t("heat.light") : ""}${studied(d) ? t("heat.study", { r: (A.days[d] || {}).reviews || 0, m: hmShort(rawMin(d)) }) : ""}${isRest(d) ? t("heat.rest") : ""}"></i>`);
   $("#heat").innerHTML = cells.join("");
   $("#heat").scrollLeft = $("#heat").scrollWidth;
   const run = (ok, from = today) => { let n = 0, d = ok(from) ? from : addDays(from, -1); while (d >= first && ok(d)) { n++; d = addDays(d, -1); } return n; };
@@ -208,7 +230,6 @@
 
   // study time = Anki (measured) + the study chat (measured, AFK-aware). Days without chat data fall back to logged or estimated minutes per row (shown with ±)
   const EST = { kanji: 12, minna: 20, kaiwa: 15, kosakata: 10, bonus: 15 };  // per logged row (rows are often parts of one sitting)
-  const chat = d => (D.study?.days || {})[d];
   const mins = d => ((A.days[d] || {}).ankiMin || 0) + (chat(d) ?? (byDay[d] || []).reduce((x, s) => x + (s.min ?? EST[s.kind] ?? 15), 0));
   const est = d => chat(d) === undefined && (byDay[d] || []).some(s => s.min == null);
   const learned = [...new Set(ss.map(s => short(s.mode)))];
@@ -241,13 +262,13 @@
   const yest = addDays(today, -1), pr = d => ({ r: (A.days[d] || {}).reviews || 0, m: hm(mins(d)) });
   const renderSummary = d => {
     const st = status(d), a = A.days[d] || {}, min = mins(d), rest = isRest(d);
-    const todo = (rest ? ["anki"] : ["anki", "kanji", "minna", "kaiwa"]).filter(k => !st[k]), allN = rest ? 1 : 4;
+    const todo = floorKeys(d).filter(k => !st[k]), allN = floorKeys(d).length;
     const w = Array.from({ length: 7 }, (_, i) => addDays(d, i - 6)).filter(x => x >= first);
     $("#sumLabel").textContent = d === today ? t("sum.today") : t("sum.day", { d: fmt(d) });
     $("#sumHours").textContent = (est(d) && min ? "±" : "") + hm(min);
     $("#sumHoursSub").textContent = chat(d) !== undefined ? t("sum.hours.sub", { a: a.ankiMin || 0, c: chat(d) }) : t("sum.hours.est", { a: a.ankiMin || 0 });
     $("#sumMissions").textContent = `${allN - todo.length} / ${allN}`;
-    $("#sumMissionsSub").textContent = todo.length ? t("sum.left", { l: todo.map(k => t("w." + k)).join(", ") }) : t("sum.alldone");
+    $("#sumMissionsSub").textContent = !todo.length ? t("sum.alldone") : light(d) ? t("sum.light") : t("sum.left", { l: todo.map(k => t("w." + k)).join(", ") });
     $("#sumStreak").textContent = run(studied, d);
     $("#sumWeek").textContent = (w.some(est) ? "±" : "") + hm(w.reduce((n, x) => n + mins(x), 0));
     $("#sumWeekSub").textContent = t("sum.week.sub", { d: w.filter(studied).length, n: w.length });
@@ -273,7 +294,7 @@
     min: mins(today), minEst: est(today), learned, hoursSub: $("#sumHoursSub").textContent,
     week7: Array.from({ length: 7 }, (_, i) => { const x = addDays(today, i - 6); return [x, x < first ? 0 : mins(x)]; }),
     totalMin: allMin,
-    date: today, st, done: count(today), rounds: rounds.length, avg: avg(rounds), reviews: a.reviews || 0, kaishiNew: a.kaishiNew || 0,
+    date: today, st, done: count(today), doneOf: floorKeys(today).length, rounds: rounds.length, avg: avg(rounds), reviews: a.reviews || 0, kaishiNew: a.kaishiNew || 0,
     dateLabel: new Date(today + "T00:00:00Z").toLocaleDateString(loc, { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "UTC" }),
     kaishiOpened: A.kaishiOpened || 0, kanjiSeen: A.kanjiSeen || 0, kanjiList: A.kanjiList || "", bab: D.bab ?? "–",
     streak, active, totalRounds, mistakes: D.mistakes.length,

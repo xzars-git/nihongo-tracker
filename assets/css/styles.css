@@ -301,3 +301,4 @@ body.danger::after{content:"";position:fixed;inset:0;pointer-events:none;z-index
 .sys-hist>summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:12px 0;cursor:pointer;font-size:18px}
 .sys-hist>summary small{font:400 12px 'JetBrains Mono','Noto Sans JP',monospace}
 .sys-hist[open]{padding-bottom:16px}.sys-hist[open]>summary{border-bottom:2px dashed var(--dot);margin-bottom:12px}
+.heat i[data-n="light"]{background:repeating-linear-gradient(-45deg,var(--h1) 0 3px,var(--dot) 3px 6px)}

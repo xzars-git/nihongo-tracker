@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-24T21:00",
+ "generated": "2026-11-24T22:17",
  "bab": 16,
  "sessions": [
   {
@@ -577,6 +577,66 @@
    "min": null,
    "shadowing": false,
    "note": "label pola 5/5 benar; salah: 買って (bukan kaette) dan 乗る (bukan hairu); ejaan chiisai & geemu masih terulang"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 6 (5 soal)",
+   "score": "3/5",
+   "ok": 3,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "label pola 5/5 benar; salah: 歯を磨く (tulis aratte), 弟 vs 妹 tertukar (imouto)"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 7 (5 soal)",
+   "score": "2/5",
+   "ok": 2,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "label pola 5/5 benar; salah: 部屋を洗う (harus 掃除する), 終わる pakai を lagi (keempat), 借りる vs 買う dan 帰る vs 行く tertukar"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 8 (5 soal)",
+   "score": "4/5",
+   "ok": 4,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "label pola 5/5 benar; 終わる が sudah benar; salah: ie ni ikimasu (harus kaerimasu)"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 9 (5 soal)",
+   "score": "4/5",
+   "ok": 4,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "label pola 5/5 benar; salah: 仕事に行く ditulis 仕事をします (arti beda)"
+  },
+  {
+   "date": "2026-11-24",
+   "kind": "minna",
+   "mode": "bab 16 acak ronde 10 (5 soal, campur bab 14-15)",
+   "score": "2/5",
+   "ok": 2,
+   "total": 5,
+   "turns": null,
+   "min": null,
+   "shadowing": false,
+   "note": "てください & てもいいですか benar; salah: 背が高い (tulis takakute), ています tidak dipakai (ryouri shimasu), soal 5 tanpa てから dan akhir て-form"
   }
  ],
  "mistakes": [
@@ -1022,8 +1082,8 @@
   },
   {
    "item": "終わる",
-   "right": "授業が終わってから",
-   "wrong": "終わる tanpa objek, subjek pakai が (bukan を); 11-24: pakai を lagi (ulang), harus が; 11-24: pakai を lagi (ketiga kali), harus が",
+   "right": "宿題が終わってから",
+   "wrong": "終わる tanpa objek, subjek pakai が (bukan を); 11-24: pakai を lagi (ulang), harus が; 11-24: pakai を lagi (ketiga kali), harus が; 11-24: pakai を lagi (keempat kali), harus が",
    "interval": "1",
    "due": "2026-11-25",
    "cat": "partikel"
@@ -1163,6 +1223,78 @@
    "interval": "1",
    "due": "2026-11-25",
    "cat": "lain"
+  },
+  {
+   "item": "歯を磨く (ha wo migaku)",
+   "right": "歯を磨いて (migaite)",
+   "wrong": "tulis ha wo aratte; 洗う = cuci, 磨く = sikat/gosok",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "弟 (otouto) vs 妹 (imouto)",
+   "right": "弟 = adik laki-laki, 妹 = adik perempuan",
+   "wrong": "soal minta 弟, ditulis imouto (妹)",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "mirip"
+  },
+  {
+   "item": "部屋を掃除する (heya wo souji suru)",
+   "right": "部屋を掃除して",
+   "wrong": "tulis heya wo aratte; 洗う = cuci benda/tangan, 掃除 = bersihkan ruangan",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "借りる (kariru) vs 買う",
+   "right": "図書館に行って、本を借りて、家に帰ります",
+   "wrong": "tulis katte (beli) padahal borrow; ikimasu padahal pulang = kaerimasu",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "bentuk"
+  },
+  {
+   "item": "家に帰る (ie ni kaeru)",
+   "right": "家に帰ります",
+   "wrong": "tulis ie ni ikimasu (kedua kali); pulang = kaeru, bukan iku",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "仕事に行く (shigoto ni iku)",
+   "right": "起きて、シャワーを浴びて、仕事に行きます",
+   "wrong": "tulis shigoto wo shimasu (kerja) padahal soal minta pergi kerja",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "V ています (sedang)",
+   "right": "料理をしています",
+   "wrong": "tulis ryouri shimasu; 'now ... -ing' = V て + います",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "背が高い (se ga takai)",
+   "right": "山田さんは背が高くて、ハンサムです",
+   "wrong": "tulis takakute saja; tinggi badan = se ga takai",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "lain"
+  },
+  {
+   "item": "kalimat akhir pakai ます",
+   "right": "顔を洗ってから、歯を磨いて、朝ご飯を食べます",
+   "wrong": "kalimat berhenti di bentuk て (tabete); kata kerja terakhir harus ます; soal 'after' butuh から",
+   "interval": "1",
+   "due": "2026-11-25",
+   "cat": "bentuk"
   }
  ],
  "anki": {
@@ -1174,7 +1306,9 @@
     "kaishiNew": 1,
     "rtkNew": 0,
     "new": 1,
-    "ankiMin": 0
+    "ankiMin": 0,
+    "minnaRev": 0,
+    "kanjiNew": 0
    },
    "2026-11-13": {
     "reviews": 16,
@@ -1183,7 +1317,9 @@
     "kaishiNew": 15,
     "rtkNew": 0,
     "new": 15,
-    "ankiMin": 1
+    "ankiMin": 1,
+    "minnaRev": 0,
+    "kanjiNew": 10
    },
    "2026-11-14": {
     "reviews": 44,
@@ -1192,7 +1328,9 @@
     "kaishiNew": 12,
     "rtkNew": 0,
     "new": 12,
-    "ankiMin": 9
+    "ankiMin": 9,
+    "minnaRev": 0,
+    "kanjiNew": 9
    },
    "2026-11-15": {
     "reviews": 211,
@@ -1201,7 +1339,9 @@
     "kaishiNew": 33,
     "rtkNew": 0,
     "new": 33,
-    "ankiMin": 54
+    "ankiMin": 54,
+    "minnaRev": 0,
+    "kanjiNew": 24
    },
    "2026-11-16": {
     "reviews": 219,
@@ -1210,7 +1350,9 @@
     "kaishiNew": 25,
     "rtkNew": 0,
     "new": 25,
-    "ankiMin": 56
+    "ankiMin": 56,
+    "minnaRev": 0,
+    "kanjiNew": 18
    },
    "2026-11-17": {
     "reviews": 200,
@@ -1219,7 +1361,9 @@
     "kaishiNew": 17,
     "rtkNew": 0,
     "new": 17,
-    "ankiMin": 51
+    "ankiMin": 51,
+    "minnaRev": 0,
+    "kanjiNew": 11
    },
    "2026-11-18": {
     "reviews": 181,
@@ -1228,8 +1372,10 @@
     "kaishiNew": 17,
     "rtkNew": 0,
     "new": 26,
-    "dueLeft": 38,
-    "ankiMin": 55
+    "ankiMin": 55,
+    "minnaRev": 29,
+    "kanjiNew": 31,
+    "dueLeft": 38
    },
    "2026-11-19": {
     "reviews": 353,
@@ -1238,8 +1384,10 @@
     "kaishiNew": 17,
     "rtkNew": 0,
     "new": 34,
-    "dueLeft": 0,
-    "ankiMin": 119
+    "ankiMin": 119,
+    "minnaRev": 94,
+    "kanjiNew": 26,
+    "dueLeft": 0
    },
    "2026-11-20": {
     "reviews": 262,
@@ -1248,8 +1396,10 @@
     "kaishiNew": 17,
     "rtkNew": 0,
     "new": 34,
-    "dueLeft": 0,
-    "ankiMin": 68
+    "ankiMin": 68,
+    "minnaRev": 69,
+    "kanjiNew": 6,
+    "dueLeft": 0
    },
    "2026-11-22": {
     "reviews": 4,
@@ -1258,8 +1408,10 @@
     "kaishiNew": 0,
     "rtkNew": 0,
     "new": 0,
-    "dueLeft": 181,
-    "ankiMin": 0
+    "ankiMin": 0,
+    "minnaRev": 0,
+    "kanjiNew": 0,
+    "dueLeft": 181
    },
    "2026-11-23": {
     "reviews": 423,
@@ -1268,27 +1420,31 @@
     "kaishiNew": 17,
     "rtkNew": 0,
     "new": 34,
-    "dueLeft": 0,
-    "ankiMin": 79
+    "ankiMin": 79,
+    "minnaRev": 90,
+    "kanjiNew": 14,
+    "dueLeft": 0
    },
    "2026-11-24": {
-    "reviews": 357,
+    "reviews": 431,
     "again": 148,
-    "hard": 98,
-    "kaishiNew": 28,
+    "hard": 143,
+    "kaishiNew": 29,
     "rtkNew": 0,
-    "new": 45,
-    "dueLeft": 15,
-    "ankiMin": 99
+    "new": 46,
+    "ankiMin": 103,
+    "minnaRev": 52,
+    "kanjiNew": 19,
+    "dueLeft": 0
    }
   },
   "today": "2026-11-24",
-  "dueNow": 15,
-  "kaishiOpened": 199,
+  "dueNow": 0,
+  "kaishiOpened": 200,
   "kaishiMature": 29,
   "kanjiKnown": 0,
-  "kanjiSeen": 167,
-  "kanjiList": "一丈上中事人今仕会伝住何作使信俺僕優元兄先入全出分刻前勉動医単友同名君味呼品回国場声売変夜夢大夫失女奴好始嫌嬉子学守家寝小屋山市帰度座張強当役彼待心忘忙思悪意所手持教料方族日明昨時書服本束来校楽様次止歯母毎気水沢済無然父物独理生申男町番白皆目知研礼私究立簡約経続置考者聞自葉行表製見解言許訳話語誰調買資身辞進達選部配間難電面頑頼願食高"
+  "kanjiSeen": 168,
+  "kanjiList": "一丈上中事人今仕会伝住何作使信俺僕優元兄先入全出分刻前勉動医単友同名君味呼品回国場声売変夜夢大夫失女奴好始嫌嬉子学守家寝小屋山市帰度座張強当役彼待心忘忙思悪意所手持教料方族日明昨時書服本束来校楽様次止歯母毎気水沢済無然父物独理生申男町番白皆目知研礼私究立簡約経続置考者聞自葉行表製見解言許訳話語誰調買資身辞進達選部配間難電面頑頼願食飲高"
  },
  "plan": {
   "goals": [
@@ -1528,7 +1684,7 @@
    "2026-11-19": 149,
    "2026-11-20": 40,
    "2026-11-23": 58,
-   "2026-11-24": 51
+   "2026-11-24": 88
   },
   "afkSeconds": 180
  }

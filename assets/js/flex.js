@@ -202,7 +202,7 @@
     $("flexPull").onclick = async () => {
       if (busy) return;
       busy = true; rar.textContent = ""; $c.hidden = false; out.innerHTML = ""; share.disabled = save.disabled = true;
-      const w = s.done === 4 ? { common: 40, rare: 35, epic: 18, legendary: 7 } : { common: 60, rare: 25, epic: 12, legendary: 3 };
+      const w = s.done === s.doneOf ? { common: 40, rare: 35, epic: 18, legendary: 7 } : { common: 60, rare: 25, epic: 12, legendary: 3 };
       if (s.streak >= 7) w.legendary *= 2;
       const pity = store("fxPity") || 0;
       if (pity >= 10) w.common = 0;
@@ -212,7 +212,7 @@
       store("fxPity", r === "common" ? pity + 1 : 0);
       st.pal = pick(RAR[r]); store("fxPal", st.pal); col.add(st.pal); store("fxCol", [...col]); draw();
       line(`> gacha_pull ${s.date}`, "cmd"); await sleep(250);
-      line(`must ${s.done}/4 · streak ${s.active}`, "dim"); await sleep(250);
+      line(`must ${s.done}/${s.doneOf} · streak ${s.active}`, "dim"); await sleep(250);
       const spin = line("", "spin");
       for (let d = 35; d < 230; d *= 1.17) { spin.textContent = `unboxing… ${pick(THEME)}`; await sleep(d); }
       spin.textContent = "unboxing… done";
