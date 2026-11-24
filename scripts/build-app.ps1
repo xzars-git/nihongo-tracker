@@ -40,12 +40,12 @@ static class Config {
     public const string Python = @"$python";
     public const string Publish = @"$(Join-Path $root 'scripts\publish.py')";
     public const string Root = @"$root";
-    public const string Progres = @"$(Join-Path (Split-Path $root) 'catatan\progres.md')";
+    public const string Db = @"$(Join-Path $root 'scripts\db.py')";
 }
 "@
 
 Get-Process NihongoSync -ErrorAction SilentlyContinue | Stop-Process -Force
-& $csc /nologo /target:winexe /optimize /codepage:65001 "/win32icon:$ico" "/out:$exe" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Core.dll $src $cfg
+& $csc /nologo /target:winexe /optimize /codepage:65001 "/win32icon:$ico" "/out:$exe" /r:System.Windows.Forms.dll /r:System.Drawing.dll /r:System.Core.dll /r:System.ServiceProcess.dll $src $cfg
 if ($LASTEXITCODE) { throw "build gagal" }
 
 $shell = New-Object -ComObject WScript.Shell

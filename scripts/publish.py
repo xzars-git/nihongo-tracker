@@ -1,4 +1,4 @@
-"""Build data.json from catatan/progres.md + the local Anki collection, then commit and push.
+"""Build data.json from the PostgreSQL tracker database + the local Anki collection, then commit and push.
 
 Run at the end of every study session:  python -I tracker/scripts/publish.py
 Also runs at 00:00, 12:00, 18:00 and 21:00 from the Nihongo Sync tray app (scripts/nihongo-sync.ps1).
@@ -11,8 +11,9 @@ if sys.stdout is None:  # pythonw (Task Scheduler) has no console
     print(f"--- {dt.datetime.now():%Y-%m-%d %H:%M}")
 sys.stdout.reconfigure(encoding="utf-8")
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # tracker/
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # -I drops the script folder from sys.path
+import db
 OUT = os.path.join(ROOT, "data", "data.json")
-PROGRES = os.path.join(ROOT, "..", "catatan", "progres.md")
 def find_anki():
     # the profile name changes (e.g. after logging in to AnkiWeb): use the most recently written collection
     base = os.path.join(os.environ.get("APPDATA", ""), "Anki2")
@@ -49,9 +50,9 @@ def kind(mode):
     return "minna"  # grammar/verb-form drills all come from Minna chapters
 
 
-def sessions(md):
+def sessions(rows):
     out = []
-    for date, mode, score, note in table(md, "Riwayat sesi", 4):
+    for date, mode, score, note in rows:
         f, t = FRAC.search(score), TURNS.search(score)
         out.append({"date": date, "kind": kind(mode), "mode": mode, "score": score,
                     "ok": int(f[1]) if f else None, "total": int(f[2]) if f else None,
@@ -74,8 +75,8 @@ def weak_kind(item, wrong, right=""):
     return next((k for k, rx in WEAK[1:] if rx.search(text)), "lain")
 
 
-def mistakes(md):
-    out = [dict(zip(("item", "right", "wrong", "interval", "due"), r)) for r in table(md, "Bank kesalahan", 5)]
+def mistakes(rows):
+    out = [dict(zip(("item", "right", "wrong", "interval", "due"), r)) for r in rows]
     for m in out: m["cat"] = weak_kind(m["item"], m["wrong"], m["right"])
     return out
 
@@ -125,16 +126,16 @@ def anki(old):
         shutil.rmtree(tmp, ignore_errors=True)
 
 
-EN_COLS = {"Levels": ("date", "skill", "level", "source"), "Practice": ("date", "skill", "task", "band", "note"),
-           "Mistakes": ("date", "cat", "wrong", "right"), "Words": ("date", "word", "meaning", "example")}
+EN_TABLES = {"levels": ("en_levels", ("skill", "level", "source")), "practice": ("en_practice", ("skill", "task", "band", "note")),
+             "mistakes": ("en_mistakes", ("cat", "wrong", "correct")), "words": ("en_words", ("word", "meaning", "example"))}
 
 
-def english():
-    """data/english.json from catatan/english.md (my own reports, so not live). Skipped when the notes file is missing."""
-    src, out = os.path.join(ROOT, "..", "catatan", "english.md"), os.path.join(ROOT, "data", "english.json")
-    if not os.path.exists(src): return
-    md = open(src, encoding="utf-8").read()
-    new = json.dumps({k.lower(): [dict(zip(c, r)) for r in table(md, k, len(c))] for k, c in EN_COLS.items()}, ensure_ascii=False, indent=1)
+def english(c):
+    """data/english.json from the database (my own reports, so not live)."""
+    out = os.path.join(ROOT, "data", "english.json")
+    key = {"correct": "right"}  # the page and the old json call the column "right"
+    new = json.dumps({k: [dict(zip(("date", *(key.get(x, x) for x in cols)), r)) for r in c.execute(f"select day::text, {', '.join(cols)} from {t} order by id").fetchall()]
+                      for k, (t, cols) in EN_TABLES.items()}, ensure_ascii=False, indent=1)
     if os.path.exists(out) and open(out, encoding="utf-8").read() == new: return
     open(out, "w", encoding="utf-8").write(new)
     print("english.json updated")
@@ -179,7 +180,7 @@ def study_minutes(sessions, cap=180):
     return {d: round(s / 60) for d, s in secs.items() if s >= 30}
 
 
-def study(plan, old):
+def study(plan, old, c):
     """{"days": {date: minutes}}. Old values are kept (Claude Code deletes old transcripts after a while); a day only ever grows."""
     cfg = plan.get("study", {})
     days = dict((old or {}).get("days", {}))
@@ -189,23 +190,51 @@ def study(plan, old):
         if sessions is None: print("! transkrip chat tidak ketemu, pakai waktu belajar lama")
         else:
             for d, m in study_minutes(sessions, cfg.get("afkSeconds", 180)).items(): days[d] = max(days.get(d, 0), m)
+    for d, m in days.items():
+        c.execute("insert into study_days values (%s,%s) on conflict (day) do update set minutes = greatest(study_days.minutes, excluded.minutes)", (d, m))
     return {"days": dict(sorted(days.items())), "afkSeconds": cfg.get("afkSeconds", 180)}
 
 
-def build():
+ANKI_DAY = ("reviews", "again", "hard", "kaishiNew", "rtkNew", "new", "ankiMin", "dueLeft")
+
+
+def load_anki(c):
+    """Anki numbers from the last sync, in the same shape anki() returns (None before the first sync)."""
+    st = c.execute("select today::text, due_now, kaishi_opened, kaishi_mature, kanji_known, kanji_seen, kanji_list from anki_state").fetchone()
+    if not st: return None
+    days = {}
+    for d, *v in c.execute("select day::text, reviews, again, hard, kaishi_new, rtk_new, new_cards, anki_min, due_left from anki_days order by day"):
+        days[d] = {k: x for k, x in zip(ANKI_DAY, v) if x is not None}
+    return {"days": days, "today": st[0], "dueNow": st[1], "kaishiOpened": st[2], "kaishiMature": st[3], "kanjiKnown": st[4], "kanjiSeen": st[5], "kanjiList": st[6]}
+
+
+def save_anki(c, a):
+    for d, x in a["days"].items():
+        c.execute("""insert into anki_days (day, reviews, again, hard, kaishi_new, rtk_new, new_cards, anki_min, due_left) values (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                     on conflict (day) do update set reviews=excluded.reviews, again=excluded.again, hard=excluded.hard, kaishi_new=excluded.kaishi_new,
+                     rtk_new=excluded.rtk_new, new_cards=excluded.new_cards, anki_min=excluded.anki_min, due_left=coalesce(excluded.due_left, anki_days.due_left)""",
+                  (d, *(x.get(k, 0) for k in ANKI_DAY[:7]), x.get("dueLeft")))
+    c.execute("""insert into anki_state values (1,%s,%s,%s,%s,%s,%s,%s) on conflict (id) do update set today=excluded.today, due_now=excluded.due_now,
+                 kaishi_opened=excluded.kaishi_opened, kaishi_mature=excluded.kaishi_mature, kanji_known=excluded.kanji_known, kanji_seen=excluded.kanji_seen, kanji_list=excluded.kanji_list""",
+              (a["today"], a["dueNow"], a["kaishiOpened"], a["kaishiMature"], a["kanjiKnown"], a["kanjiSeen"], a["kanjiList"]))
+
+
+def build(c):
     try: old = json.load(open(OUT, encoding="utf-8"))
     except (OSError, ValueError): old = {}
-    md = open(PROGRES, encoding="utf-8").read()
-    bab = re.search(r"Bab sekarang:\s*(\d+)", md)
     plan = json.load(open(os.path.join(ROOT, "data", "plan.json"), encoding="utf-8"))
+    bab = c.execute("select value from meta where key = 'bab'").fetchone()
+    old_anki = load_anki(c)
+    new_anki = anki(old_anki)
+    if new_anki and new_anki is not old_anki: save_anki(c, new_anki)
     data = {
         "generated": dt.datetime.now().isoformat(timespec="minutes"),
-        "bab": int(bab[1]) if bab else None,
-        "sessions": sessions(md),
-        "mistakes": mistakes(md),
-        "anki": anki(old.get("anki")),
+        "bab": int(bab[0]) if bab else None,
+        "sessions": sessions(c.execute("select day::text, mode, score, note from sessions order by id").fetchall()),
+        "mistakes": mistakes(c.execute("select item, correct, wrong, interval::text, coalesce(due::text, '') from mistakes order by pos").fetchall()),
+        "anki": new_anki,
         "plan": plan,
-        "study": study(plan, old.get("study")),
+        "study": study(plan, {"days": dict(c.execute("select day::text, minutes from study_days order by day").fetchall())}, c),
     }
     # Unchanged data is not rewritten, except once a day as a heartbeat (the page warns when data is >30h old).
     if {**old, "generated": data["generated"]} == data and old.get("generated", "")[:10] == data["generated"][:10]:
@@ -218,7 +247,7 @@ def build():
 
 def push():
     git = lambda *a: subprocess.run(["git", "-C", ROOT, *a], capture_output=True, text=True)
-    git("add", "data/data.json", *(["data/english.json"] if os.path.exists(os.path.join(ROOT, "data", "english.json")) else []))  # only data: code changes are committed by hand
+    git("add", "data/data.json", "data/english.json")  # only data: code changes are committed by hand
     if git("diff", "--cached", "--quiet").returncode:
         git("commit", "--no-verify", "-m", f"progres {dt.date.today().isoformat()}")  # the sync must never be blocked by the code-check hook
     if "ahead" not in git("status", "-sb").stdout.splitlines()[0]:  # also retries an earlier failed push
@@ -232,6 +261,7 @@ def backup():
     top = os.path.dirname(ROOT)
     if not os.path.isdir(os.path.join(top, ".git")): return
     git = lambda *a: subprocess.run(["git", "-C", top, *a], capture_output=True, text=True)
+    db.dump()  # SQL backup of the tracker database into catatan/ (private repo only, never into tracker/)
     git("add", "catatan", ".claude/skills", "PROMPT-SESI.md")
     if git("diff", "--cached", "--quiet").returncode:
         git("commit", "--no-verify", "-m", f"notes {dt.date.today().isoformat()}")
@@ -246,7 +276,7 @@ def selftest():
     assert [kind(m) for m in ("tebak kanji ronde 1", "kaiwa kantor", "skrip shadowing", "jikoshoukai", "materi kata kecil Kaishi", "bab 15: ～ています")] == \
         ["kanji", "kaiwa", "kaiwa", "bonus", "kosakata", "minna"]
     md = "## Riwayat sesi\n| T | M | S | C |\n|---|---|---|---|\n| 2026-11-17 | kaiwa | 6 giliran · 20 mnt | ok |\n| rusak | a | b | c | d | e |\n\n## Lain\n"
-    s = sessions(md)
+    s = sessions(table(md, "Riwayat sesi", 4))
     assert len(s) == 1 and s[0]["turns"] == 6 and s[0]["min"] == 20 and s[0]["kind"] == "kaiwa", s
     # two sessions that repeat the same messages (a fork) must not double the time; an 18-minute gap counts only the cap
     msgs = ["2026-01-01T12:00:00Z", "2026-01-01T12:00:40Z", "2026-01-01T12:18:40Z", "2026-01-01T12:19:25Z"]
@@ -257,8 +287,9 @@ def selftest():
 
 if __name__ == "__main__":
     if "--test" in sys.argv: selftest(); sys.exit()
-    build()
-    english()
+    with db.connect() as c:  # one transaction: nothing is saved when a step fails
+        build(c)
+        english(c)
     if "--no-push" not in sys.argv:
         push()
         try: backup()

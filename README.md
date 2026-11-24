@@ -15,6 +15,7 @@ Public log of my Japanese study toward **JLPT N3 (July 2027)**, in Indonesian, E
 - **Session log:** one row per day
 - **Flex:** generates a 1080×1920 story image of the day (14 templates incl. weekly recap, study log and badges), with a console-style gacha reveal, optional quote (190-quote bank, filterable by category)
 - **English tracker** (`english.html`): CEFR level per skill, practice log, recurring mistakes and new words for the IELTS plan. Written from my own reports to the AI tutor, so it is not live
+- **Backend:** a local PostgreSQL database is the single source of truth. See [docs/backend.md](docs/backend.md) for the full flow and the interview notes
 - **About me** and **Method** pages
 - **Installable** on a phone (PWA) and readable offline
 - Updates itself four times a day (00:00, 12:00, 18:00, 21:00); no backend
@@ -22,13 +23,13 @@ Public log of my Japanese study toward **JLPT N3 (July 2027)**, in Indonesian, E
 ## How it works
 
 ```
-catatan/progres.md ─┐
-                    ├─► scripts/publish.py ─► data/data.json ─► git push ─► Vercel
-Anki collection ────┘    (Nihongo Sync tray app: 00:00 · 12:00 · 18:00 · 21:00)
-                                  └─► backup of notes ─► private repo
+catat.py (CLI) ───► PostgreSQL ─┐
+                                ├─► scripts/publish.py ─► data/*.json ─► git push ─► Vercel
+Anki collection (read-only) ────┘    (Nihongo Sync tray app: 00:00 · 12:00 · 18:00 · 21:00)
+                                          └─► pg_dump + notes ─► private repo
 ```
 
-`publish.py` reads the session log and mistake bank from `progres.md` and a read-only copy of the local Anki database, then writes `data/data.json`. It commits only that file and pushes when the data changed. The site is static and renders everything in the browser from `data.json`.
+`publish.py` reads sessions, the mistake bank and the English log from PostgreSQL, plus a read-only copy of the local Anki database, then writes `data/data.json` and `data/english.json`. It runs in one transaction, commits only those files and pushes when the data changed. The site is static and renders everything in the browser from the JSON. Details: [docs/backend.md](docs/backend.md).
 
 Study time = Anki + the study chat, both measured:
 
@@ -53,18 +54,23 @@ Study time = Anki + the study chat, both measured:
 │       ├── info.js                  # About + Method pages
 │       ├── english.js               # English tracker page
 │       └── pwa.js                   # service worker registration
+├── docs/
+│   └── backend.md                   # system flow + interview notes
 ├── data/
 │   ├── plan.json                    # targets and weekly plan (hand-edited)
 │   ├── metode.json                  # text of the Method page, ID / EN / JA (hand-edited)
 │   ├── quotes.json                  # quote bank (hand-edited)
 │   ├── data.json                    # generated, do not edit
-│   └── english.json                 # generated from catatan/english.md, do not edit
+│   └── english.json                 # generated from the database, do not edit
 ├── app/
 │   ├── NihongoSync.cs               # Windows tray app that runs publish.py on schedule
 │   └── icon.ico
 ├── scripts/
 │   ├── publish.py                   # build data.json, push, back up notes
-│   ├── catat.py                     # one-line logging during a study session
+│   ├── catat.py                     # one-line logging during a study session (writes to PostgreSQL)
+│   ├── db.py                        # connection, init, check, ping, dump
+│   ├── schema.sql                   # all tables
+│   ├── migrate_md.py                # one-time import from the old markdown notes
 │   ├── build-app.ps1                # compile + install the tray app
 │   ├── check.py                     # static checks (CI + pre-commit)
 │   └── stamp.py                     # cache-busting: ?v=<hash> on assets
@@ -79,10 +85,12 @@ python -I scripts/catat.py sesi "tebak kanji" "9/10" "short note"   # add --meni
 python -I scripts/catat.py salah "<item>" "<correct answer>" "<mistake>"
 python -I scripts/catat.py review "<item>" benar
 python -I scripts/catat.py bab 16
+python -I scripts/catat.py kerja "書く, 読む"   # add learned verbs
+python -I scripts/catat.py status    # chapter, due mistakes, last sessions (read by the tutor)
 python -I scripts/catat.py kirim     # build + push now
 ```
 
-English tracker (rows go to `catatan/english.md`, the date is automatic, `publish.py` builds `data/english.json`):
+English tracker (rows go to PostgreSQL, the date is automatic, `publish.py` builds `data/english.json`):
 
 ```bash
 python -I scripts/catat.py en level "speaking" "B1" "live test"             # overall|reading|listening|grammar|speaking, A1..C2
@@ -98,7 +106,8 @@ A small Windows tray app (`NihongoSync.exe`, C# WinForms) that runs `publish.py`
 - Between slots it waits on a single timer.
 - After boot, it catches up once if a slot was missed.
 - A failed sync is retried twice (5 minutes apart); the reason is shown in the window and in a balloon.
-- At 20:00 it reminds you if fewer than 4 sessions are logged for the day (it reads `progres.md` directly, so it does not depend on the last sync).
+- At 20:00 it reminds you if fewer than 4 sessions are logged for the day (it asks the database, so it does not depend on the last sync).
+- The window shows `Database: aktif` or `MATI`. A **Start database** button starts the PostgreSQL service (Windows asks for admin permission only then). When the database is down, the sync stops before it changes anything.
 - Hovering the tray icon shows the status, the last update and the next run. The icon is yellow when idle, grey while syncing and red after a failed sync.
 - Closing the window only hides it to the tray; **Quit** in the tray menu stops it.
 - It starts with Windows (Startup folder) and is in the Start Menu as **Nihongo Sync**.
@@ -113,9 +122,17 @@ It installs to `%LOCALAPPDATA%\Programs\NihongoSync`. Log: `%LOCALAPPDATA%\Nihon
 
 ## Backup of the notes
 
-The raw notes (`catatan/`) and the tutor skill live outside this repo, in a **private** repo (`nihongo-notes`). Each sync commits and pushes them. Only the derived `data.json` is public.
+The notes (`catatan/`), the tutor skill and a plain-SQL dump of the database (`catatan/db-backup.sql`) live outside this repo, in a **private** repo (`nihongo-notes`). Each sync writes the dump and pushes them. Only the derived JSON is public. The old markdown notes are archived in `catatan/arsip/`.
 
 ## Development
+
+One-time database setup (PostgreSQL 16+ and `pip install "psycopg[binary]"`): create a user and a database, save the connection URL as one line in `%LOCALAPPDATA%\NihongoSync\db.env` (never in the repo), then:
+
+```bash
+python -I scripts/db.py init         # create the tables
+python -I scripts/db.py check        # row count per table
+python -I scripts/db.py dump         # write the SQL backup
+```
 
 ```bash
 git config core.hooksPath .githooks  # once per clone: stamp + check on every commit

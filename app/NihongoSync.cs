@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
@@ -40,7 +41,7 @@ class SyncApp
     static readonly Color Bg = Color.FromArgb(23, 24, 28), Ink = Color.FromArgb(236, 234, 227), Yellow = Color.FromArgb(242, 194, 0);
     readonly Form form = new Form();
     readonly Label info = new Label();
-    readonly Button syncBtn;
+    readonly Button syncBtn, dbBtn;
     readonly NotifyIcon tray = new NotifyIcon();
     readonly System.Windows.Forms.Timer slotTimer = new System.Windows.Forms.Timer();
     readonly System.Windows.Forms.Timer reminderTimer = new System.Windows.Forms.Timer(), retryTimer = new System.Windows.Forms.Timer();
@@ -54,7 +55,7 @@ class SyncApp
         Directory.CreateDirectory(Dir);
         var icon = MakeIcon(Yellow);
 
-        form.Text = "Nihongo Sync"; form.Icon = icon; form.ClientSize = new Size(420, 250);
+        form.Text = "Nihongo Sync"; form.Icon = icon; form.ClientSize = new Size(420, 295);
         form.FormBorderStyle = FormBorderStyle.FixedSingle; form.MaximizeBox = false; form.StartPosition = FormStartPosition.CenterScreen;
         form.BackColor = Bg; form.ForeColor = Ink; form.Font = new Font("Segoe UI", 10);
         var title = new Label { Text = "Nihongo Sync", ForeColor = Yellow, Font = new Font("Segoe UI", 16, FontStyle.Bold), Bounds = new Rectangle(20, 15, 380, 36) };
@@ -63,6 +64,7 @@ class SyncApp
         syncBtn = AddButton("Sync sekarang", 20, delegate { StartSync(); });
         AddButton("Buka web", 150, delegate { Open(Site); });
         AddButton("Lihat log", 280, delegate { OpenLog(); });
+        dbBtn = AddButton("Start database", 20, delegate { StartDb(); }, 240);
         form.FormClosing += (s, e) => { if (!quitting) { e.Cancel = true; form.Hide(); } };  // X = hide to tray
         var handle = form.Handle;  // create the handle now so BeginInvoke works before the window is first shown
 
@@ -70,6 +72,7 @@ class SyncApp
         menu.Items.Add("Buka", null, delegate { ShowWindow(); });
         menu.Items.Add("Sync sekarang", null, delegate { StartSync(); });
         menu.Items.Add("Buka web", null, delegate { Open(Site); });
+        menu.Items.Add("Start database", null, delegate { StartDb(); });
         menu.Items.Add("Tes pengingat", null, delegate { Remind(); });
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Quit", null, delegate { quitting = true; tray.Visible = false; form.Close(); Application.Exit(); });
@@ -92,11 +95,12 @@ class SyncApp
         var catchUp = new System.Windows.Forms.Timer { Interval = 60000 };
         catchUp.Tick += delegate { catchUp.Stop(); if (LastSync() < PrevSlot()) StartSync(); };
         catchUp.Start();
+        CheckDb();
     }
 
-    Button AddButton(string text, int x, EventHandler click)
+    Button AddButton(string text, int x, EventHandler click, int y = 195)
     {
-        var b = new Button { Text = text, Bounds = new Rectangle(x, 195, 120, 34), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(42, 43, 49) };
+        var b = new Button { Text = text, Bounds = new Rectangle(x, y, 120, 34), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(42, 43, 49) };
         b.Click += click; form.Controls.Add(b); return b;
     }
 
@@ -117,7 +121,7 @@ class SyncApp
         }
     }
     static readonly Icon IconOk = MakeIcon(Yellow), IconBusy = MakeIcon(Color.FromArgb(150, 150, 150)), IconFail = MakeIcon(Color.FromArgb(255, 90, 95));
-    bool failed;
+    bool failed, dbOk = true;
 
     public void ShowWindow() { form.Show(); form.WindowState = FormWindowState.Normal; form.Activate(); }
 
@@ -185,16 +189,54 @@ class SyncApp
         reminderTimer.Start();
     }
 
-    // counts today's rows in progres.md (day starts at 4am, like Anki) so it also sees sessions logged after the last sync
+    // runs scripts/db.py <command>; returns the exit code and what it printed (stdout + stderr)
+    static int RunDb(string command, out string output)
+    {
+        var psi = new ProcessStartInfo(Config.Python, "-I \"" + Config.Db + "\" " + command)
+        {
+            UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Config.Root,
+            RedirectStandardOutput = true, RedirectStandardError = true, StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,
+        };
+        using (var p = Process.Start(psi))
+        {
+            var err = p.StandardError.ReadToEndAsync();
+            output = (p.StandardOutput.ReadToEnd() + err.Result).Trim();
+            p.WaitForExit();
+            return p.ExitCode;
+        }
+    }
+
+    // is PostgreSQL answering? checked at start and after every sync; the answer decides the status line and the Start database button
+    void CheckDb()
+    {
+        ThreadPool.QueueUserWorkItem(delegate
+        {
+            string o; bool ok;
+            try { ok = RunDb("ping", out o) == 0; } catch { ok = false; }
+            form.BeginInvoke((Action)(() => { dbOk = ok; dbBtn.Enabled = !ok; Refresh(); }));
+        });
+    }
+
+    // the service needs admin rights: Windows asks (UAC) only when this button is pressed
+    void StartDb()
+    {
+        var svc = ServiceController.GetServices().FirstOrDefault(s => s.ServiceName.StartsWith("postgresql", StringComparison.OrdinalIgnoreCase));
+        if (svc == null) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Service PostgreSQL tidak ditemukan.", ToolTipIcon.Warning); return; }
+        try { Process.Start(new ProcessStartInfo("net", "start \"" + svc.ServiceName + "\"") { Verb = "runas", UseShellExecute = true, WindowStyle = ProcessWindowStyle.Hidden }).WaitForExit(); }
+        catch (Exception) { return; }  // UAC declined
+        CheckDb();
+    }
+
+    // counts today's sessions in the database (day starts at 4am, like Anki) so it also sees sessions logged after the last sync
     void Remind()
     {
-        int n = 0;
+        int n;
         try
         {
-            var prefix = "| " + DateTime.Now.AddHours(-4).ToString("yyyy-MM-dd") + " ";
-            n = File.ReadLines(Config.Progres, Encoding.UTF8).Count(l => l.StartsWith(prefix));
+            string o;
+            if (RunDb("today", out o) != 0 || !int.TryParse(o, out n)) return;
         }
-        catch { return; }  // notes not readable: stay quiet rather than nag with wrong numbers
+        catch { return; }  // database not readable: stay quiet rather than nag with wrong numbers
         if (n >= 4) return;
         tray.ShowBalloonTip(10000, "Nihongo Sync", n == 0 ? "Belum ada sesi belajar tercatat hari ini." : "Baru " + n + " sesi tercatat hari ini. Lanjut yuk!", ToolTipIcon.Info);
     }
@@ -211,16 +253,16 @@ class SyncApp
     void Refresh()
     {
         var last = LastSync();
-        info.Text = string.Format("Jadwal: {0} · pengingat {4:hh\\:mm}\n\nSync terakhir: {1}\nHasil: {2}\nBerikutnya: {3:ddd HH:mm}",
+        info.Text = string.Format("Jadwal: {0} · pengingat {4:hh\\:mm}\n\nSync terakhir: {1}\nHasil: {2}\nBerikutnya: {3:ddd HH:mm}\nDatabase: {5}",
             string.Join(" · ", Slots.Select(s => s.ToString(@"hh\:mm"))),
             last == DateTime.MinValue ? "belum pernah" : last.ToString("ddd dd MMM, HH:mm"),
-            proc != null ? "sedang sync..." : result, NextSlot(), Reminder);
+            proc != null ? "sedang sync..." : result, NextSlot(), Reminder, dbOk ? "aktif" : "MATI (tekan Start database)");
         // hover text (max 63 chars): status, last update, next run
-        var status = proc != null ? "sedang sync" : failed ? "GAGAL" : "aktif";
+        var status = proc != null ? "sedang sync" : !dbOk ? "DB MATI" : failed ? "GAGAL" : "aktif";
         var lastShort = last == DateTime.MinValue ? "-" : last.Date == DateTime.Today ? last.ToString("HH:mm") : last.ToString("dd MMM HH:mm");
         var tip = string.Format("Nihongo Sync: {0}\nUpdate: {1}\nBerikutnya: {2:HH:mm}", status, lastShort, NextSlot());
         tray.Text = tip.Length > 63 ? tip.Substring(0, 63) : tip;
-        tray.Icon = proc != null ? IconBusy : failed ? IconFail : IconOk;
+        tray.Icon = proc != null ? IconBusy : failed || !dbOk ? IconFail : IconOk;
     }
 
     void StartSync()
@@ -258,5 +300,6 @@ class SyncApp
             if (retry) { retries++; retryTimer.Start(); }
         }
         proc = null; syncBtn.Enabled = true; Refresh();
+        CheckDb();
     }
 }
