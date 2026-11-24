@@ -47,7 +47,6 @@
 
   // ---------- today ----------
   const st = status(today), a = A.days[today] || {}, rounds = fullRounds(today), ss = byDay[today] || [];
-  $("#todayLabel").textContent = fmt(today) + (isRest(today) ? t("restday") : "");
   const avg = r => r.length ? Math.round(r.reduce((x, s) => x + s.ok / s.total, 0) / r.length * 100) : null;
   // wax seal for a finished mission: a lumpy blob with a drip, an embossed ring and 済 ("done"), built from fixed maths so it never changes between loads
   const seal = (() => {
@@ -63,16 +62,23 @@
       <text x="32" y="38.5" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-weight="900" font-size="21" fill="#ff8d96" opacity=".55" transform="translate(.8 .8)">済</text>
       <text x="32" y="38.5" text-anchor="middle" font-family="'Noto Sans JP',sans-serif" font-weight="900" font-size="21" fill="#7d0819">済</text></svg>`;
   })();
-  const card = (key, n, p) => `<div class="w ${st[key] ? "done" : ""}">${st[key] ? `<span class="st seal" role="img" aria-label="${t("st.done")}">${seal}</span>` : `<span class="st">${t(isRest(today) && key !== "anki" ? "st.rest" : "st.todo")}</span>`}<h3>${t("w." + key)}</h3><div class="n">${n}</div><p>${p}</p></div>`;
+  const card = (st, d, key, n, p) => `<div class="w ${st[key] ? "done" : ""}">${st[key] ? `<span class="st seal" role="img" aria-label="${t("st.done")}">${seal}</span>` : `<span class="st">${t(isRest(d) && key !== "anki" ? "st.rest" : "st.todo")}</span>`}<h3>${t("w." + key)}</h3><div class="n">${n}</div><p>${p}</p></div>`;
   const minnaS = ss.filter(s => s.kind === "minna"), kaiwaS = ss.filter(s => s.kind === "kaiwa");
+  // the Today block for any day: tapping a day in the heatmap shows that day instead
+  const renderDay = d => {
+  const st = status(d), a = A.days[d] || {}, rounds = fullRounds(d), ss = byDay[d] || [];
+  const minnaS = ss.filter(s => s.kind === "minna"), kaiwaS = ss.filter(s => s.kind === "kaiwa");
+  $("#todayH").textContent = d === today ? t("h.today") : "";
+  $("#todayLabel").textContent = fmt(d) + (isRest(d) ? t("restday") : "");
   $("#wajib").innerHTML = [
-    card("anki", t("anki.n", { a: a.kaishiNew || 0, b: P.daily.kaishiNew }), A.today === today ? t("anki.left", { d: A.dueNow }) : ""),
-    card("kanji", t("kanji.n", { a: rounds.length, b: P.daily.kanjiRounds }), rounds.length ? t("kanji.avg", { v: avg(rounds) }) : t("kanji.none")),
-    card("minna", t("minna.n", { n: minnaS.length }), esc(minnaS.map(s => s.mode.replace(/\s*\([^)]*\)/g, "").replace(/^Minna\s*/i, "")).join(" · ") || t("minna.none"))),
+    card(st, d, "anki", t("anki.n", { a: a.kaishiNew || 0, b: P.daily.kaishiNew }), A.today === d ? t("anki.left", { d: A.dueNow }) : ""),
+    card(st, d, "kanji",t("kanji.n", { a: rounds.length, b: P.daily.kanjiRounds }), rounds.length ? t("kanji.avg", { v: avg(rounds) }) : t("kanji.none")),
+    card(st, d, "minna",t("minna.n", { n: minnaS.length }), esc(minnaS.map(s => s.mode.replace(/\s*\([^)]*\)/g, "").replace(/^Minna\s*/i, "")).join(" · ") || t("minna.none"))),
     // turns when logged as turns, otherwise the number of sessions (a shadowing session has no turns); "–" scores are noise
-    card("kaiwa", kaiwaS.some(s => s.turns) ? t("kaiwa.n", { n: kaiwaS.reduce((x, s) => x + (s.turns || 0), 0) }) : kaiwaS.length ? t("minna.n", { n: kaiwaS.length }) : t("kaiwa.n", { n: 0 }),
+    card(st, d, "kaiwa",kaiwaS.some(s => s.turns) ? t("kaiwa.n", { n: kaiwaS.reduce((x, s) => x + (s.turns || 0), 0) }) : kaiwaS.length ? t("minna.n", { n: kaiwaS.length }) : t("kaiwa.n", { n: 0 }),
       esc([...kaiwaS.filter(s => s.shadowing).map(() => t("kaiwa.shadow")).slice(0, 1), ...kaiwaS.map(s => s.score).filter(x => x && x !== "–")].join(" · ") || t("kaiwa.target", { a: P.daily.kaiwaTurns }))),
   ].join("");
+  };
 
   // ---------- this week + pace ----------
   const wk = P.weeks.findLast(w => w.start <= today) || P.weeks[0];
@@ -95,9 +101,10 @@
   // ---------- alerts: behind this week's target → what the remaining days must look like (red from 1.5x the normal daily pace) ----------
   const daysLeft = Math.max(1, Array.from({ length: 7 }, (_, i) => addDays(wk.start, i)).filter(d => d >= today && !isRest(d)).length);
   const prev = P.weeks[P.weeks.indexOf(wk) - 1] || wk;
+  const alerts = [];  // shown big under the summary tiles (today view only)
   const behind = (have, goal, norm, key) => {
     const gap = goal - have, r = gap / daysLeft;
-    if (gap > 0 && r > norm) banner(t(key, { gap, goal, d: daysLeft, n: Math.ceil(r), norm: Math.round(norm) }), r >= norm * 1.5 ? "bad" : "");
+    if (gap > 0 && r > norm) alerts.push(`<p class="alert ${r >= norm * 1.5 ? "bad" : ""}" role="alert">${esc(t(key, { gap, goal, d: daysLeft, n: Math.ceil(r), norm: Math.round(norm) }))}</p>`);
   };
   behind(A.kaishiOpened ?? 0, wk.kaishi, P.daily.kaishiNew, "alert.kaishi");
   behind(D.bab ?? 0, wk.bab, (wk.bab - prev.bab) / 6, "alert.minna");
@@ -118,10 +125,10 @@
   const cells = [];
   for (let d = start; d <= addDays(today, (7 - (new Date(today + "T00:00:00Z").getUTCDay() || 7)) % 7); d = addDays(d, 1))
     cells.push(d > today || d < first ? `<i style="opacity:.25"></i>`
-      : `<i data-n="${level(d)}" class="${d === today ? "today" : ""}" title="${t("heat.title", { d: fmt(d), n: count(d) })}${studied(d) ? t("heat.study", { r: (A.days[d] || {}).reviews || 0, m: hmShort(rawMin(d)) }) : ""}${isRest(d) ? t("heat.rest") : ""}"></i>`);
+      : `<i data-n="${level(d)}" class="${d === today ? "today" : ""}" data-d="${d}" title="${t("heat.title", { d: fmt(d), n: count(d) })}${studied(d) ? t("heat.study", { r: (A.days[d] || {}).reviews || 0, m: hmShort(rawMin(d)) }) : ""}${isRest(d) ? t("heat.rest") : ""}"></i>`);
   $("#heat").innerHTML = cells.join("");
   $("#heat").scrollLeft = $("#heat").scrollWidth;
-  const run = ok => { let n = 0, d = ok(today) ? today : addDays(today, -1); while (d >= first && ok(d)) { n++; d = addDays(d, -1); } return n; };
+  const run = (ok, from = today) => { let n = 0, d = ok(from) ? from : addDays(from, -1); while (d >= first && ok(d)) { n++; d = addDays(d, -1); } return n; };
   const streak = run(complete), active = run(studied);
   const totalRounds = D.sessions.filter(s => s.kind === "kanji" && s.total >= P.daily.kanjiPerRound).length;
 
@@ -141,6 +148,7 @@
   document.addEventListener("click", e => {
     const el = e.target.closest("#heat [title], .chart [title]");
     if (!el) return;
+    if (el.dataset.d) view(el.dataset.d);
     const tip = $("#tip"); tip.textContent = el.title; tip.hidden = false;
     clearTimeout(tip.timer); tip.timer = setTimeout(() => tip.hidden = true, 2500);
   });
@@ -215,18 +223,31 @@
   const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
 
   // ---------- summary strip: the answer to "how am I doing" before any detail ----------
-  const todayMin = mins(today), todo = (isRest(today) ? ["anki"] : ["anki", "kanji", "minna", "kaiwa"]).filter(k => !st[k]), allN = isRest(today) ? 1 : 4;
-  $("#sumHours").textContent = (est(today) && todayMin ? "±" : "") + hm(todayMin);
-  $("#sumHoursSub").textContent = chat(today) !== undefined ? t("sum.hours.sub", { a: a.ankiMin || 0, c: chat(today) }) : t("sum.hours.est", { a: a.ankiMin || 0 });
-  $("#sumMissions").textContent = `${allN - todo.length} / ${allN}`;
-  $("#sumMissionsSub").textContent = todo.length ? t("sum.left", { l: todo.map(k => t("w." + k)).join(", ") }) : t("sum.alldone");
-  $("#sumStreak").textContent = active;
-  $("#sumWeek").textContent = (recap.est ? "±" : "") + hm(recap.min);
-  $("#sumWeekSub").textContent = t("sum.week.sub", { d: recap.days, n: recap.of });
-  // appreciation: partial days still count, say so
   const yest = addDays(today, -1), pr = d => ({ r: (A.days[d] || {}).reviews || 0, m: hm(mins(d)) });
-  $("#praise").textContent = studied(today) ? (todo.length ? t("praise.today", pr(today)) : "")
-    : studied(yest) && yest >= first && !complete(yest) ? t("praise.yest", pr(yest)) : t("praise.none");
+  const renderSummary = d => {
+    const st = status(d), a = A.days[d] || {}, min = mins(d), rest = isRest(d);
+    const todo = (rest ? ["anki"] : ["anki", "kanji", "minna", "kaiwa"]).filter(k => !st[k]), allN = rest ? 1 : 4;
+    const w = Array.from({ length: 7 }, (_, i) => addDays(d, i - 6)).filter(x => x >= first);
+    $("#sumLabel").textContent = d === today ? t("sum.today") : t("sum.day", { d: fmt(d) });
+    $("#sumHours").textContent = (est(d) && min ? "±" : "") + hm(min);
+    $("#sumHoursSub").textContent = chat(d) !== undefined ? t("sum.hours.sub", { a: a.ankiMin || 0, c: chat(d) }) : t("sum.hours.est", { a: a.ankiMin || 0 });
+    $("#sumMissions").textContent = `${allN - todo.length} / ${allN}`;
+    $("#sumMissionsSub").textContent = todo.length ? t("sum.left", { l: todo.map(k => t("w." + k)).join(", ") }) : t("sum.alldone");
+    $("#sumStreak").textContent = run(studied, d);
+    $("#sumWeek").textContent = (w.some(est) ? "±" : "") + hm(w.reduce((n, x) => n + mins(x), 0));
+    $("#sumWeekSub").textContent = t("sum.week.sub", { d: w.filter(studied).length, n: w.length });
+    $("#alerts").innerHTML = d === today ? alerts.join("") : "";
+    // appreciation: partial days still count, say so
+    $("#praise").textContent = d !== today ? "" : studied(today) ? (todo.length ? t("praise.today", pr(today)) : "")
+      : studied(yest) && yest >= first && !complete(yest) ? t("praise.yest", pr(yest)) : t("praise.none");
+  };
+  const view = d => {
+    renderDay(d); renderSummary(d);
+    $("#heat").querySelectorAll("i[data-d]").forEach(i => i.classList.toggle("sel", d !== today && i.dataset.d === d));
+    $("#backToday").hidden = d === today;
+  };
+  $("#backToday").onclick = () => view(today);
+  view(today);
 
   let quotes = [];
   try { quotes = await (await fetch("data/quotes.json")).json(); } catch { /* Flex works without quotes */ }

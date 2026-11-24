@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@800&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=df2455f7">
+<link rel="stylesheet" href="assets/css/styles.css?v=e4f6af9f">
 </head>
 <body>
 <header class="top">
@@ -39,17 +39,19 @@
 </dialog>
 
 <main>
+  <button type="button" class="gacha" id="backToday" hidden data-i="view.back"></button>
   <div class="sum">
-    <div class="tile hi"><span class="lb" data-i="sum.today"></span><b id="sumHours"></b><small id="sumHoursSub"></small></div>
+    <div class="tile hi"><span class="lb" id="sumLabel" data-i="sum.today"></span><b id="sumHours"></b><small id="sumHoursSub"></small></div>
     <div class="tile"><span class="lb" data-i="sum.missions"></span><b id="sumMissions"></b><small id="sumMissionsSub"></small></div>
     <div class="tile"><span class="lb" data-i="sum.streak"></span><b id="sumStreak"></b><small data-i="streak.days"></small></div>
     <div class="tile"><span class="lb" data-i="sum.week"></span><b id="sumWeek"></b><small id="sumWeekSub"></small></div>
   </div>
+  <div id="alerts"></div>
   <p class="praise mono" id="praise"></p>
 
   <div class="dash">
     <section>
-      <h2><span data-i="h.today"></span> <span class="mono muted" id="todayLabel"></span></h2>
+      <h2><span id="todayH" data-i="h.today"></span> <span class="mono muted" id="todayLabel"></span></h2>
       <div class="wajib" id="wajib"></div>
     </section>
 
@@ -88,9 +90,9 @@
 </main>
 <footer class="mono muted small"><span data-i="footer"></span> <a href="metode.html" data-i="nav.method"></a>.</footer>
 <p class="tip mono small" id="tip" hidden></p>
-<script src="assets/js/i18n.js?v=41d93245"></script>
+<script src="assets/js/i18n.js?v=e89a441d"></script>
 <script src="assets/js/flex.js?v=60c0aa3b"></script>
-<script src="assets/js/app.js?v=d0a3f576"></script>
+<script src="assets/js/app.js?v=284df4d5"></script>
 <script>
   const dlg = document.getElementById("flexDlg");
   document.getElementById("flexOpen").onclick = () => dlg.showModal();
