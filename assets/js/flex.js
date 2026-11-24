@@ -73,6 +73,9 @@
     txt(c, l, x + 32, y + 172, sub(32), on ? p.af : p.mut, "left", 380);
   }
 
+  const LVC = [["#F2C200", "#111"], ["#FF5A5F", "#111"], ["#D1202F", "#fff"], ["#111", "#F2C200"]];
+  const LVT = ["WARNING", "BEHIND", "CRITICAL ALERT", "CRITICAL ALERT"];
+  const worstOf = s => s.prog.reduce((a, b) => b.lv > a.lv ? b : a);
   const T = {
     stats(c, p, s) {
       plate(c, "今日の勉強", 80, 390, F.jp(76), p.a, p.af, -2);
@@ -81,9 +84,14 @@
       txt(c, s.hoursSub, 80, 850, sub(28), p.mut, "left", 920);
       [[s.reviews, "fx.t1"], [s.kaishiNew, "fx.r.kaishiNew"], [s.rounds + (s.avg != null ? ` · ${s.avg}%` : ""), "fx.r.rounds"], [s.active, "fx.t6"]]
         .forEach(([v, l], i) => tile(c, p, 80 + (i % 2) * 480, 910 + Math.floor(i / 2) * 215, v, t(l), i === 0));
+      // pace status strip (same level as the dashboard alert)
+      const g = worstOf(s), ok = g.lv < 0, [bg, fg] = ok ? [p.b, p.bf] : LVC[g.lv];
+      const ph = plate(c, ok ? "ON TRACK" : LVT[g.lv], 80, 1342, F.head(32), bg, fg, 0, 18);
+      c.font = F.head(32);
+      txt(c, `${g.name} ${g.integ}% · ${ok ? t("fx.st.on") : t("fx.st.short", { n: Math.ceil(g.r), u: t(g.unit) })}`, 80 + c.measureText(ok ? "ON TRACK" : LVT[g.lv]).width + 36 + 28, 1342 + ph * 0.7, sub(28), p.ink, "left", 600);
       // last 7 days, hours per day: consistency, not just today
-      const y0 = 1480, hMax = 110, mx = Math.max(60, ...s.week7.map(x => x[1]));
-      txt(c, `${t("fx.week7")} · ${t("fx.total", { t: s.totalHm })}`, 80, 1425, sub(28), p.mut, "left", 920);
+      const y0 = 1505, hMax = 110, mx = Math.max(60, ...s.week7.map(x => x[1]));
+      txt(c, `${t("fx.week7")} · ${t("fx.total", { t: s.totalHm })}`, 80, 1450, sub(28), p.mut, "left", 920);
       s.week7.forEach(([d, m], i) => {
         const x = 80 + i * 134, h = Math.max(6, hMax * m / mx);
         c.fillStyle = i === 6 ? p.a : p.b; c.globalAlpha = m ? 1 : 0.25; c.fillRect(x, y0 + hMax - h, 110, h); c.globalAlpha = 1;
@@ -103,10 +111,8 @@
     },
   };
   // progress status: same levels as the dashboard alert cards (lv -1 = on pace)
-  const LVC = [["#F2C200", "#111"], ["#FF5A5F", "#111"], ["#D1202F", "#fff"], ["#111", "#F2C200"]];
-  const LVT = ["WARNING", "BEHIND", "CRITICAL ALERT", "CRITICAL ALERT"];
   T.status = (c, p, s) => {
-    const worst = s.prog.reduce((a, b) => b.lv > a.lv ? b : a), lv = worst.lv, ok = lv < 0;
+    const lv = worstOf(s).lv, ok = lv < 0;
     plate(c, "進捗ステータス", 80, 390, F.jp(76), p.a, p.af, -2);
     const [bg, fg] = ok ? [p.b, p.bf] : LVC[lv];
     plate(c, ok ? "ON TRACK" : LVT[lv], 80, 560, F.head(110), bg, fg, -2, 34);
@@ -133,7 +139,7 @@
     const cv = document.getElementById("flexCanvas"), c = cv.getContext("2d");
     const $ = id => document.getElementById(id), share = $("flexShare"), save = $("flexSave");
     const sample = "0123456789ABCabc今日の勉強今週のまとめ進捗ステータス日連続N2まであと" + ["fx.t1", "fx.r.kaishiNew", "fx.r.rounds", "fx.t6", "fx.studyToday", "fx.estNote", "fx.week7", "fx.total",
-        "fx.st.ok", "fx.st.late", "fx.st.fine", "fx.st.need", "fx.st.words", "fx.st.chapters", "fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub"].map(k => t(k)).join("") + s.dateLabel + s.hoursSub + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
+        "fx.st.on", "fx.st.short", "fx.st.ok", "fx.st.late", "fx.st.fine", "fx.st.need", "fx.st.words", "fx.st.chapters", "fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub"].map(k => t(k)).join("") + s.dateLabel + s.hoursSub + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
     await Promise.all([F.num(80), F.head(40), F.mono(30), F.mono(30, 700), F.jp(40), F.jp(40, 400)].map(f => document.fonts.load(f, sample))).catch(() => {});
     const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
     s.hm = (s.minEst && s.min ? "±" : "") + hm(s.min); s.totalHm = hm(s.totalMin); s.recapHm = (s.recap.est ? "±" : "") + hm(s.recap.min);
