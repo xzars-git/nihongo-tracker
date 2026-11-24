@@ -58,10 +58,12 @@
       <p class="sh-lead">${esc(L(UI.lead))}</p>
       <div id="shPick" class="sh-pick"></div>
       <div id="shBody" hidden>
-        <div class="sh-vid"><div id="shPlayer"></div></div>
-        <div class="sh-bar" id="shBar"></div>
-        <p class="mono sh-meta" id="shMeta"></p>
-        <button type="button" class="sh-logbtn mono" id="shLog"></button>
+        <div class="sh-top" id="shTop">
+          <div class="sh-vid"><div id="shPlayer"></div></div>
+          <div class="sh-bar" id="shBar"></div>
+          <p class="mono sh-meta" id="shMeta"></p>
+          <button type="button" class="sh-logbtn mono" id="shLog"></button>
+        </div>
         <ol class="sh-list" id="shList"></ol>
         <p class="mono sh-keys">${esc(L(UI.keys))}</p>
         <p class="mono sh-keys">${esc(L(UI.romajiNote))}</p>
@@ -97,12 +99,13 @@
   function mark() {
     logBtn();
     document.querySelectorAll("#shList li").forEach(li => li.classList.toggle("on", +li.dataset.i === S.cur));
-    const on = $("#shList li.on"); if (on) { const r = on.getBoundingClientRect(); if (r.top < 0 || r.bottom > innerHeight) on.scrollIntoView({ block: "center", behavior: "smooth" }); }
+    // keep the current line just below the pinned player + buttons
+    const on = $("#shList li.on"); if (on) { const top = $("#shTop").getBoundingClientRect().bottom, r = on.getBoundingClientRect(); if (r.top < top || r.bottom > innerHeight) scrollBy({ top: r.top - top - 12, behavior: "smooth" }); }
   }
 
   function go(i, play) {
     const n = S.data.lines.length;
-    S.cur = Math.max(0, Math.min(n - 1, i)); S.play = 0; clearTimeout(S.timer); S.wait = false; S.guard = Date.now() + 500;
+    S.cur = Math.max(0, Math.min(n - 1, i)); S.play = 0; clearTimeout(S.timer); S.wait = false; S.guard = Date.now() + 500; S.endSeen = false;
     S.player?.seekTo(S.data.lines[S.cur].s, true);
     if (play) S.player?.playVideo();
     mark();
@@ -110,7 +113,7 @@
 
   const pref = () => store.set("shadow.pref", { reps: S.reps, auto: S.auto, gap: S.gap, romaji: S.romaji, meaning: S.meaning });
   const saveDone = () => store.set("shadow.done." + S.vid, [...S.done]);
-  const seek = t => { S.guard = Date.now() + 500; S.player.seekTo(t, true); };
+  const seek = t => { S.guard = Date.now() + 500; S.endSeen = false; S.player.seekTo(t, true); };
 
   // Auto mode: play a line `reps` times (pausing for your turn when "gap" is on), mark it done, then go to the next line.
   function endPlay() {
@@ -143,21 +146,27 @@
     if (S.wait) { add(0.1); return; }  // your turn to speak counts as practice
     const t = p.getCurrentTime(), ls = S.data.lines, playing = p.getPlayerState() === 1;
     const over = playing && Date.now() > S.guard && t >= ls[S.cur].e + 0.2;
+    // one play = the line was heard to its end (click again, Loop, Auto repeats all count); a line stopped halfway does not
+    if (playing && !S.endSeen && Date.now() > S.guard && t >= ls[S.cur].e - 0.1 && t < ls[S.cur].e + 1.5) {
+      S.endSeen = true; S.plays++; S.rates[S.rate] = (S.rates[S.rate] || 0) + 1;
+    }
     if (playing) { add(0.1); $("#shMeta").textContent = meta(); logBtn(); }
     if (S.loop) { if (over) seek(ls[S.cur].s); }
     else if (S.auto) { if (over) endPlay(); }
     else {
       let k = S.cur; while (k + 1 < ls.length && ls[k + 1].s <= t) k++; while (k > 0 && ls[k].s > t) k--;
-      if (k !== S.cur && playing) { S.cur = k; mark(); }
+      if (k !== S.cur && playing) { S.cur = k; S.endSeen = false; mark(); }
     }
   }
 
   const logMin = () => Math.max(1, Math.round(S.secs / 60));
-  // one line for the tray app (Nihongo Sync → "Tempel shadowing"): video, active minutes, line reached / total
-  const logCmd = () => `nihongo-shadow ${S.vid} ${logMin()} ${S.cur + 1}/${S.data.lines.length}`;
-  const logBtn = () => { $("#shLog").textContent = `📋 ${L(UI.log)}: ${logMin()} min · ${S.cur + 1}/${S.data.lines.length}`; };
+  // speeds used, slowest first: "0.75x18,1x40" ("-" before the first play)
+  const rates = () => Object.keys(S.rates).sort((a, b) => a - b).map(r => `${r}x${S.rates[r]}`).join(",") || "-";
+  // one line for the tray app (Nihongo Sync → "Tempel progres"): video, active minutes, line reached / total, plays, speeds
+  const logCmd = () => `nihongo-shadow ${S.vid} ${logMin()} ${S.cur + 1}/${S.data.lines.length} ${S.plays} ${rates()}`;
+  const logBtn = () => { $("#shLog").textContent = `📋 ${L(UI.log)}: ${logMin()} min · ${S.cur + 1}/${S.data.lines.length} · ${S.plays}×`; };
 
-  const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}${S.afk >= 1 ? ` · AFK ${fmt(S.afk)}` : ""}`;
+  const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}${S.afk >= 1 ? ` · AFK ${fmt(S.afk)}` : ""}${S.plays ? ` · ${S.plays}× (${rates().replace(/x(\d+)/g, "x $1").replace(/,/g, " · ")})` : ""}`;
 
   function loadYT() {
     return new Promise(ok => {
@@ -199,7 +208,7 @@
 
   async function open(id) {
     S.vid = id; S.data = await load(id);
-    S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.afk = 0; S.lineSecs = 0; S.lineAt = 0; S.play = 0;
+    S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.afk = 0; S.lineSecs = 0; S.lineAt = 0; S.play = 0; S.plays = 0; S.rates = {}; S.endSeen = false;
     $("#shBody").hidden = false; bar(); list(); $("#shMeta").textContent = meta(); logBtn();
     $("#shLog").onclick = () => navigator.clipboard?.writeText(logCmd()).then(() => { $("#shLog").textContent = "✔ " + L(UI.copied); setTimeout(logBtn, 2500); }, () => prompt(L(UI.log), logCmd()));
     await loadYT();

@@ -207,20 +207,54 @@ class SyncApp
         catch (Exception e) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Tidak bisa menyalin: " + e.Message, ToolTipIcon.Warning); }
     }
 
-    // "nihongo-shadow <id> <menit> <baris>/<total>", copied on the Shadowing page (web or local). Only the matched parts reach the command line.
-    static readonly Regex ShadowLogRe = new Regex(@"^nihongo-shadow ([\w-]{11}) ([1-9]\d{0,2}) (\d{1,4}/\d{1,4})$");
+    // "nihongo-shadow <id> <menit> <baris>/<total> [<putaran> <0.75x18,1x40>]", copied on the Shadowing page (web or local).
+    // Only the matched parts reach the command line.
+    static readonly Regex ShadowLogRe = new Regex(@"^nihongo-shadow ([\w-]{11}) ([1-9]\d{0,2}) (\d{1,4}/\d{1,4})(?: (\d{1,5}) (-|\d(?:\.\d+)?x\d{1,5}(?:,\d(?:\.\d+)?x\d{1,5})*))?$");
+
+    // a field you paste the copied line into; the preview below it shows what will be logged, and Catat works only for a valid line
+    Match AskShadow()
+    {
+        Match found = null;
+        using (var f = new Form
+        {
+            Text = "Tempel progres shadowing", ClientSize = new Size(460, 230), FormBorderStyle = FormBorderStyle.FixedDialog, MaximizeBox = false, MinimizeBox = false,
+            StartPosition = FormStartPosition.CenterScreen, BackColor = Bg, ForeColor = Ink, Icon = form.Icon, Font = form.Font, TopMost = true,
+        })
+        {
+            var label = new Label { Text = "Tempel teks dari halaman Shadowing (tombol Salin progres), lalu Catat.", ForeColor = Muted, Bounds = new Rectangle(20, 16, 420, 20) };
+            var box = new TextBox { Bounds = new Rectangle(20, 42, 420, 26), BackColor = Color.FromArgb(36, 37, 43), ForeColor = Ink, BorderStyle = BorderStyle.FixedSingle, Font = new Font("Consolas", 10) };
+            var keysL = new Label { Bounds = new Rectangle(20, 84, 110, 80), ForeColor = Muted, Text = "Video\nWaktu aktif\nSampai baris\nDiputar" };
+            var valsL = new Label { Bounds = new Rectangle(130, 84, 310, 80) };
+            var ok = new Button { Text = "Catat", Bounds = new Rectangle(308, 178, 132, 34), FlatStyle = FlatStyle.Flat, BackColor = Yellow, ForeColor = Color.Black, Font = new Font("Segoe UI", 9.5f, FontStyle.Bold), Enabled = false, DialogResult = DialogResult.OK };
+            ok.FlatAppearance.BorderColor = Yellow;
+            var cancel = new Button { Text = "Batal", Bounds = new Rectangle(168, 178, 132, 34), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(36, 37, 43), DialogResult = DialogResult.Cancel };
+            cancel.FlatAppearance.BorderColor = Color.FromArgb(78, 80, 88);
+            box.TextChanged += delegate
+            {
+                var m = ShadowLogRe.Match(box.Text.Trim());
+                ok.Enabled = m.Success;
+                if (!m.Success) { valsL.ForeColor = Muted; valsL.Text = box.Text.Trim().Length == 0 ? "-\n-\n-\n-" : "teks tidak dikenali\n\n\n"; return; }
+                string plays = m.Groups[4].Value, speeds = m.Groups[5].Value;
+                valsL.ForeColor = Ink;
+                valsL.Text = m.Groups[1].Value + "\n" + m.Groups[2].Value + " menit\n" + m.Groups[3].Value + "\n"
+                    + (plays.Length == 0 ? "-" : plays + "x" + (speeds != "-" ? "  (" + speeds.Replace(",", ", ") + ")" : ""));
+                found = m;
+            };
+            box.Text = "";
+            valsL.Text = "-\n-\n-\n-";
+            f.Controls.AddRange(new Control[] { label, box, keysL, valsL, cancel, ok }); f.AcceptButton = ok; f.CancelButton = cancel;
+            return f.ShowDialog() == DialogResult.OK && ok.Enabled ? found : null;
+        }
+    }
 
     void PasteShadow()
     {
         if (!dbOk) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Database mati. Tekan Start database dulu.", ToolTipIcon.Warning); return; }
-        string text = "";
-        try { text = Clipboard.GetText().Trim(); } catch { }
-        var m = ShadowLogRe.Match(text);
-        if (!m.Success) { tray.ShowBalloonTip(6000, "Nihongo Sync", "Belum ada progres shadowing di clipboard. Di halaman Shadowing tekan \"Salin progres untuk Nihongo Sync\" dulu.", ToolTipIcon.Info); return; }
-        string id = m.Groups[1].Value, min = m.Groups[2].Value, lines = m.Groups[3].Value;
-        if (MessageBox.Show("Catat shadowing hari ini?\n\nVideo: " + id + "\nWaktu aktif: " + min + " menit\nSampai baris: " + lines, "Nihongo Sync",
-                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
-        var psi = new ProcessStartInfo(Config.Python, "-X utf8 -I \"" + Path.Combine(Config.Root, "scripts", "catat.py") + "\" shadow " + id + " " + min + " " + lines)
+        var m = AskShadow();
+        if (m == null) return;
+        string id = m.Groups[1].Value, min = m.Groups[2].Value, lines = m.Groups[3].Value, plays = m.Groups[4].Value, speeds = m.Groups[5].Value;
+        var extra = plays.Length > 0 ? " " + plays + " " + speeds : "";
+        var psi = new ProcessStartInfo(Config.Python, "-X utf8 -I \"" + Path.Combine(Config.Root, "scripts", "catat.py") + "\" shadow " + id + " " + min + " " + lines + extra)
         {
             UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Config.Root,
             RedirectStandardOutput = true, RedirectStandardError = true, StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,

@@ -250,10 +250,17 @@
   // ---------- weekly recap (for Flex) ----------
   const wkDays = Array.from({ length: 7 }, (_, i) => addDays(today, i - 6)).filter(x => x >= first);
   const wkRounds = wkDays.flatMap(fullRounds);
+  // speaking = kaiwa sessions (Talk, Duet, shadowing): count, logged minutes, and shadowing plays from the note ("9x diputar")
+  const speak = ds => {
+    const ss = ds.flatMap(x => (byDay[x] || []).filter(s => s.kind === "kaiwa"));
+    return { n: ss.length, min: ss.reduce((x, s) => x + (s.min || 0), 0), plays: ss.reduce((x, s) => x + (+(/(\d+)x diputar/.exec(s.note || "") || [])[1] || 0), 0) };
+  };
   const recap = {
     min: wkDays.reduce((n, x) => n + mins(x), 0), est: wkDays.some(est), days: wkDays.filter(studied).length, of: wkDays.length,
     kaishi: wkDays.reduce((n, x) => n + ((A.days[x] || {}).kaishiNew || 0), 0), reviews: wkDays.reduce((n, x) => n + ((A.days[x] || {}).reviews || 0), 0),
     rounds: wkRounds.length, avg: avg(wkRounds),
+    floor: wkDays.filter(complete).length, zero: wkDays.filter(x => x < today && !studied(x)).length,
+    kanji: wkDays.reduce((n, x) => n + ((A.days[x] || {}).kanjiNew || 0), 0), kanjiGoal: kanjiStep, speak: speak(wkDays),
   };
 
   const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
@@ -304,7 +311,9 @@
     prog: [
       { name: t("fx.wKaishi"), unit: "fx.st.words", ...gauge(A.kaishiOpened ?? 0, wk.kaishi, P.daily.kaishiNew) },
       { name: t("fx.wMinna"), unit: "fx.st.chapters", ...gauge(D.bab ?? 0, wk.bab, (wk.bab - prev.bab) / 6) },
+      { name: t("fx.wKanji"), unit: "fx.st.kanji", ...gauge(kanjiWeek, kanjiStep, kanjiStep / 6) },
     ],
+    light: light(today), kanjiNew: a.kanjiNew || 0, speak: speak([today]),
     week: [[t("fx.wMinna"), D.bab ?? 0, wk.bab], [t("fx.wKaishi"), A.kaishiOpened ?? 0, wk.kaishi]],
   });
 })();

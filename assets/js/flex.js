@@ -82,8 +82,11 @@
       txt(c, s.hm, 80, 740, LANG === "ja" ? F.jp(170) : F.num(300), p.ink, "left", 920);
       txt(c, t("fx.studyToday") + (s.minEst ? " · " + t("fx.estNote") : ""), 80, 805, sub(32), p.mut, "left", 920);
       txt(c, s.hoursSub, 80, 850, sub(28), p.mut, "left", 920);
-      [[s.reviews, "fx.t1"], [s.kaishiNew, "fx.r.kaishiNew"], [s.rounds + (s.avg != null ? ` · ${s.avg}%` : ""), "fx.r.rounds"], [s.active, "fx.t6"]]
-        .forEach(([v, l], i) => tile(c, p, 80 + (i % 2) * 480, 910 + Math.floor(i / 2) * 215, v, t(l), i === 0));
+      // daily floor first (highlighted when met), then Anki, speaking (Talk · Duet · shadowing) and kanji met in Anki
+      const sp = s.speak, floorOk = s.done === s.doneOf;
+      [[`${s.done}/${s.doneOf}`, t(s.light ? "fx.t.light" : "fx.t.floor"), floorOk], [s.reviews, t("fx.t1")],
+        [sp.min ? `${sp.min}m` : sp.n, t("fx.t.speak") + (sp.plays ? ` · ${sp.plays}×` : "")], [s.kanjiNew, t("fx.t.kanji")]]
+        .forEach(([v, l, on], i) => tile(c, p, 80 + (i % 2) * 480, 910 + Math.floor(i / 2) * 215, v, l, !!on));
       // pace status strip (same level as the dashboard alert)
       const g = worstOf(s), ok = g.lv < 0, [bg, fg] = ok ? [p.b, p.bf] : LVC[g.lv];
       const ph = plate(c, ok ? "ON TRACK" : LVT[g.lv], 80, 1342, F.head(32), bg, fg, 0, 18);
@@ -103,10 +106,13 @@
       plate(c, "今週のまとめ", 80, 390, F.jp(76), p.a, p.af, -2);
       txt(c, t("fx.rc.sub"), 80, 560, sub(30), p.mut, "left", 920);
       txt(c, s.recapHm, 80, 790, LANG === "ja" ? F.jp(150) : F.num(260), p.ink, "left", 920);
-      txt(c, t("fx.rc.hours") + (r.est ? " · " + t("fx.estNote") : ""), 80, 860, sub(32), p.mut, "left", 920);
-      [[t("fx.rc.days"), `${r.days}/${r.of}`], [t("fx.rc.kaishi"), r.kaishi], [t("fx.rc.reviews"), r.reviews], [t("fx.rc.rounds"), r.rounds + (r.avg != null ? " · " + r.avg + "%" : "")]].forEach(([l, v], i) => {
+      // quiz rounds are optional now: a small note under the hours instead of a row
+      txt(c, t("fx.rc.hours") + (r.est ? " · " + t("fx.estNote") : "") + (r.rounds ? ` · ${t("fx.rc.rounds")} ${r.rounds}` + (r.avg != null ? ` (${r.avg}%)` : "") : ""), 80, 860, sub(32), p.mut, "left", 920);
+      const sp = r.speak;
+      [[t("fx.rc.floor", { z: r.zero }), `${r.floor}/${r.of}`], [t("fx.rc.kaishi"), r.kaishi], [t("fx.rc.reviews"), r.reviews], [t("fx.rc.kanji"), `${r.kanji}/${r.kanjiGoal}`],
+        [t("fx.rc.speak") + (sp.plays ? ` · ${sp.plays}×` : ""), sp.min ? `${sp.n} · ${sp.min}m` : sp.n]].forEach(([l, v], i) => {
         const y = 960 + i * 125; c.strokeStyle = p.ink; c.lineWidth = 5; c.strokeRect(80, y, 920, 100);
-        txt(c, l, 110, y + 64, lab(38), p.ink, "left", 500); txt(c, String(v), 970, y + 70, F.num(64), p.ink, "right", 380);
+        txt(c, l, 110, y + 64, lab(36), p.ink, "left", 560); txt(c, String(v), 970, y + 70, F.num(64), p.ink, "right", 320);
       });
     },
   };
@@ -117,20 +123,21 @@
     const [bg, fg] = ok ? [p.b, p.bf] : LVC[lv];
     plate(c, ok ? "ON TRACK" : LVT[lv], 80, 560, F.head(110), bg, fg, -2, 34);
     txt(c, t(ok ? "fx.st.ok" : "fx.st.late"), 80, 800, sub(30), p.mut, "left", 920);
+    // three gauges (Kaishi, Minna, kanji in Anki), compact so all fit in the safe area
     s.prog.forEach((g, i) => {
-      const y = 850 + i * 370;
-      c.strokeStyle = p.ink; c.lineWidth = 6; c.strokeRect(80, y, 920, 335);
-      txt(c, g.name, 112, y + 66, lab(44), p.ink, "left", 560);
-      txt(c, `${g.have} / ${g.goal}`, 112, y + 112, sub(30), p.mut, "left", 560);
-      txt(c, g.integ + "%", 968, y + 100, F.num(110), p.ink, "right", 330);
-      c.strokeRect(112, y + 140, 856, 40);
-      c.fillStyle = g.lv < 0 ? p.b : LVC[g.lv][0]; c.fillRect(112, y + 140, 856 * Math.min(100, g.integ) / 100, 40);
-      txt(c, "THREAT LEVEL", 112, y + 232, F.mono(24, 700), p.mut);
+      const y = 850 + i * 285;
+      c.strokeStyle = p.ink; c.lineWidth = 6; c.strokeRect(80, y, 920, 262);
+      txt(c, g.name, 112, y + 56, lab(40), p.ink, "left", 560);
+      txt(c, `${g.have} / ${g.goal}`, 112, y + 96, sub(28), p.mut, "left", 560);
+      txt(c, g.integ + "%", 968, y + 92, F.num(96), p.ink, "right", 330);
+      c.strokeRect(112, y + 114, 856, 32);
+      c.fillStyle = g.lv < 0 ? p.b : LVC[g.lv][0]; c.fillRect(112, y + 114, 856 * Math.min(100, g.integ) / 100, 32);
+      txt(c, "THREAT LEVEL", 112, y + 180, F.mono(22, 700), p.mut);
       for (let k = 0; k < 10; k++) {
         const x = 112 + k * 86;
-        if (k < g.thr) { c.fillStyle = LVC[Math.max(g.lv, 0)][0]; c.fillRect(x, y + 246, 76, 34); } else { c.lineWidth = 4; c.strokeRect(x, y + 246, 76, 34); }
+        if (k < g.thr) { c.fillStyle = LVC[Math.max(g.lv, 0)][0]; c.fillRect(x, y + 192, 76, 26); } else { c.lineWidth = 4; c.strokeRect(x, y + 192, 76, 26); }
       }
-      txt(c, g.lv < 0 ? t("fx.st.fine") : t("fx.st.need", { n: Math.ceil(g.r), u: t(g.unit), norm: Math.round(g.norm) }), 112, y + 316, sub(26), p.mut, "left", 840);
+      txt(c, g.lv < 0 ? t("fx.st.fine") : t("fx.st.need", { n: Math.ceil(g.r), u: t(g.unit), norm: Math.round(g.norm) }), 112, y + 246, sub(24), p.mut, "left", 840);
     });
   };
   const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
@@ -138,8 +145,8 @@
   window.initFlex = async s => {
     const cv = document.getElementById("flexCanvas"), c = cv.getContext("2d");
     const $ = id => document.getElementById(id), share = $("flexShare"), save = $("flexSave");
-    const sample = "0123456789ABCabc今日の勉強今週のまとめ進捗ステータス日連続N2まであと" + ["fx.t1", "fx.r.kaishiNew", "fx.r.rounds", "fx.t6", "fx.studyToday", "fx.estNote", "fx.week7", "fx.total",
-        "fx.st.on", "fx.st.short", "fx.st.ok", "fx.st.late", "fx.st.fine", "fx.st.need", "fx.st.words", "fx.st.chapters", "fx.rc.hours", "fx.rc.days", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub"].map(k => t(k)).join("") + s.dateLabel + s.hoursSub + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
+    const sample = "0123456789ABCabc今日の勉強今週のまとめ進捗ステータス日連続N2まであと" + ["fx.t1", "fx.t.floor", "fx.t.light", "fx.t.speak", "fx.t.kanji", "fx.rc.floor", "fx.rc.kanji", "fx.rc.speak", "fx.wKanji", "fx.st.kanji", "fx.studyToday", "fx.estNote", "fx.week7", "fx.total",
+        "fx.st.on", "fx.st.short", "fx.st.ok", "fx.st.late", "fx.st.fine", "fx.st.need", "fx.st.words", "fx.st.chapters", "fx.rc.hours", "fx.rc.kaishi", "fx.rc.rounds", "fx.rc.reviews", "fx.rc.sub"].map(k => t(k)).join("") + s.dateLabel + s.hoursSub + s.quotes.map(x => x.q + x.by + (x.tr ? x.tr.id + x.tr.en : "")).join("");
     await Promise.all([F.num(80), F.head(40), F.mono(30), F.mono(30, 700), F.jp(40), F.jp(40, 400)].map(f => document.fonts.load(f, sample))).catch(() => {});
     const hm = m => t("fx.hm", { h: Math.floor(m / 60), m: m % 60 });
     s.hm = (s.minEst && s.min ? "±" : "") + hm(s.min); s.totalHm = hm(s.totalMin); s.recapHm = (s.recap.est ? "±" : "") + hm(s.recap.min);

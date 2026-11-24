@@ -263,9 +263,10 @@ body.danger::after{content:"";position:fixed;inset:0;pointer-events:none;z-index
 .sh-pick button{text-align:left;font:700 14px/1.3 'Noto Sans JP',sans-serif;background:var(--card);color:var(--ink);border:3px solid var(--line);padding:8px 12px;cursor:pointer;max-width:100%}
 .sh-pick button small{display:block;font-size:11px;color:var(--muted);font-weight:400}
 .sh-pick button[aria-pressed=true]{background:var(--y);color:var(--k)}.sh-pick button[aria-pressed=true] small{color:#3b3200}
-.sh-vid{position:sticky;top:0;z-index:3;background:var(--bg);padding:6px 0;border-bottom:3px solid var(--line)}
-.sh-vid iframe,.sh-vid #shPlayer{display:block;width:100%;aspect-ratio:16/9;height:auto;max-height:46vh;border:3px solid var(--line);background:#000}
-.sh-bar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.sh-top{position:sticky;top:0;z-index:3;background:var(--bg);padding:6px 0 0;border-bottom:3px solid var(--line);margin-bottom:10px}  /* player + buttons stay in reach at any line */
+.sh-vid iframe,.sh-vid #shPlayer{display:block;width:100%;aspect-ratio:16/9;height:auto;max-height:34vh;border:3px solid var(--line);background:#000}
+.sh-bar{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.sh-top .sh-meta{margin:0 0 6px}.sh-top .sh-logbtn{margin-bottom:8px}
 .sh-bar button,.sh-rates button{font:700 13px 'JetBrains Mono',monospace;background:var(--bg);color:var(--ink);border:3px solid var(--line);padding:6px 12px;cursor:pointer}
 .sh-bar button[aria-pressed=true],.sh-rates button[aria-pressed=true]{background:var(--y);color:var(--k)}
 .sh-rates{display:flex}.sh-rates button+button{margin-left:-3px}
