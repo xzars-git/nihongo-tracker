@@ -38,7 +38,7 @@
   "restDays": [
     0
   ],
-  "study": { "sessionTitle": "Belajar Minna no Nihongo", "afkSeconds": 180 },
+  "study": { "sessionTitle": "Belajar Minna no Nihongo", "afkSeconds": 300 },
   "daily": {
     "kaishiNew": 15,
     "kanjiRounds": 8,

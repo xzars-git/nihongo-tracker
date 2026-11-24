@@ -287,7 +287,6 @@ body.danger::after{content:"";position:fixed;inset:0;pointer-events:none;z-index
 .sh-tx{display:flex;flex-direction:column;gap:2px}
 .sh-r{display:none;font:400 13px/1.4 'JetBrains Mono',monospace;color:var(--muted)}
 .sh-list.romaji .sh-r{display:block}.sh-list li.on .sh-r{color:#3b3200}
-.sh-hist{margin-top:28px;border-top:3px solid var(--line);padding-top:14px}.sh-hist h2{font:900 22px 'Archivo Black',sans-serif;margin:0 0 6px}.sh-hist ul{margin:6px 0 0;padding-left:18px}
 .sh-m{display:none;font:400 14px/1.45 'Noto Sans JP',system-ui,sans-serif;color:var(--muted)}
 .sh-list.meaning .sh-m{display:block}.sh-list li.on .sh-m{color:#3b3200}
 .sh-lock{border:3px solid var(--line);background:var(--card);padding:14px;display:flex;flex-direction:column;gap:10px}

@@ -3,6 +3,7 @@
 // Closing the window hides it to the tray; only Quit stops it. Between slots it waits on one timer.
 // Built by scripts/build-app.ps1 with the C# 5 compiler that ships with Windows (.NET Framework 4).
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -41,9 +42,10 @@ class SyncApp
     static readonly string Log = Path.Combine(Dir, "sync.log");
     static readonly string State = Path.Combine(Dir, "last.txt");  // time of the last successful sync
 
-    static readonly Color Bg = Color.FromArgb(23, 24, 28), Ink = Color.FromArgb(236, 234, 227), Yellow = Color.FromArgb(242, 194, 0);
+    static readonly Color Bg = Color.FromArgb(23, 24, 28), Ink = Color.FromArgb(236, 234, 227), Yellow = Color.FromArgb(242, 194, 0),
+        Muted = Color.FromArgb(150, 147, 139), Line = Color.FromArgb(52, 54, 61), Lime = Color.FromArgb(182, 255, 0), Coral = Color.FromArgb(255, 90, 95);
     readonly Form form = new Form();
-    readonly Label info = new Label();
+    readonly Label keys = new Label(), vals = new Label(), pill = new Label();  // keys/vals: two aligned columns of "name  value" rows
     readonly Button syncBtn, dbBtn;
     readonly NotifyIcon tray = new NotifyIcon();
     readonly System.Windows.Forms.Timer slotTimer = new System.Windows.Forms.Timer();
@@ -59,20 +61,30 @@ class SyncApp
         Directory.CreateDirectory(Dir);
         var icon = MakeIcon(Yellow);
 
-        form.Text = "Nihongo Sync"; form.Icon = icon; form.ClientSize = new Size(420, 440);
+        form.Text = "Nihongo Sync"; form.Icon = icon; form.ClientSize = new Size(460, 520);
         form.FormBorderStyle = FormBorderStyle.FixedSingle; form.MaximizeBox = false; form.StartPosition = FormStartPosition.CenterScreen;
-        form.BackColor = Bg; form.ForeColor = Ink; form.Font = new Font("Segoe UI", 10);
-        var title = new Label { Text = "Nihongo Sync", ForeColor = Yellow, Font = new Font("Segoe UI", 16, FontStyle.Bold), Bounds = new Rectangle(20, 15, 380, 36) };
-        info.Bounds = new Rectangle(20, 58, 380, 220);
-        form.Controls.Add(title); form.Controls.Add(info);
-        syncBtn = AddButton("Sync sekarang", 20, delegate { StartSync(); });
-        AddButton("Buka web", 150, delegate { Open(Site); });
-        AddButton("Lihat log", 280, delegate { OpenLog(); });
-        dbBtn = AddButton("Start database", 20, delegate { StartDb(); }, 340);
-        AddButton("Buka Shadowing", 150, delegate { OpenShadowing(); }, 340);
-        AddButton("Tambah video", 280, delegate { AddVideo(); }, 340);
-        AddButton("Salin kunci web", 20, delegate { CopyKey(); }, 385);
-        AddButton("Tempel shadowing", 150, delegate { PasteShadow(); }, 385);
+        form.BackColor = Bg; form.ForeColor = Ink; form.Font = new Font("Segoe UI", 9.5f);
+        form.Controls.Add(new Label { Text = "Nihongo Sync", ForeColor = Yellow, Font = new Font("Segoe UI", 16, FontStyle.Bold), Bounds = new Rectangle(22, 16, 260, 34) });
+        pill.AutoSize = true; pill.Font = new Font("Segoe UI", 8.5f, FontStyle.Bold); pill.ForeColor = Color.Black; pill.Padding = new Padding(8, 3, 8, 3); pill.Top = 24;
+        form.Controls.Add(pill);
+        Rule(62);
+        keys.Bounds = new Rectangle(24, 74, 110, 232); keys.ForeColor = Muted;
+        vals.Bounds = new Rectangle(140, 74, 300, 232);
+        form.Controls.Add(keys); form.Controls.Add(vals);
+        Rule(312);
+        Caption("SYNC", 324);
+        syncBtn = AddButton("Sync sekarang", 0, delegate { StartSync(); }, 344);
+        syncBtn.BackColor = Yellow; syncBtn.ForeColor = Color.Black; syncBtn.FlatAppearance.BorderColor = Yellow; syncBtn.FlatAppearance.MouseOverBackColor = Color.FromArgb(255, 214, 50);
+        syncBtn.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+        AddButton("Buka web", 1, delegate { Open(Site); }, 344);
+        AddButton("Lihat log", 2, delegate { OpenLog(); }, 344);
+        Caption("SHADOWING", 390);
+        AddButton("Buka Shadowing", 0, delegate { OpenShadowing(); }, 410);
+        AddButton("Tambah video", 1, delegate { AddVideo(); }, 410);
+        AddButton("Tempel progres", 2, delegate { PasteShadow(); }, 410);
+        Caption("LAINNYA", 456);
+        dbBtn = AddButton("Start database", 0, delegate { StartDb(); }, 476);
+        AddButton("Salin kunci web", 1, delegate { CopyKey(); }, 476);
         form.FormClosing += (s, e) => { if (!quitting) { e.Cancel = true; form.Hide(); } };  // X = hide to tray
         var handle = form.Handle;  // create the handle now so BeginInvoke works before the window is first shown
 
@@ -110,11 +122,16 @@ class SyncApp
         CheckDb();
     }
 
-    Button AddButton(string text, int x, EventHandler click, int y = 295)
+    // three equal columns: col 0, 1, 2
+    Button AddButton(string text, int col, EventHandler click, int y)
     {
-        var b = new Button { Text = text, Bounds = new Rectangle(x, y, 120, 34), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(42, 43, 49) };
+        var b = new Button { Text = text, Bounds = new Rectangle(24 + col * 140, y, 132, 34), FlatStyle = FlatStyle.Flat, BackColor = Color.FromArgb(36, 37, 43), Cursor = Cursors.Hand };
+        b.FlatAppearance.BorderColor = Color.FromArgb(78, 80, 88); b.FlatAppearance.MouseOverBackColor = Color.FromArgb(52, 54, 61);
         b.Click += click; form.Controls.Add(b); return b;
     }
+
+    void Caption(string text, int y) { form.Controls.Add(new Label { Text = text, ForeColor = Muted, Font = new Font("Segoe UI", 8, FontStyle.Bold), Bounds = new Rectangle(24, y, 200, 16) }); }
+    void Rule(int y) { form.Controls.Add(new Panel { BackColor = Line, Bounds = new Rectangle(24, y, 412, 1) }); }
 
     // drawn at runtime: the tray needs a plain bitmap icon, and the colour shows the status
     static Icon MakeIcon(Color bg)
@@ -440,10 +457,23 @@ class SyncApp
     void Refresh()
     {
         var last = LastSync();
-        info.Text = string.Format("Jadwal: {0} · pengingat {4:hh\\:mm}\n\nSync terakhir: {1}\nHasil: {2}\nBerikutnya: {3:ddd HH:mm}\nDatabase: {5}{6}\n{7}",
-            string.Join(" · ", Slots.Select(s => s.ToString(@"hh\:mm"))),
-            last == DateTime.MinValue ? "belum pernah" : last.ToString("ddd dd MMM, HH:mm"),
-            proc != null ? "sedang sync..." : result, NextSlot(), Reminder, dbOk ? "aktif" : "MATI (tekan Start database)", dbInfo.Length > 0 ? "\n" + dbInfo : "", AnkiLine());
+        var rows = new List<string[]> {
+            new[] { "Sync terakhir", last == DateTime.MinValue ? "belum pernah" : last.ToString("ddd dd MMM, HH:mm") },
+            new[] { "Hasil", proc != null ? "sedang sync..." : result },
+            new[] { "Berikutnya", NextSlot().ToString("ddd HH:mm") },
+            new[] { "Jadwal", string.Join(" · ", Slots.Select(s => s.ToString(@"hh\:mm"))) + " · ingat " + Reminder.ToString(@"hh\:mm") },
+            new[] { "", "" },
+            new[] { "Database", dbOk ? "aktif" : "MATI — tekan Start database" },
+        };
+        foreach (var l in (dbInfo + "\n" + AnkiLine()).Split('\n'))  // "Server: PostgreSQL 19.0" → two columns
+        {
+            var i = l.IndexOf(": "); if (i > 0) rows.Add(new[] { l.Substring(0, i), l.Substring(i + 2) });
+        }
+        keys.Text = string.Join("\n", rows.Select(r => r[0]));
+        vals.Text = string.Join("\n", rows.Select(r => r[1].Length > 44 ? r[1].Substring(0, 43) + "…" : r[1]));  // one line each, so the columns stay aligned
+        pill.Text = proc != null ? "● SYNC..." : !dbOk ? "● DB MATI" : failed ? "● GAGAL" : "● AKTIF";
+        pill.BackColor = proc != null ? Muted : failed || !dbOk ? Coral : Lime;
+        pill.Left = form.ClientSize.Width - 24 - pill.PreferredSize.Width;
         // hover text (max 63 chars): status, last update, next run
         var status = proc != null ? "sedang sync" : !dbOk ? "DB MATI" : failed ? "GAGAL" : "aktif";
         var lastShort = last == DateTime.MinValue ? "-" : last.Date == DateTime.Today ? last.ToString("HH:mm") : last.ToString("dd MMM HH:mm");
