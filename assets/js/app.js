@@ -92,6 +92,16 @@
     bar(t("bar.minna"), D.bab ?? 0, wk.bab, t("bar.minna.left", { n: babLeft, d: fmt(cek) })) +
     bar(t("bar.kaishi"), A.kaishiOpened ?? 0, wk.kaishi, pace(A.kaishiOpened ?? 0, end.kaishi, rate("kaishiNew"), "unit.word"));
 
+  // ---------- alerts: behind this week's target → what the remaining days must look like (red from 1.5x the normal daily pace) ----------
+  const daysLeft = Math.max(1, Array.from({ length: 7 }, (_, i) => addDays(wk.start, i)).filter(d => d >= today && !isRest(d)).length);
+  const prev = P.weeks[P.weeks.indexOf(wk) - 1] || wk;
+  const behind = (have, goal, norm, key) => {
+    const gap = goal - have, r = gap / daysLeft;
+    if (gap > 0 && r > norm) banner(t(key, { gap, goal, d: daysLeft, n: Math.ceil(r), norm: Math.round(norm) }), r >= norm * 1.5 ? "bad" : "");
+  };
+  behind(A.kaishiOpened ?? 0, wk.kaishi, P.daily.kaishiNew, "alert.kaishi");
+  behind(D.bab ?? 0, wk.bab, (wk.bab - prev.bab) / 6, "alert.minna");
+
   // ---------- toward N3: what the exam needs vs what is learned, and when the current pace gets there ----------
   const NEED = { vocab: 3700, kanji: 650 };
   const fmtY = s => new Date(s + "T00:00:00Z").toLocaleDateString(loc, { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
