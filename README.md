@@ -16,6 +16,7 @@ Public log of my Japanese study toward **JLPT N2 (December 2027)**, with N3 in J
 - **Flex:** generates a 1080×1920 story image of the day (14 templates incl. weekly recap, study log and badges), with a console-style gacha reveal, optional quote (190-quote bank, filterable by category)
 - **English tracker** (`english.html`): CEFR level per skill, practice log, recurring mistakes and new words for the IELTS plan. Written from my own reports to the AI tutor, so it is not live
 - **Backend:** a local PostgreSQL database is the single source of truth. See [docs/backend.md](docs/backend.md) for the full flow and the interview notes
+- **System design** page (`system.html`): interactive before/after diagram of the whole system, step-by-step flow, component inspector and a security section
 - **About me** and **Method** pages
 - **Installable** on a phone (PWA) and readable offline
 - Updates itself four times a day (00:00, 12:00, 18:00, 21:00); no backend
@@ -42,7 +43,7 @@ Study time = Anki + the study chat, both measured:
 
 ```
 .
-├── index.html, about.html, metode.html, english.html
+├── index.html, about.html, metode.html, english.html, system.html
 ├── manifest.webmanifest, sw.js      # PWA: install + offline fallback
 ├── assets/
 │   ├── css/styles.css
@@ -52,6 +53,7 @@ Study time = Anki + the study chat, both measured:
 │       ├── app.js                   # main dashboard
 │       ├── flex.js                  # story image generator
 │       ├── info.js                  # About + Method pages
+│       ├── system.js                # System design page
 │       ├── english.js               # English tracker page
 │       └── pwa.js                   # service worker registration
 ├── docs/

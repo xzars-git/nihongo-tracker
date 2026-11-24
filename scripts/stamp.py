@@ -7,7 +7,7 @@ Runs automatically from the pre-commit hook (.githooks/pre-commit).
 import hashlib, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PAGES = ("index.html", "about.html", "metode.html", "english.html")
+PAGES = ("index.html", "about.html", "metode.html", "english.html", "system.html")
 REF = re.compile(r'((?:src|href)=")(assets/[^"?]+)\?v=[0-9a-zA-Z]+(")')
 
 

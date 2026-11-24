@@ -8,7 +8,7 @@ every translation key exists in all three languages, and every key used in code/
 import glob, json, os, re, subprocess, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PAGES = ("index.html", "about.html", "metode.html", "english.html")
+PAGES = ("index.html", "about.html", "metode.html", "english.html", "system.html")
 TAGS = {"jp", "lang", "mind", "habit", "dev"}
 problems = []
 
