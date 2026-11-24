@@ -1,0 +1,214 @@
+// Shadowing page (shadow.html): YouTube player + synced script, line loop, speed, blur text, recording.
+// Scripts come from data/shadow/*.json, made on this PC by scripts/shadow.py (not published: gitignored).
+(() => {
+  const L = o => o[LANG] ?? o.id;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const store = {
+    get(k, d) { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  };
+
+  const UI = {
+    title: { id: "Shadowing", en: "Shadowing", ja: "シャドーイング" },
+    lead: {
+      id: "Dengarkan satu kalimat, lalu ucapkan bersamaan atau tepat setelahnya. Ulangi satu baris sampai lancar, lalu rekam suaramu dan bandingkan.",
+      en: "Listen to one sentence, then say it along with the voice or right after it. Loop one line until it is smooth, then record yourself and compare.",
+      ja: "一文を聞いて、同時かすぐ後に声に出します。一行をなめらかになるまで繰り返し、録音して聞き比べます。",
+    },
+    empty: {
+      id: "Naskah shadowing hanya tersimpan di komputer pemilik situs dan tidak dipublikasikan (hak cipta). Riwayat latihannya ada di bawah.",
+      en: "Shadowing scripts stay on the site owner's computer and are not published (copyright). The practice history is below.",
+      ja: "シャドーイングのスクリプトはサイト所有者のパソコンにだけ保存され、公開されません（著作権）。練習履歴は下にあります。",
+    },
+    autoCap: { id: "teks otomatis YouTube, mungkin ada salah", en: "YouTube auto captions, may contain mistakes", ja: "YouTube自動字幕（誤りあり）" },
+    whisperCap: { id: "dibuat Whisper, mungkin ada salah", en: "made by Whisper, may contain mistakes", ja: "Whisper生成（誤りあり）" },
+    loop: { id: "Ulang baris", en: "Loop line", ja: "行リピート" },
+    blur: { id: "Kaburkan teks", en: "Blur text", ja: "テキストをぼかす" },
+    hardOnly: { id: "Sulit saja", en: "Hard only", ja: "苦手のみ" },
+    prev: { id: "◀ Baris", en: "◀ Line", ja: "◀ 行" },
+    next: { id: "Baris ▶", en: "Line ▶", ja: "行 ▶" },
+    time: { id: "Waktu latihan", en: "Practice time", ja: "練習時間" },
+    keys: { id: "Tombol: Spasi putar/jeda · ←/→ baris · L ulang", en: "Keys: Space play/pause · ←/→ line · L loop", ja: "キー：Space 再生/停止 · ←/→ 行 · L リピート" },
+    hard: { id: "Tandai sulit", en: "Mark as hard", ja: "苦手にする" },
+    speed: { id: "Kecepatan", en: "Speed", ja: "速度" },
+    log: { id: "Catat latihan ke tracker", en: "Log this practice to the tracker", ja: "この練習をトラッカーに記録" },
+    copied: { id: "Disalin. Tempel di terminal.", en: "Copied. Paste it in a terminal.", ja: "コピーしました。ターミナルに貼り付けてください。" },
+    romaji: { id: "Romaji", en: "Romaji", ja: "ローマ字" },
+    romajiNote: { id: "Romaji dibuat otomatis, kata yang jarang bisa salah.", en: "Romaji is automatic; rare words can be wrong.", ja: "ローマ字は自動生成です。まれな語は誤りがあります。" },
+    auto: { id: "Otomatis", en: "Auto", ja: "自動" },
+    gap: { id: "Giliranmu", en: "Your turn", ja: "あなたの番" },
+    reps: { id: "Ulangi tiap baris", en: "Repeats per line", ja: "各行の繰り返し" },
+    done: { id: "Tandai selesai", en: "Mark as done", ja: "完了にする" },
+    all: { id: "Semua", en: "All", ja: "すべて" },
+    hist: { id: "Riwayat shadowing", en: "Shadowing history", ja: "シャドーイング履歴" },
+    histNone: { id: "Belum ada latihan shadowing yang dicatat.", en: "No shadowing practice logged yet.", ja: "シャドーイングの記録はまだありません。" },
+    histSum: { id: "{n} sesi · {m} menit tercatat", en: "{n} sessions · {m} minutes logged", ja: "{n}回 · 記録 {m}分" },
+    none: { id: "Belum ada video untuk bahasa ini.", en: "No videos for this language yet.", ja: "この言語の動画はまだありません。" },
+    lines: { id: "baris", en: "lines", ja: "行" },
+  };
+
+  const S = { idx: [], romaji: false, langF: "all", reps: 1, auto: false, gap: false, play: 0, wait: false, guard: 0, timer: 0, done: new Set(), vid: null, data: null, cur: 0, loop: false, blur: false, hardOnly: false, hard: new Set(), rate: 1, secs: 0, player: null, };
+
+  const fmt = n => `${Math.floor(n / 60)}:${String(Math.floor(n % 60)).padStart(2, "0")}`;
+
+  function shell() {
+    document.title = `${L(UI.title)} · Arsenius`;
+    $("#page").innerHTML = `
+      <h1>${esc(L(UI.title))}</h1>
+      <p class="sh-lead">${esc(L(UI.lead))}</p>
+      <div id="shPick" class="sh-pick"></div>
+      <div id="shBody" hidden>
+        <div class="sh-vid"><div id="shPlayer"></div></div>
+        <div class="sh-bar" id="shBar"></div>
+        <p class="mono sh-meta" id="shMeta"></p>
+        <button type="button" class="sh-logbtn mono" id="shLog"></button>
+        <ol class="sh-list" id="shList"></ol>
+        <p class="mono sh-keys">${esc(L(UI.keys))}</p>
+        <p class="mono sh-keys">${esc(L(UI.romajiNote))}</p>
+      </div>
+      <section class="sh-hist" id="shHist"></section>`;
+  }
+
+  function bar() {
+    const b = (id, label, on) => `<button type="button" id="${id}" ${on === undefined ? "" : `aria-pressed="${on}"`}>${esc(label)}</button>`;
+    $("#shBar").innerHTML =
+      b("shPrev", L(UI.prev)) + b("shNext", L(UI.next)) + b("shLoop", L(UI.loop), S.loop) + b("shAuto", L(UI.auto), S.auto) + b("shGap", L(UI.gap), S.gap) + (S.data?.lines.some(l => l.r) ? b("shRomaji", L(UI.romaji), S.romaji) : "") + b("shBlur", L(UI.blur), S.blur) +
+      b("shHardOnly", L(UI.hardOnly), S.hardOnly) +
+      `<span class="sh-rates" role="group" aria-label="${esc(L(UI.reps))}" title="${esc(L(UI.reps))}">${[1, 2, 3, 5].map(r => `<button type="button" data-reps="${r}" aria-pressed="${S.reps === r}">${r}×</button>`).join("")}</span>` +
+      `<span class="sh-rates" role="group" aria-label="${esc(L(UI.speed))}">${[0.5, 0.75, 1].map(r => `<button type="button" data-rate="${r}" aria-pressed="${S.rate === r}">${r}x</button>`).join("")}</span>`;
+    $("#shPrev").onclick = () => go(S.cur - 1);
+    $("#shNext").onclick = () => go(S.cur + 1);
+    $("#shLoop").onclick = () => { S.loop = !S.loop; if (S.loop) S.auto = false; pref(); bar(); };
+    $("#shAuto").onclick = () => { S.auto = !S.auto; S.play = 0; if (S.auto) { S.loop = false; go(S.cur, true); } else { clearTimeout(S.timer); S.wait = false; } pref(); bar(); };
+    $("#shGap").onclick = () => { S.gap = !S.gap; pref(); bar(); };
+    document.querySelectorAll("[data-reps]").forEach(x => x.onclick = () => { S.reps = +x.dataset.reps; S.play = 0; pref(); bar(); });
+    if ($("#shRomaji")) $("#shRomaji").onclick = () => { S.romaji = !S.romaji; pref(); $("#shList").classList.toggle("romaji", S.romaji); bar(); };
+    $("#shBlur").onclick = () => { S.blur = !S.blur; $("#shList").classList.toggle("blur", S.blur); bar(); };
+    $("#shHardOnly").onclick = () => { S.hardOnly = !S.hardOnly; list(); bar(); };
+    document.querySelectorAll("[data-rate]").forEach(x => x.onclick = () => { S.rate = +x.dataset.rate; store.set("shadow.rate", S.rate); S.player?.setPlaybackRate(S.rate); bar(); });
+  }
+
+  function list() {
+    const rows = S.data.lines.map((l, i) => ({ l, i })).filter(({ i }) => !S.hardOnly || S.hard.has(i));
+    $("#shList").classList.toggle("blur", S.blur); $("#shList").classList.toggle("romaji", S.romaji);
+    $("#shList").innerHTML = rows.map(({ l, i }) =>
+      `<li data-i="${i}" class="${i === S.cur ? "on" : ""}"><button type="button" class="sh-dn" data-d="${i}" aria-pressed="${S.done.has(i)}" title="${esc(L(UI.done))}" aria-label="${esc(L(UI.done))}"></button><button type="button" class="sh-ln"><span class="mono sh-ts">${fmt(l.s)}</span><span class="sh-tx"><span class="sh-t" lang="${S.data.lang || "ja"}">${esc(l.t)}</span>${l.r ? `<span class="sh-r">${esc(l.r)}</span>` : ""}</span></button>` +
+      `<button type="button" class="sh-hd" data-h="${i}" aria-pressed="${S.hard.has(i)}" title="${esc(L(UI.hard))}" aria-label="${esc(L(UI.hard))}">★</button></li>`).join("");
+    $("#shList").querySelectorAll(".sh-ln").forEach(b => b.onclick = () => go(+b.parentNode.dataset.i, true));
+    $("#shList").querySelectorAll(".sh-dn").forEach(b => b.onclick = () => { const i = +b.dataset.d; S.done.has(i) ? S.done.delete(i) : S.done.add(i); saveDone(); b.setAttribute("aria-pressed", S.done.has(i)); $("#shMeta").textContent = meta(); });
+    $("#shList").querySelectorAll(".sh-hd").forEach(b => b.onclick = () => {
+      const i = +b.dataset.h; S.hard.has(i) ? S.hard.delete(i) : S.hard.add(i);
+      store.set("shadow.hard." + S.vid, [...S.hard]); b.setAttribute("aria-pressed", S.hard.has(i));
+    });
+  }
+
+  function mark() {
+    document.querySelectorAll("#shList li").forEach(li => li.classList.toggle("on", +li.dataset.i === S.cur));
+    const on = $("#shList li.on"); if (on) { const r = on.getBoundingClientRect(); if (r.top < 0 || r.bottom > innerHeight) on.scrollIntoView({ block: "center", behavior: "smooth" }); }
+  }
+
+  function go(i, play) {
+    const n = S.data.lines.length;
+    S.cur = Math.max(0, Math.min(n - 1, i)); S.play = 0; clearTimeout(S.timer); S.wait = false; S.guard = Date.now() + 500;
+    S.player?.seekTo(S.data.lines[S.cur].s, true);
+    if (play) S.player?.playVideo();
+    mark();
+  }
+
+  const pref = () => store.set("shadow.pref", { reps: S.reps, auto: S.auto, gap: S.gap, romaji: S.romaji });
+  const saveDone = () => store.set("shadow.done." + S.vid, [...S.done]);
+  const seek = t => { S.guard = Date.now() + 500; S.player.seekTo(t, true); };
+
+  // Auto mode: play a line `reps` times (pausing for your turn when "gap" is on), mark it done, then go to the next line.
+  function endPlay() {
+    const p = S.player, ls = S.data.lines, l = ls[S.cur], again = ++S.play < S.reps;
+    const step = () => {
+      S.wait = false;
+      if (again) seek(l.s);
+      else {
+        S.play = 0; S.done.add(S.cur); saveDone();
+        document.querySelector(`.sh-dn[data-d="${S.cur}"]`)?.setAttribute("aria-pressed", "true");
+        if (S.cur + 1 >= ls.length) { p.pauseVideo(); return; }
+        S.cur++; mark(); seek(ls[S.cur].s);
+      }
+      p.playVideo();
+    };
+    if (S.gap) { p.pauseVideo(); S.wait = true; S.timer = setTimeout(step, (l.e - l.s) * 1000 / S.rate + 700); } else step();
+  }
+
+  function tick() {
+    const p = S.player; if (!p?.getCurrentTime) return;
+    if (S.wait) { S.secs += 0.1; return; }  // your turn to speak counts as practice
+    const t = p.getCurrentTime(), ls = S.data.lines, playing = p.getPlayerState() === 1;
+    const over = playing && Date.now() > S.guard && t >= ls[S.cur].e + 0.2;
+    if (playing) { S.secs += 0.1; $("#shMeta").textContent = meta(); logBtn(); }
+    if (S.loop) { if (over) seek(ls[S.cur].s); }
+    else if (S.auto) { if (over) endPlay(); }
+    else {
+      let k = S.cur; while (k + 1 < ls.length && ls[k + 1].s <= t) k++; while (k > 0 && ls[k].s > t) k--;
+      if (k !== S.cur && playing) { S.cur = k; mark(); }
+    }
+  }
+
+  const logMin = () => Math.max(1, Math.round(S.secs / 60));
+  const logCmd = () => `python -X utf8 -I tracker/scripts/catat.py shadow ${S.vid} ${logMin()}`;
+  const logBtn = () => { $("#shLog").textContent = `📋 ${L(UI.log)}: ${logMin()} min`; };
+
+  const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}`;
+
+  function loadYT() {
+    return new Promise(ok => {
+      if (window.YT?.Player) return ok();
+      window.onYouTubeIframeAPIReady = ok;
+      const s = document.createElement("script"); s.src = "https://www.youtube.com/iframe_api"; document.head.append(s);
+    });
+  }
+
+  async function open(id) {
+    S.vid = id; S.data = await (await fetch(`data/shadow/${id}.json`, { cache: "no-store" })).json();
+    S.hard = new Set(store.get("shadow.hard." + id, [])); S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.play = 0;
+    $("#shBody").hidden = false; bar(); list(); $("#shMeta").textContent = meta(); logBtn();
+    $("#shLog").onclick = () => navigator.clipboard?.writeText(logCmd()).then(() => { $("#shLog").textContent = "✔ " + L(UI.copied); setTimeout(logBtn, 2500); }, () => prompt(L(UI.log), logCmd()));
+    await loadYT();
+    if (S.player) { S.player.loadVideoById(id); return; }
+    S.player = new YT.Player("shPlayer", { videoId: id, playerVars: { playsinline: 1, rel: 0, hl: "ja" }, events: { onReady: () => S.player.setPlaybackRate(S.rate) } });
+  }
+
+  document.addEventListener("keydown", e => {
+    if (!S.data || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); go(S.cur - 1); }
+    else if (e.key === "ArrowRight") { e.preventDefault(); go(S.cur + 1); }
+    else if (e.key.toLowerCase() === "l") { S.loop = !S.loop; bar(); }
+    else if (e.key === " " && e.target.tagName !== "BUTTON") { e.preventDefault(); S.player?.getPlayerState() === 1 ? S.player.pauseVideo() : S.player?.playVideo(); }
+  });
+
+  function pick() {
+    const langs = [["all", L(UI.all)], ["ja", "日本語"], ["en", "English"]];
+    const vids = S.idx.filter(v => S.langF === "all" || (v.lang || "ja") === S.langF);
+    $("#shPick").innerHTML =
+      `<div class="sh-langs" role="group">${langs.map(([k, n]) => `<button type="button" data-pl="${k}" aria-pressed="${S.langF === k}">${esc(n)}</button>`).join("")}</div>` +
+      (vids.length ? vids.map(v => `<button type="button" data-id="${esc(v.id)}" aria-pressed="${v.id === S.vid}"><b>${esc(v.title)}</b><small class="mono">${(v.lang || "ja").toUpperCase()} · ${esc(v.author)} · ${v.n} ${esc(L(UI.lines))}${v.kind !== "manual" ? " · " + v.kind : ""}</small></button>`).join("") : `<p class="sh-empty">${esc(L(UI.none))}</p>`);
+    $("#shPick").querySelectorAll("[data-pl]").forEach(b => b.onclick = () => { S.langF = b.dataset.pl; store.set("shadow.lang", S.langF); pick(); });
+    $("#shPick").querySelectorAll("[data-id]").forEach(b => b.onclick = () => open(b.dataset.id).then(pick));
+    return vids;
+  }
+
+  async function history() {
+    let ss = [];
+    try { ss = (await (await fetch("data/data.json", { cache: "no-store" })).json()).sessions.filter(x => x.shadowing); } catch {}
+    const mins = ss.reduce((a, x) => a + (x.min || 0), 0);
+    $("#shHist").innerHTML = `<h2>${esc(L(UI.hist))}</h2>` + (ss.length
+      ? `<p class="mono sh-meta">${esc(L(UI.histSum).replace("{n}", ss.length).replace("{m}", mins))}</p><ul>${ss.slice(-10).reverse().map(x => `<li><span class="mono">${esc(x.date)}</span> · ${x.min ? x.min + " min" : "–"}${x.note && x.note !== "–" ? " · " + esc(x.note) : ""}</li>`).join("")}</ul>`
+      : `<p class="sh-empty">${esc(L(UI.histNone))}</p>`);
+  }
+
+  (async () => {
+    shell(); history(); S.rate = store.get("shadow.rate", 1); Object.assign(S, store.get("shadow.pref", {})); S.langF = store.get("shadow.lang", "all");
+    try { S.idx = await (await fetch("data/shadow/index.json", { cache: "no-store" })).json(); } catch { S.idx = []; }
+    if (!Array.isArray(S.idx) || !S.idx.length) { $("#shPick").innerHTML = `<p class="sh-empty">${esc(L(UI.empty))}</p>`; return; }
+    const first = pick()[0];
+    if (first) await open(first.id).then(pick);
+    setInterval(tick, 100);
+  })();
+})();
