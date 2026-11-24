@@ -33,8 +33,8 @@
     time: { id: "Waktu latihan", en: "Practice time", ja: "練習時間" },
     keys: { id: "Tombol: Spasi putar/jeda · ←/→ baris · L ulang", en: "Keys: Space play/pause · ←/→ line · L loop", ja: "キー：Space 再生/停止 · ←/→ 行 · L リピート" },
     speed: { id: "Kecepatan", en: "Speed", ja: "速度" },
-    log: { id: "Catat latihan ke tracker", en: "Log this practice to the tracker", ja: "この練習をトラッカーに記録" },
-    copied: { id: "Disalin. Tempel di terminal.", en: "Copied. Paste it in a terminal.", ja: "コピーしました。ターミナルに貼り付けてください。" },
+    log: { id: "Salin progres untuk Nihongo Sync", en: "Copy progress for Nihongo Sync", ja: "Nihongo Sync用に進捗をコピー" },
+    copied: { id: "Disalin. Di Nihongo Sync tekan Tempel shadowing.", en: "Copied. In Nihongo Sync, press Tempel shadowing.", ja: "コピーしました。Nihongo Syncで「Tempel shadowing」を押してください。" },
     meaning: { id: "Arti", en: "Meaning", ja: "意味" },
     romaji: { id: "Romaji", en: "Romaji", ja: "ローマ字" },
     romajiNote: { id: "Romaji dibuat otomatis, kata yang jarang bisa salah.", en: "Romaji is automatic; rare words can be wrong.", ja: "ローマ字は自動生成です。まれな語は誤りがあります。" },
@@ -105,6 +105,7 @@
   }
 
   function mark() {
+    logBtn();
     document.querySelectorAll("#shList li").forEach(li => li.classList.toggle("on", +li.dataset.i === S.cur));
     const on = $("#shList li.on"); if (on) { const r = on.getBoundingClientRect(); if (r.top < 0 || r.bottom > innerHeight) on.scrollIntoView({ block: "center", behavior: "smooth" }); }
   }
@@ -162,8 +163,9 @@
   }
 
   const logMin = () => Math.max(1, Math.round(S.secs / 60));
-  const logCmd = () => `python -X utf8 -I tracker/scripts/catat.py shadow ${S.vid} ${logMin()}`;
-  const logBtn = () => { $("#shLog").textContent = `📋 ${L(UI.log)}: ${logMin()} min`; };
+  // one line for the tray app (Nihongo Sync → "Tempel shadowing"): video, active minutes, line reached / total
+  const logCmd = () => `nihongo-shadow ${S.vid} ${logMin()} ${S.cur + 1}/${S.data.lines.length}`;
+  const logBtn = () => { $("#shLog").textContent = `📋 ${L(UI.log)}: ${logMin()} min · ${S.cur + 1}/${S.data.lines.length}`; };
 
   const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}${S.afk >= 1 ? ` · AFK ${fmt(S.afk)}` : ""}`;
 

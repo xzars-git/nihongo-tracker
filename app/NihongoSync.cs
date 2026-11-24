@@ -72,6 +72,7 @@ class SyncApp
         AddButton("Buka Shadowing", 150, delegate { OpenShadowing(); }, 340);
         AddButton("Tambah video", 280, delegate { AddVideo(); }, 340);
         AddButton("Salin kunci web", 20, delegate { CopyKey(); }, 385);
+        AddButton("Tempel shadowing", 150, delegate { PasteShadow(); }, 385);
         form.FormClosing += (s, e) => { if (!quitting) { e.Cancel = true; form.Hide(); } };  // X = hide to tray
         var handle = form.Handle;  // create the handle now so BeginInvoke works before the window is first shown
 
@@ -83,6 +84,7 @@ class SyncApp
         menu.Items.Add("Buka Shadowing", null, delegate { OpenShadowing(); });
         menu.Items.Add("Tambah video Shadowing...", null, delegate { AddVideo(); });
         menu.Items.Add("Salin kunci Shadowing (web)", null, delegate { CopyKey(); });
+        menu.Items.Add("Tempel progres shadowing", null, delegate { PasteShadow(); });
         menu.Items.Add("Tes pengingat", null, delegate { Remind(); });
         menu.Items.Add(new ToolStripSeparator());
         menu.Items.Add("Quit", null, delegate { quitting = true; StopServer(); tray.Visible = false; form.Close(); Application.Exit(); });
@@ -186,6 +188,40 @@ class SyncApp
         if (!File.Exists(key)) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Kunci belum dibuat. Tambah satu video dulu.", ToolTipIcon.Info); return; }
         try { Clipboard.SetText(File.ReadAllText(key).Trim()); tray.ShowBalloonTip(6000, "Nihongo Sync", "Kunci disalin. Tempel di halaman Shadowing di web (sekali per perangkat).", ToolTipIcon.Info); }
         catch (Exception e) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Tidak bisa menyalin: " + e.Message, ToolTipIcon.Warning); }
+    }
+
+    // "nihongo-shadow <id> <menit> <baris>/<total>", copied on the Shadowing page (web or local). Only the matched parts reach the command line.
+    static readonly Regex ShadowLogRe = new Regex(@"^nihongo-shadow ([\w-]{11}) ([1-9]\d{0,2}) (\d{1,4}/\d{1,4})$");
+
+    void PasteShadow()
+    {
+        if (!dbOk) { tray.ShowBalloonTip(5000, "Nihongo Sync", "Database mati. Tekan Start database dulu.", ToolTipIcon.Warning); return; }
+        string text = "";
+        try { text = Clipboard.GetText().Trim(); } catch { }
+        var m = ShadowLogRe.Match(text);
+        if (!m.Success) { tray.ShowBalloonTip(6000, "Nihongo Sync", "Belum ada progres shadowing di clipboard. Di halaman Shadowing tekan \"Salin progres untuk Nihongo Sync\" dulu.", ToolTipIcon.Info); return; }
+        string id = m.Groups[1].Value, min = m.Groups[2].Value, lines = m.Groups[3].Value;
+        if (MessageBox.Show("Catat shadowing hari ini?\n\nVideo: " + id + "\nWaktu aktif: " + min + " menit\nSampai baris: " + lines, "Nihongo Sync",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes) return;
+        var psi = new ProcessStartInfo(Config.Python, "-X utf8 -I \"" + Path.Combine(Config.Root, "scripts", "catat.py") + "\" shadow " + id + " " + min + " " + lines)
+        {
+            UseShellExecute = false, CreateNoWindow = true, WorkingDirectory = Config.Root,
+            RedirectStandardOutput = true, RedirectStandardError = true, StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,
+        };
+        string output; int code;
+        try
+        {
+            using (var p = Process.Start(psi))
+            {
+                var err = p.StandardError.ReadToEndAsync();
+                output = (p.StandardOutput.ReadToEnd() + err.Result).Trim();
+                p.WaitForExit(); code = p.ExitCode;
+            }
+        }
+        catch (Exception e) { output = e.Message; code = 1; }
+        var first = output.Split('\n').Select(l => l.Trim()).FirstOrDefault(l => l.Length > 0) ?? "";
+        tray.ShowBalloonTip(7000, "Nihongo Sync", code == 0 ? first + "\nMuncul di web setelah sync berikutnya." : "Gagal mencatat: " + first,
+            code == 0 ? ToolTipIcon.Info : ToolTipIcon.Warning);
     }
 
     void StopServer()

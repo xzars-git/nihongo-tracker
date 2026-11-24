@@ -8,7 +8,7 @@
   python -I tracker/scripts/catat.py review "<item>" benar|salah                    (1 → 3 → 7 → 14 → dikuasai)
   python -I tracker/scripts/catat.py bab <N>
   python -I tracker/scripts/catat.py kerja "<kata kerja baru>, <lagi>"              (tambah ke daftar kata kerja yang sudah dipelajari)
-  python -I tracker/scripts/catat.py shadow <video-id> <menit>                       (latihan shadowing dari halaman Shadowing; video harus sudah ada di database)
+  python -I tracker/scripts/catat.py shadow <video-id> <menit> [baris/total]        (latihan shadowing dari halaman Shadowing; video harus sudah ada di database)
   python -I tracker/scripts/catat.py status                                 (ringkasan: bab, review jatuh tempo, sesi terakhir; dibaca tutor di awal sesi)
   python -I tracker/scripts/catat.py kirim                                  (update web sekarang; tanpa ini sync 00:00, 12:00, 18:00, 21:00)
 
@@ -18,7 +18,7 @@ English tracker (tanggal otomatis):
   python -I tracker/scripts/catat.py en salah   "<jenis>" "<salah>" "<benar>"            jenis: article|preposition|tense|spelling|word|agreement|run-on
   python -I tracker/scripts/catat.py en kata    "<kata>" "<arti>" "<contoh>"
 """
-import datetime as dt, os, subprocess, sys
+import datetime as dt, os, re, subprocess, sys
 
 sys.stdout.reconfigure(encoding="utf-8")
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -87,11 +87,12 @@ def main(a):
         elif cmd == "kerja" and len(a) == 2:
             c.execute("insert into meta values ('verbs', %s) on conflict (key) do update set value = meta.value || ', ' || excluded.value", (cell(a[1]),))
             print(f"kata kerja ditambah: {a[1]}")
-        elif cmd == "shadow" and len(a) == 3 and a[2].isdigit() and int(a[2]) > 0:
+        elif cmd == "shadow" and len(a) in (3, 4) and a[2].isdigit() and int(a[2]) > 0 and (len(a) == 3 or re.fullmatch(r"\d+/\d+", a[3])):
             row = c.execute("select title from shadow_videos where id = %s", (a[1],)).fetchone()
             if not row: sys.exit(f"video '{a[1]}' belum ada di database. Jalankan dulu: python -X utf8 -I tracker/scripts/shadow.py <link>")
-            c.execute("insert into sessions (day, mode, score, note) values (%s,'shadowing',%s,%s)", (TODAY, f"– · {a[2]} mnt", cell(row[0])))
-            print(f"shadowing dicatat: {a[2]} menit · {row[0]}")
+            note = row[0] + (f" · baris {a[3]}" if len(a) == 4 else "")  # how far you got, e.g. 26/101
+            c.execute("insert into sessions (day, mode, score, note) values (%s,'shadowing',%s,%s)", (TODAY, f"– · {a[2]} mnt", cell(note)))
+            print(f"shadowing dicatat: {a[2]} menit · {note}")
         elif cmd == "status" and len(a) == 1:
             status(c)
         else:
