@@ -4,3 +4,9 @@ __pycache__/
 
 promo/
 data/shadow/
+# Talk: only the code is in git; voice engines, downloads and personal reports/duets stay on the PC
+talk/aivis/
+talk/voicevox/
+talk/_download/
+talk/reports/
+talk/duets/

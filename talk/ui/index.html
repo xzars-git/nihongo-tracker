@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Talk · Latihan percakapan</title>
+<link rel="stylesheet" href="talk.css">
+</head>
+<body>
+<main class="talk">
+  <header>
+    <h1>Talk</h1>
+    <p class="sub">Latihan percakapan bahasa Jepang. Semua berjalan di PC-mu, suaramu tidak keluar.</p>
+    <div class="chips" id="chips"></div>
+    <nav class="tabs" role="tablist">
+      <button type="button" role="tab" id="tabTalk" aria-selected="true">Percakapan</button>
+      <button type="button" role="tab" id="tabDuet" aria-selected="false">Duet (shadowing dialog)</button>
+    </nav>
+  </header>
+
+  <section id="duet" hidden>
+    <div id="dSetup" class="card">
+      <label for="dScene">Adegan</label>
+      <select id="dScene"></select>
+      <label for="dRole">Peranmu</label>
+      <select id="dRole">
+        <option value="B">B: Yuki mulai, aku menjawab</option>
+        <option value="A">A: aku yang mulai (Yuki menjawab)</option>
+      </select>
+      <label for="dLevel">Bantuan teks untuk baris-mu</label>
+      <select id="dLevel">
+        <option value="full">Teks penuh (kanji + furigana + romaji)</option>
+        <option value="hint">Petunjuk (huruf pertama tiap kata)</option>
+        <option value="none">Tanpa teks (hafalan, hanya arti)</option>
+      </select>
+      <div class="row">
+        <button id="dNew" class="primary" type="button">Buat dialog baru</button>
+      </div>
+      <div class="row" id="dSavedRow" hidden>
+        <select id="dSaved" aria-label="Dialog tersimpan"></select>
+        <button id="dUse" type="button">Pakai dialog tersimpan</button>
+      </div>
+      <p id="dProblem" class="problem" role="alert"></p>
+    </div>
+
+    <div id="dPlay" hidden>
+      <div class="bar">
+        <b id="dTitle"></b>
+        <label class="tgl"><input type="checkbox" id="dFuri" checked> Furigana</label>
+        <label class="tgl"><input type="checkbox" id="dRom" checked> Romaji</label>
+        <button id="dStop" type="button">Berhenti</button>
+      </div>
+      <div id="dLines" class="chat" aria-live="polite"></div>
+      <div id="dEnd" class="card" hidden></div>
+      <div class="ptt">
+        <div id="dMine" class="row center" hidden>
+          <button id="dListen" type="button" title="Dengar contoh">🔊 Dengar</button>
+          <button id="dMic" class="primary big" type="button">Klik untuk bicara</button>
+          <button id="dNext" type="button">Lewati →</button>
+        </div>
+        <p class="hint mono" id="dHint"></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="setup" class="card">
+    <label for="scenario">Skenario</label>
+    <select id="scenario"></select>
+    <button id="start" class="primary" type="button">Mulai percakapan</button>
+    <p id="problem" class="problem" role="alert"></p>
+  </section>
+
+  <section id="session" hidden>
+    <div class="bar">
+      <span class="mono" id="timer">0:00</span>
+      <label class="tgl"><input type="checkbox" id="showMeaning" checked> Arti</label>
+      <label class="tgl"><input type="checkbox" id="showFuri" checked> Furigana</label>
+      <label class="tgl"><input type="checkbox" id="showRom" checked> Romaji</label>
+      <label class="tgl" title="Contoh jawaban di bawah pesan tutor"><input type="checkbox" id="showHint" checked> Contoh jawaban</label>
+      <label class="tgl"><input type="checkbox" id="speak" checked> Suara</label>      <button id="finish" type="button">Selesai &amp; buat report</button>
+    </div>
+    <div id="chat" class="chat" aria-live="polite"></div>
+    <div class="ptt">
+      <fieldset class="langs">
+        <legend>Aku jawab pakai</legend>
+        <label><input type="radio" name="lang" value="ja" checked> 日本語</label>
+        <label><input type="radio" name="lang" value="id"> Indonesia</label>
+        <label><input type="radio" name="lang" value="en"> English</label>
+      </fieldset>
+      <button id="talk" class="primary big" type="button">Klik untuk bicara</button>
+      <p class="hint mono" id="hint">Klik tombol (atau Spasi) untuk mulai bicara, klik lagi untuk kirim. Klik saat tutor bicara untuk menyela.</p>
+    </div>
+  </section>
+
+  <section id="report" class="card" hidden></section>
+<p class="hint mono" style="margin-top:24px">Suara dibuat lokal. Kalau audionya dipublikasikan, cantumkan kredit sesuai lisensi suara yang dipakai (VOICEVOX: 春日部つむぎ; AivisSpeech: lihat lisensi modelnya).</p>
+</main>
+<script src="talk.js"></script>
+<script src="duet.js"></script>
+</body>
+</html>
