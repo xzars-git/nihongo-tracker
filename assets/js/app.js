@@ -279,6 +279,9 @@
     $("#sumStreak").textContent = run(studied, d);
     $("#sumWeek").textContent = (w.some(est) ? "±" : "") + hm(w.reduce((n, x) => n + mins(x), 0));
     $("#sumWeekSub").textContent = t("sum.week.sub", { d: w.filter(studied).length, n: w.length });
+    const upTo = allDays.filter(x => x <= d);
+    $("#sumTotal").textContent = (upTo.some(est) ? "±" : "") + hm(upTo.reduce((n, x) => n + mins(x), 0));
+    $("#sumTotalSub").textContent = t("sum.total.sub", { d: fmt(first), n: upTo.filter(studied).length });
     $("#alerts").innerHTML = d === today ? alerts.join("") : "";
     document.body.classList.toggle("danger", d === today && danger);
     // appreciation: partial days still count, say so

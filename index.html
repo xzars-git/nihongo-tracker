@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Barlow+Condensed:wght@800&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/styles.css?v=09f89c24">
+<link rel="stylesheet" href="assets/css/styles.css?v=d84e2744">
 </head>
 <body>
 <header class="top">
@@ -46,6 +46,7 @@
     <div class="tile"><span class="lb" data-i="sum.missions"></span><b id="sumMissions"></b><small id="sumMissionsSub"></small></div>
     <div class="tile"><span class="lb" data-i="sum.streak"></span><b id="sumStreak"></b><small data-i="streak.days"></small></div>
     <div class="tile"><span class="lb" data-i="sum.week"></span><b id="sumWeek"></b><small id="sumWeekSub"></small></div>
+    <div class="tile"><span class="lb" data-i="sum.total"></span><b id="sumTotal"></b><small id="sumTotalSub"></small></div>
   </div>
   <div id="alerts"></div>
   <p class="praise mono" id="praise"></p>
@@ -91,15 +92,9 @@
 </main>
 <footer class="mono muted small"><span data-i="footer"></span> <a href="metode.html" data-i="nav.method"></a>.</footer>
 <p class="tip mono small" id="tip" hidden></p>
-<script src="assets/js/i18n.js?v=bf45375c"></script>
-<script src="assets/js/flex.js?v=edc1879b"></script>
-<script src="assets/js/app.js?v=9c7cb409"></script>
-<script>
-  const dlg = document.getElementById("flexDlg");
-  document.getElementById("flexOpen").onclick = () => dlg.showModal();
-  document.getElementById("flexClose").onclick = () => dlg.close();
-  dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });  // tap backdrop to close
-</script>
+<script src="assets/js/i18n.js?v=21baa262"></script>
+<script src="assets/js/flex.js?v=6287a2b8"></script>
+<script src="assets/js/app.js?v=0453181f"></script>
 <script src="assets/js/pwa.js?v=f07ddea9"></script>
 </body>
 </html>

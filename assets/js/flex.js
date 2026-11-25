@@ -261,6 +261,14 @@
   }
   const store = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
 
+  // the Flex dialog (was an inline script; inline scripts are blocked by the site's CSP)
+  const dlg = document.getElementById("flexDlg");
+  if (dlg) {
+    document.getElementById("flexOpen").onclick = () => dlg.showModal();
+    document.getElementById("flexClose").onclick = () => dlg.close();
+    dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });  // tap backdrop to close
+  }
+
   window.initFlex = async s => {
     const cv = document.getElementById("flexCanvas"), c = cv.getContext("2d");
     const $ = id => document.getElementById(id), share = $("flexShare"), save = $("flexSave");

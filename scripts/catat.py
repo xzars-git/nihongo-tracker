@@ -8,7 +8,7 @@
   python -I tracker/scripts/catat.py review "<item>" benar|salah                    (1 → 3 → 7 → 14 → dikuasai)
   python -I tracker/scripts/catat.py bab <N>
   python -I tracker/scripts/catat.py kerja "<kata kerja baru>, <lagi>"              (tambah ke daftar kata kerja yang sudah dipelajari)
-  python -I tracker/scripts/catat.py shadow <video-id> <menit> [baris/total [putaran [0.75x18,1x40]]]   (latihan shadowing dari halaman Shadowing; video harus sudah ada di database)
+  python -I tracker/scripts/catat.py shadow <video-id> <menit> [baris/total [putaran [0.75x18,1x40 [0.75x=1-12.18/1x=1-40]]]]   (latihan shadowing dari halaman Shadowing; video harus sudah ada di database)
   python -I tracker/scripts/catat.py status                                 (ringkasan: bab, review jatuh tempo, sesi terakhir; dibaca tutor di awal sesi)
   python -I tracker/scripts/catat.py kirim                                  (update web sekarang; tanpa ini sync 00:00, 12:00, 18:00, 21:00)
 
@@ -28,6 +28,7 @@ import db
 EN = {"level": ("en_levels", ("skill", "level", "source")), "latihan": ("en_practice", ("skill", "task", "band", "note")),
       "salah": ("en_mistakes", ("cat", "wrong", "correct")), "kata": ("en_words", ("word", "meaning", "example"))}
 STEPS = [1, 3, 7, 14]
+PERLINE = r"\d(\.\d+)?x=\d{1,4}(-\d{1,4})?(\.\d{1,4}(-\d{1,4})?)*"  # one speed and its lines, e.g. 0.75x=1-12.18
 TODAY = (dt.datetime.now() - dt.timedelta(hours=4)).date()  # same 4am day boundary as Anki
 
 
@@ -87,13 +88,16 @@ def main(a):
         elif cmd == "kerja" and len(a) == 2:
             c.execute("insert into meta values ('verbs', %s) on conflict (key) do update set value = meta.value || ', ' || excluded.value", (cell(a[1]),))
             print(f"kata kerja ditambah: {a[1]}")
-        elif (cmd == "shadow" and 3 <= len(a) <= 6 and a[2].isdigit() and int(a[2]) > 0 and (len(a) < 4 or re.fullmatch(r"\d+/\d+", a[3]))
-              and (len(a) < 5 or a[4].isdigit()) and (len(a) < 6 or re.fullmatch(r"-|\d(\.\d+)?x\d+(,\d(\.\d+)?x\d+)*", a[5]))):
+        elif (cmd == "shadow" and 3 <= len(a) <= 7 and a[2].isdigit() and int(a[2]) > 0 and (len(a) < 4 or re.fullmatch(r"\d+/\d+", a[3]))
+              and (len(a) < 5 or a[4].isdigit()) and (len(a) < 6 or re.fullmatch(r"-|\d(\.\d+)?x\d+(,\d(\.\d+)?x\d+)*", a[5]))
+              and (len(a) < 7 or re.fullmatch(rf"-|{PERLINE}(/{PERLINE})*", a[6]))):
             row = c.execute("select title from shadow_videos where id = %s", (a[1],)).fetchone()
             if not row: sys.exit(f"video '{a[1]}' belum ada di database. Jalankan dulu: python -X utf8 -I tracker/scripts/shadow.py <link>")
             note = row[0] + (f" · baris {a[3]}" if len(a) >= 4 else "")  # how far you got, e.g. 26/101
             if len(a) >= 5 and int(a[4]): note += f" · {a[4]}x diputar"  # plays: a line heard to its end
-            if len(a) == 6 and a[5] != "-": note += " (" + ", ".join(r.replace("x", "x: ", 1) for r in a[5].split(",")) + ")"  # 0.75x18 → 0.75x: 18
+            if len(a) >= 6 and a[5] != "-": note += " (" + ", ".join(r.replace("x", "x: ", 1) for r in a[5].split(",")) + ")"  # 0.75x18 → 0.75x: 18
+            if len(a) == 7 and a[6] != "-":  # 0.75x=1-12.18/1x=1-40 → baris per kecepatan: 0.75x 1-12, 18; 1x 1-40
+                note += " · baris per kecepatan: " + "; ".join(sp + " " + ns.replace(".", ", ") for sp, ns in (r.split("=") for r in a[6].split("/")))
             c.execute("insert into sessions (day, mode, score, note) values (%s,'shadowing',%s,%s)", (TODAY, f"– · {a[2]} mnt", cell(note)))
             print(f"shadowing dicatat: {a[2]} menit · {note}")
         elif cmd == "status" and len(a) == 1:

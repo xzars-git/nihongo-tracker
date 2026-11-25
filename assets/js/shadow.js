@@ -112,7 +112,9 @@
   }
 
   const pref = () => store.set("shadow.pref", { reps: S.reps, auto: S.auto, gap: S.gap, romaji: S.romaji, meaning: S.meaning });
-  const saveDone = () => store.set("shadow.done." + S.vid, [...S.done]);
+  // ✔ marks belong to today only: they reset at midnight (local time)
+  const saveDone = () => store.set("shadow.done." + S.vid, { day: today(), list: [...S.done] });
+  const loadDone = id => { const d = store.get("shadow.done." + id, {}); return new Set(d.day === today() ? d.list : []); };
   const seek = t => { S.guard = Date.now() + 500; S.endSeen = false; S.player.seekTo(t, true); };
 
   // Auto mode: play a line `reps` times (pausing for your turn when "gap" is on), mark it done, then go to the next line.
@@ -143,13 +145,15 @@
 
   function tick() {
     const p = S.player; if (!p?.getCurrentTime) return;
-    if (S.wait) { add(0.1); return; }  // your turn to speak counts as practice
+    if (S.wait) { add(0.1); if (++S.n % 50 === 0) saveSess(); return; }  // your turn to speak counts as practice
     const t = p.getCurrentTime(), ls = S.data.lines, playing = p.getPlayerState() === 1;
     const over = playing && Date.now() > S.guard && t >= ls[S.cur].e + 0.2;
     // one play = the line was heard to its end (click again, Loop, Auto repeats all count); a line stopped halfway does not
     if (playing && !S.endSeen && Date.now() > S.guard && t >= ls[S.cur].e - 0.1 && t < ls[S.cur].e + 1.5) {
       S.endSeen = true; S.plays++; S.rates[S.rate] = (S.rates[S.rate] || 0) + 1;
+      const lr = S.lr[S.rate] ||= {}; lr[S.cur] = (lr[S.cur] || 0) + 1;  // which line, at which speed, how many times
     }
+    if (playing || S.wait) { if (++S.n % 50 === 0) saveSess(); }
     if (playing) { add(0.1); $("#shMeta").textContent = meta(); logBtn(); }
     if (S.loop) { if (over) seek(ls[S.cur].s); }
     else if (S.auto) { if (over) endPlay(); }
@@ -162,11 +166,21 @@
   const logMin = () => Math.max(1, Math.round(S.secs / 60));
   // speeds used, slowest first: "0.75x18,1x40" ("-" before the first play)
   const rates = () => Object.keys(S.rates).sort((a, b) => a - b).map(r => `${r}x${S.rates[r]}`).join(",") || "-";
-  // one line for the tray app (Nihongo Sync → "Tempel progres"): video, active minutes, line reached / total, plays, speeds
-  const logCmd = () => `nihongo-shadow ${S.vid} ${logMin()} ${S.cur + 1}/${S.data.lines.length} ${S.plays} ${rates()}`;
+  // lines heard at each speed, 1-based ranges: "0.75x=1-12.18/1x=1-40" ("-" before the first play)
+  const span = ns => ns.reduce((a, n) => { const r = a.at(-1); r && r[1] === n - 1 ? r[1] = n : a.push([n, n]); return a; }, []).map(([a, b]) => a === b ? a : `${a}-${b}`).join(".");
+  const perLine = () => Object.keys(S.lr).sort((a, b) => a - b).map(r => `${r}x=${span(Object.keys(S.lr[r]).map(i => +i + 1).sort((a, b) => a - b))}`).join("/") || "-";
+  // one line for the tray app (Nihongo Sync → "Tempel progres"): video, active minutes, line reached / total, plays, speeds, lines per speed
+  const logCmd = () => `nihongo-shadow ${S.vid} ${logMin()} ${S.cur + 1}/${S.data.lines.length} ${S.plays} ${rates()} ${perLine()}`;
+  // today's session per video survives a reload or closing the tab (it used to restart at 0:00)
+  const today = () => new Date().toLocaleDateString("sv");
+  const saveSess = () => S.vid && store.set("shadow.sess." + S.vid, { day: today(), secs: S.secs, afk: S.afk, plays: S.plays, rates: S.rates, lr: S.lr, cur: S.cur });
+  addEventListener("pagehide", () => saveSess());
+  document.addEventListener("visibilitychange", () => document.hidden && saveSess());
   const logBtn = () => { $("#shLog").textContent = `📋 ${L(UI.log)}: ${logMin()} min · ${S.cur + 1}/${S.data.lines.length} · ${S.plays}×`; };
 
-  const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}${S.afk >= 1 ? ` · AFK ${fmt(S.afk)}` : ""}${S.plays ? ` · ${S.plays}× (${rates().replace(/x(\d+)/g, "x $1").replace(/,/g, " · ")})` : ""}`;
+  // this line's plays by speed, e.g. "line 18: 0.75x 2 · 1x 1"
+  const here = () => { const r = Object.keys(S.lr).filter(k => S.lr[k][S.cur]).sort((a, b) => a - b); return r.length ? ` · L${S.cur + 1}: ${r.map(k => `${k}x ${S.lr[k][S.cur]}`).join(" · ")}` : ""; };
+  const meta = () => `${S.data.title} · ${S.done.size}/${S.data.lines.length} ✔${S.data.kind === "auto" ? " · ⚠ " + L(UI.autoCap) : S.data.kind === "whisper" ? " · ⚠ " + L(UI.whisperCap) : ""} · ${L(UI.time)} ${fmt(S.secs)}${S.afk >= 1 ? ` · AFK ${fmt(S.afk)}` : ""}${S.plays ? ` · ${S.plays}× (${rates().replace(/x(\d+)/g, "x $1").replace(/,/g, " · ")})` : ""}${here()}`;
 
   function loadYT() {
     return new Promise(ok => {
@@ -207,13 +221,18 @@
   }
 
   async function open(id) {
+    saveSess();  // the video we are leaving
     S.vid = id; S.data = await load(id);
-    S.done = new Set(store.get("shadow.done." + id, [])); S.cur = 0; S.secs = 0; S.afk = 0; S.lineSecs = 0; S.lineAt = 0; S.play = 0; S.plays = 0; S.rates = {}; S.endSeen = false;
+    const old = store.get("shadow.sess." + id, {}), keep = old.day === today() ? old : {};
+    S.done = loadDone(id); S.cur = Math.min(keep.cur || 0, S.data.lines.length - 1); S.secs = keep.secs || 0; S.afk = keep.afk || 0;
+    S.lineSecs = 0; S.lineAt = S.cur; S.play = 0; S.plays = keep.plays || 0; S.rates = keep.rates || {}; S.lr = keep.lr || {}; S.endSeen = false; S.n = 0; S.day = today();
     $("#shBody").hidden = false; bar(); list(); $("#shMeta").textContent = meta(); logBtn();
     $("#shLog").onclick = () => navigator.clipboard?.writeText(logCmd()).then(() => { $("#shLog").textContent = "✔ " + L(UI.copied); setTimeout(logBtn, 2500); }, () => prompt(L(UI.log), logCmd()));
     await loadYT();
-    if (S.player) { S.player.loadVideoById(id); return; }
-    S.player = new YT.Player("shPlayer", { videoId: id, playerVars: { playsinline: 1, rel: 0, hl: "ja" }, events: { onReady: () => S.player.setPlaybackRate(S.rate) } });
+    const start = Math.floor(S.data.lines[S.cur].s);  // back where you stopped today
+    if (S.player) { S.player.cueVideoById({ videoId: id, startSeconds: start }); mark(); return; }
+    S.player = new YT.Player("shPlayer", { videoId: id, playerVars: { playsinline: 1, rel: 0, hl: "ja", start }, events: { onReady: () => S.player.setPlaybackRate(S.rate) } });
+    mark();
   }
 
   document.addEventListener("keydown", e => {
@@ -244,5 +263,11 @@
     const first = pick()[0];
     if (first) await open(first.id).then(pick);
     setInterval(tick, 100);
+    // page left open past midnight: start the new day clean (✔ marks, time, plays)
+    setInterval(() => {
+      if (!S.data || S.day === today()) return;
+      S.day = today(); S.done = new Set(); S.secs = S.afk = S.plays = 0; S.rates = {}; S.lr = {};
+      saveDone(); saveSess(); list(); $("#shMeta").textContent = meta(); logBtn();
+    }, 60000);
   })();
 })();
