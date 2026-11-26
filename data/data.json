@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-26T00:00",
+ "generated": "2026-11-26T12:00",
  "bab": 16,
  "sessions": [
   {
@@ -1471,10 +1471,22 @@
     "minnaRev": 160,
     "kanjiNew": 31,
     "dueLeft": 0
+   },
+   "2026-11-26": {
+    "reviews": 0,
+    "again": 0,
+    "hard": 0,
+    "kaishiNew": 0,
+    "rtkNew": 0,
+    "new": 0,
+    "ankiMin": 0,
+    "minnaRev": 0,
+    "kanjiNew": 0,
+    "dueLeft": 136
    }
   },
-  "today": "2026-11-25",
-  "dueNow": 0,
+  "today": "2026-11-26",
+  "dueNow": 136,
   "kaishiOpened": 228,
   "kaishiMature": 35,
   "kanjiKnown": 0,
